@@ -47,9 +47,9 @@ a kind is a contract change, reviewed against `principles.md`.
   Markup depth is its own axis: a markup node's `depth` counts markup ancestors,
   and only markup counts toward the markup law. Code scopes inside markup stay
   on the block law's axis and continue the outer scope count.
-- `style` — styling syntax: a `style=` attribute name, a `<style>` element tag,
-  the module string of a `.scss`/`.css` import, or a whole stylesheet file. The
-  grant law confines it to declared territory, exactly as with `test`.
+- `style` — styling syntax: a `style=`, `class=`, or `className=` attribute
+  name, a `<style>` element tag, the module string of a `.scss`/`.css` import,
+  or a whole stylesheet file. Grant and ban laws assign its territory.
 - `environment` — a direct process-environment access. The grant law denies it
   outside explicitly declared territory.
 

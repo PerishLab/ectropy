@@ -85,7 +85,7 @@ pub fn parse(source: &Source) -> Cst {
         claim::web(&mut root, source, rules::tsx());
         return root;
     }
-    if source.path.ends_with(".scss") {
+    if source.path.ends_with(".scss") || source.path.ends_with(".css") {
         return rules::swatch(source.text.len());
     }
     Cst {

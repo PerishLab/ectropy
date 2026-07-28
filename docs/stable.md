@@ -7,7 +7,7 @@ here is not promised.
 
 ## Laws
 
-Thirteen laws judge a codebase, each landing in one of three classes. A fault
+Fourteen laws judge a codebase, each landing in one of three classes. A fault
 fails the run. Debt is reported and tolerated. A blindspot is the scanner's
 honesty about an unparsed region — `coverage` marks it, and only `--strict`
 makes it fatal.
@@ -27,6 +27,8 @@ makes it fatal.
   style are the open classes (undeclared means unrestricted), environment is
   sealed (undeclared means denied everywhere) — its refusal routes to the
   config cascade.
+- `ban` — banned syntax inside a declared path is a fault. Matching bans are
+  cumulative, override matching grants, and cannot be boundary-exempted.
 - `dispatch` — a repeated equality subject across adjacent branches is a table
   refusing to exist; debt.
 - `receiver` — a fourth free function in one file on one receiver names an
@@ -60,14 +62,16 @@ reviewed contract change. `ectropy shape` emits one valid
 
 `ectropy.toml`: `[scan]` include/exclude globs, `[module]` roots, `[limit]`
 block/path/param/markup/file/fanout, `[comment]` allow, `[word]` single,
-`[[boundary]]` paths/allow/note, `[[grant]]` syntax/paths, and
+`[[boundary]]` paths/allow/note, `[[grant]]` syntax/paths, `[[ban]]`
+syntax/paths, and
 `[[vocabulary.term]]` name/description. Both vocabulary fields are required and
 non-empty; duplicate names are rejected.
 
 Every path list reads one glob dialect: `*` matches within a segment, `**`
 matches across segments, and a bare directory names that directory alone — a
-subtree is spelled `dir/**`. `[scan]`, `[[boundary]]`, and `[[grant]]` match a
-whole path against it; `[module]` roots use it to find where a root ends.
+subtree is spelled `dir/**`. `[scan]`, `[[boundary]]`, `[[grant]]`, and
+`[[ban]]` match a whole path against it; `[module]` roots use it to find where
+a root ends.
 
 ## Surface
 
@@ -85,8 +89,8 @@ An unknown entry exits 2 and lists the available names.
 
 ## Not promised
 
-Grammar coverage breadth: Rust, TypeScript (tsx included), SCSS, and Markdown
-scan today. SCSS is a whole-file style marker and Markdown exposes heading
+Grammar coverage breadth: Rust, TypeScript (tsx included), CSS, SCSS, and
+Markdown scan today. Stylesheets are whole-file style markers and Markdown exposes heading
 scopes rather than full syntax. New grammars widen coverage without ceremony. The `fanout`
 count sees only the scan set — assets and empty directories are invisible, so
 the width it reports only ever understates. The beta channel promises nothing —

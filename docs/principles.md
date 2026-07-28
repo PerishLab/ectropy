@@ -98,9 +98,9 @@ line gains a counterpart.
 
 ## Boundary laws
 
-Path-scoped bans express boundaries. Tests live only under test paths. App
-packages do not own styling syntax. Vendored infra is exempt from product laws.
-A boundary is declared, not assumed, in `ectropy.toml`.
+Vendored infra and other mechanically identifiable territory may exempt named
+laws through `[[boundary]]`. An exemption is declared, path-scoped, and
+justified in `ectropy.toml`; it never changes which files are scanned.
 
 ## Syntax grants
 
@@ -121,6 +121,15 @@ config cascade, where the same value arrives named, typed, and overridable
 (plumb `docs/config.md`). The rust claim is path-text: `std::env` spelled
 directly or inside a braced `use std::{..}` group; a rebound alias is
 checker debt, not author license.
+
+## Syntax bans
+
+A `[[ban]]` denies one syntax class in declared paths. Bans are cumulative,
+independent of grants, and win when both match: permission elsewhere cannot
+weaken a local prohibition. They are not boundary laws and cannot be exempted.
+The configuration names only shared syntax classes that the structure tree can
+prove without package identity or symbol resolution. Ecosystem dependencies
+remain repository-shape policy outside ectropy.
 
 ## The vocabulary never freezes
 

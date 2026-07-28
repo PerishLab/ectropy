@@ -59,12 +59,15 @@ extension is per-language law, and the kernel never learns React exists.
   `useUserCart` is judged as `UserCart` and is still compound, still debt.
   PascalCase component names get no exemption: their compoundness is judged
   normally, and the structural pressure toward `user/Card.tsx` is intended.
-- Style syntax is marked for the grant law: a `style=` attribute name, a
-  `<style>` element tag, an import whose module string ends in `.scss` or
-  `.css`, and a `.scss` file itself (one `style` node spanning the whole file,
-  with no inner parsing).
-- SCSS is intentionally only a whole-file style marker today; selectors,
-  declarations, nesting, and comments inside it are not structurally parsed.
+- Style syntax is marked for territory laws: a `style=`, `class=`, or
+  `className=` attribute name, a `<style>` element tag, an import whose module
+  string ends in `.scss` or `.css`, and a stylesheet file itself (one `style`
+  node spanning the whole file, with no inner parsing). Package-specific CSS
+  libraries remain outside the adapter because identifier spelling alone
+  cannot prove symbol identity.
+- CSS and SCSS are intentionally only whole-file style markers today;
+  selectors, declarations, nesting, and comments inside them are not
+  structurally parsed.
 - Markdown exposes heading scopes only. Inline syntax, lists, code fences, and
   prose comments do not become shared structure nodes.
 - Honest limitations: closing tag names are not checked against opening ones

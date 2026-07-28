@@ -188,6 +188,15 @@ fn territory() -> kernel::config::Config {
     config
 }
 
+fn forbidden() -> kernel::config::Config {
+    let mut config = config(&[], 4);
+    config.file.ban.push(kernel::config::Ban {
+        syntax: "style".to_string(),
+        paths: vec!["apps/*/src/lib/components/**".to_string()],
+    });
+    config
+}
+
 #[test]
 fn style() {
     let attr = "export function App(): unknown { return <div style={{color: on}}>x</div>; }";
@@ -219,6 +228,64 @@ fn scss() {
     assert_eq!(hits("styles/card.scss", card, &territory()), 0);
     assert_eq!(count(scan("src/card.scss", card), "grant"), 0);
     assert!(!scan("src/card.scss", card).contains(&"coverage".to_string()));
+}
+
+#[test]
+fn banned() {
+    let path = "apps/web/src/lib/components/card.tsx";
+    let cases = [
+        "export function Card(): unknown { return <div style={{color: \"red\"}}>x</div>; }",
+        "export function Card(): unknown { return <div className=\"card\">x</div>; }",
+        "export function Card(): unknown { return <div class=\"card\">x</div>; }",
+        "export function Card(): unknown { return <style>{code}</style>; }",
+        "import \"./card.css\";\nexport function Card(): unknown { return <div>x</div>; }",
+    ];
+    for text in cases {
+        let found = findings(path, text, &forbidden());
+        assert!(found.iter().any(|finding| finding.law == "ban"), "{text}");
+    }
+}
+
+#[test]
+fn precedence() {
+    let path = "apps/web/src/lib/components/card.tsx";
+    let text = "export function Card(): unknown { return <div className=\"card\">x</div>; }";
+    let mut config = forbidden();
+    config.file.grant.push(kernel::config::Grant {
+        syntax: "style".to_string(),
+        paths: vec!["apps/web/src/lib/components/**".to_string()],
+    });
+    let found = findings(path, text, &config);
+    assert_eq!(
+        found.iter().filter(|finding| finding.law == "ban").count(),
+        1
+    );
+    assert!(!found.iter().any(|finding| finding.law == "grant"));
+}
+
+#[test]
+fn permitted() {
+    let text = "export function Card(): unknown { return <div className=\"card\">x</div>; }";
+    let found = findings("apps/web/src/views/card.tsx", text, &forbidden());
+    assert!(!found.iter().any(|finding| finding.law == "ban"));
+}
+
+#[test]
+fn dependency() {
+    let path = "apps/web/src/lib/components/card.tsx";
+    let text = "const sheet = stylex.create({ card: { color: \"red\" } });";
+    let found = findings(path, text, &forbidden());
+    assert!(!found.iter().any(|finding| finding.law == "ban"));
+}
+
+#[test]
+fn css() {
+    let found = findings(
+        "apps/web/src/lib/components/card.css",
+        ".card { color: red; }",
+        &forbidden(),
+    );
+    assert!(found.iter().any(|finding| finding.law == "ban"));
 }
 
 #[test]

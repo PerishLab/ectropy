@@ -56,6 +56,22 @@ allow = ["comment"]
 }
 
 #[test]
+fn ban() {
+    let file: File = toml::from_str(
+        r#"
+[[ban]]
+syntax = "style"
+paths = ["apps/*/src/lib/components/**"]
+"#,
+    )
+    .expect("ban should parse");
+    let config = Config { file };
+    assert!(config.banned("apps/web/src/lib/components/card.tsx", "style"));
+    assert!(!config.banned("apps/web/src/views/card.tsx", "style"));
+    assert!(!config.banned("apps/web/src/lib/components/card.tsx", "test"));
+}
+
+#[test]
 fn glob() {
     assert!(Glob::matches(".runseal/**", ".runseal/lib/cli.ts"));
     assert!(Glob::matches("app/src/**/*.rs", "app/src/lib.rs"));
@@ -72,6 +88,9 @@ fn validation() {
         "[[boundary]]\npaths = [\"src/**\"]\nallow = [\"missing\"]\nnote = \"why\"\n",
         "[scan]\ninclude = [\"src/**x/*.rs\"]\n",
         "[[grant]]\nsyntax = \"missing\"\npaths = [\"src/**\"]\n",
+        "[[ban]]\nsyntax = \"missing\"\npaths = [\"src/**\"]\n",
+        "[[ban]]\nsyntax = \"style\"\npaths = []\n",
+        "[[ban]]\nsyntax = \"style\"\npaths = [\"src/**x/*.tsx\"]\n",
         "[[vocabulary.term]]\nname = \"two_words\"\ndescription = \"\"\n",
         "[[vocabulary.term]]\nname = \"two_words\"\ndescription = \"one\"\n[[vocabulary.term]]\nname = \"two_words\"\ndescription = \"two\"\n",
     ];

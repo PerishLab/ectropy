@@ -10,6 +10,7 @@ pub(super) fn run(file: &File) -> Result<(), Error> {
         .chain(&file.module.roots)
         .chain(file.boundary.iter().flat_map(|edge| &edge.paths))
         .chain(file.grant.iter().flat_map(|grant| &grant.paths))
+        .chain(file.ban.iter().flat_map(|ban| &ban.paths))
     {
         glob(pattern)?;
     }
@@ -30,7 +31,7 @@ pub(super) fn run(file: &File) -> Result<(), Error> {
         }
     }
     for grant in &file.grant {
-        if !matches!(grant.syntax.as_str(), "environment" | "style" | "test") {
+        if !syntax(&grant.syntax) {
             return Err(Error::new(format!(
                 "unknown grant syntax `{}`",
                 grant.syntax
@@ -40,6 +41,17 @@ pub(super) fn run(file: &File) -> Result<(), Error> {
             return Err(Error::new(format!(
                 "grant `{}` paths must not be empty",
                 grant.syntax
+            )));
+        }
+    }
+    for ban in &file.ban {
+        if !syntax(&ban.syntax) {
+            return Err(Error::new(format!("unknown ban syntax `{}`", ban.syntax)));
+        }
+        if ban.paths.is_empty() {
+            return Err(Error::new(format!(
+                "ban `{}` paths must not be empty",
+                ban.syntax
             )));
         }
     }
@@ -59,6 +71,10 @@ pub(super) fn run(file: &File) -> Result<(), Error> {
         }
     }
     Ok(())
+}
+
+fn syntax(name: &str) -> bool {
+    matches!(name, "environment" | "style" | "test")
 }
 
 fn law(law: &str) -> bool {

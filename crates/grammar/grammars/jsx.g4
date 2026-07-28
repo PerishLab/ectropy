@@ -8,7 +8,7 @@ sheet : 'style' -> style ;
 tagpath : IDENT ( '.' IDENT )* ;
 attr : styled / named / brace ;
 styled : badge '=' aval ;
-badge : 'style' -> style ;
+badge : 'style' / 'class' / 'className' -> style ;
 named : aname ( '=' aval )? ;
 aname : IDENT ( '-' IDENT )* ;
 aval : STRING / SINGLE / brace ;

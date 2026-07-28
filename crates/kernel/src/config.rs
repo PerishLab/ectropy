@@ -52,6 +52,7 @@ pub struct File {
     pub word: Word,
     pub boundary: Vec<Boundary>,
     pub grant: Vec<Grant>,
+    pub ban: Vec<Ban>,
     pub vocabulary: Vocabulary,
 }
 
@@ -127,6 +128,13 @@ pub struct Grant {
 
 #[derive(Deserialize, Default)]
 #[serde(default, deny_unknown_fields)]
+pub struct Ban {
+    pub syntax: String,
+    pub paths: Vec<String>,
+}
+
+#[derive(Deserialize, Default)]
+#[serde(default, deny_unknown_fields)]
 pub struct Vocabulary {
     pub term: Vec<Term>,
 }
@@ -166,6 +174,13 @@ impl Config {
             }
         }
         !declared && !sealed(syntax)
+    }
+
+    pub fn banned(&self, path: &str, syntax: &str) -> bool {
+        self.file
+            .ban
+            .iter()
+            .any(|ban| ban.syntax == syntax && ban.paths.iter().any(|pat| Glob::matches(pat, path)))
     }
 }
 

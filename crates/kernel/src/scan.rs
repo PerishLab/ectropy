@@ -88,20 +88,23 @@ impl<'a> Scan<'a> {
     fn grant(&mut self, node: &Node) {
         self.claim(node, Kind::Test, "test");
         self.claim(node, Kind::Style, "style");
-        self.seal(node);
-    }
-
-    fn seal(&mut self, node: &Node) {
-        if node.kind == Kind::Environment && !self.config.granted(&self.source.path, "environment")
-        {
-            let note = "environment syntax outside granted paths, route through the config cascade (plumb docs/config.md)";
-            self.mark(node.span.start, "grant", note, Class::Fault);
-        }
+        self.claim(node, Kind::Environment, "environment");
     }
 
     fn claim(&mut self, node: &Node, kind: Kind, syntax: &str) {
-        if node.kind == kind && !self.config.granted(&self.source.path, syntax) {
-            let note = format!("{syntax} syntax outside granted paths");
+        if node.kind != kind {
+            return;
+        }
+        if self.config.banned(&self.source.path, syntax) {
+            let note = format!("{syntax} syntax banned in this path");
+            self.mark(node.span.start, "ban", &note, Class::Fault);
+            return;
+        }
+        if !self.config.granted(&self.source.path, syntax) {
+            let note = match syntax {
+                "environment" => "environment syntax outside granted paths, route through the config cascade (plumb docs/config.md)".to_string(),
+                _ => format!("{syntax} syntax outside granted paths"),
+            };
             self.mark(node.span.start, "grant", &note, Class::Fault);
         }
     }
