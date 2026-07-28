@@ -1,0 +1,24 @@
+jsx : frag / lone / pair ;
+frag : '<' '>' kid* '<' '/' '>' -> markup ;
+lone : '<' tag attr* '/' '>' -> markup ;
+pair : '<' tag attr* '>' kid* closer -> markup ;
+closer : '<' '/' tagpath? '>' ;
+tag : sheet / tagpath ;
+sheet : 'style' -> style ;
+tagpath : IDENT ( '.' IDENT )* ;
+attr : styled / named / brace ;
+styled : badge '=' aval ;
+badge : 'style' -> style ;
+named : aname ( '=' aval )? ;
+aname : IDENT ( '-' IDENT )* ;
+aval : STRING / SINGLE / brace ;
+kid : jsx / brace / text ;
+text : !'<' !LBRACE !RBRACE . ;
+brace : LBRACE jexpr* RBRACE ;
+jexpr : jsx / bolt / pgroup / bgroup / group / ( !RBRACE . ) ;
+bolt : ARROW ( scope / jsx ) ;
+
+stmt : control / fnItem / typeItem / interfaceItem / classItem / declItem / jsx / scope / ( !RBRACE . ) ;
+inner : jsx / bolt / pgroup / bgroup / group / ( !RPAREN !RBRACK . ) ;
+loose : jsx / bolt / group / pgroup / bgroup / ( !LBRACE !RBRACE !LBRACK !RBRACK !LPAREN !RPAREN . ) ;
+init : ( !ARROW !';' loose )* ( ARROW ( scope / jsx ) ';'? / ';'? ) ;

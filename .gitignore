@@ -1,0 +1,7 @@
+/target
+/.task/
+/.local/
+__pycache__/
+/.forgejo/release.env
+node_modules/
+target/
