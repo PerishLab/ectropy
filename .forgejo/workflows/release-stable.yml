@@ -49,6 +49,9 @@ jobs:
         id: stable
         run: deno run --allow-env --allow-read --allow-net --allow-write="$GITHUB_OUTPUT" .forgejo/scripts/release/metadata/stable.ts
 
+      - name: Install Plumb
+        uses: PerishLab/actions/setup-plumb@main
+
       - name: Guard
         run: |
           set -eu

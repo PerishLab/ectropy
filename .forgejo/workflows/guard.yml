@@ -19,6 +19,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Install Plumb
+        uses: PerishLab/actions/setup-plumb@main
+
       - name: Guard
         run: |
           set -eu

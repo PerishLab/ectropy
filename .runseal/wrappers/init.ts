@@ -13,7 +13,7 @@ if (flags(args).help()) {
   Deno.exit(0);
 }
 
-const tools = ["git", "tea", "deno", "cargo", "runseal", "sh", "bash", "sed", "grep"];
+const tools = ["git", "tea", "deno", "cargo", "plumb", "runseal", "sh", "bash", "sed", "grep"];
 const paths = [
   "Cargo.toml",
   "ectropy.toml",

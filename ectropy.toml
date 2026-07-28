@@ -19,6 +19,8 @@ block = 4
 path = 4
 file = 300
 fanout = 10
+markup = 8
+param = 4
 
 [comment]
 allow = false

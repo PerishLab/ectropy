@@ -173,6 +173,9 @@ await bin("deno").run([
 io.print("==> deno test release metadata");
 await bin("deno").run(["test", ".forgejo/scripts/release/tests/metadata.ts"]);
 
+io.print("==> plumb doctor");
+await bin("plumb").run(["doctor", "."]);
+
 io.print("==> ectropy self-check");
 await bin("cargo").run(["run", "--quiet", "--locked", "-p", "ectropy", "--", "--strict", "."]);
 
