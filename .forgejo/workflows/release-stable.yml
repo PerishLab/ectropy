@@ -9,6 +9,9 @@ on:
         default: ""
         type: string
 
+permissions:
+  contents: read
+
 concurrency:
   group: ectropy-release-stable
   cancel-in-progress: false
@@ -36,6 +39,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Validate R2 access
         run: bash .forgejo/scripts/release/r2/check.sh
@@ -80,6 +85,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Package
         env:
@@ -111,6 +118,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Package
         env:
@@ -142,6 +151,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Package
         run: pwsh -NoProfile -File .forgejo/scripts/release/assets/package.ps1 "${{ needs.metadata.outputs.release_version }}"
@@ -179,6 +190,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Fetch delivered bytes
         run: |
@@ -250,6 +263,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Wait for public propagation
         run: sleep 30
@@ -267,6 +282,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Wait for public propagation
         run: sleep 30
@@ -284,9 +301,36 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Wait for public propagation
         run: Start-Sleep -Seconds 30
 
       - name: Public smoke
         run: pwsh -NoProfile -File .forgejo/scripts/release/smoke/smoke.ps1 "$env:RELEASE_VERSION" stable
+
+  finalize:
+    if: ${{ inputs.verify_version == '' }}
+    needs: [metadata, seal, smoke-linux, smoke-macos, smoke-windows]
+    permissions:
+      contents: write
+    runs-on: docker
+    container: mirror.perish.lan/ci/deno
+    env:
+      RELEASE_VERSION: ${{ needs.metadata.outputs.release_version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Tag release
+        run: |
+          set -eu
+          if git ls-remote --exit-code --tags origin "refs/tags/$RELEASE_VERSION" >/dev/null 2>&1; then
+            printf 'tag %s already exists on origin\n' "$RELEASE_VERSION" >&2
+            exit 1
+          fi
+          git config user.name "forgejo-actions"
+          git config user.email "actions@git.perish.top"
+          git tag -a "$RELEASE_VERSION" -m "$RELEASE_VERSION"
+          git push origin "refs/tags/$RELEASE_VERSION"

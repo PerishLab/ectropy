@@ -167,7 +167,11 @@ await bin("deno").run([
   "check",
   ".forgejo/scripts/release/metadata/beta.ts",
   ".forgejo/scripts/release/metadata/stable.ts",
+  ".forgejo/scripts/release/tests/metadata.ts",
 ]);
+
+io.print("==> deno test release metadata");
+await bin("deno").run(["test", ".forgejo/scripts/release/tests/metadata.ts"]);
 
 io.print("==> ectropy self-check");
 await bin("cargo").run(["run", "--quiet", "--locked", "-p", "ectropy", "--", "--strict", "."]);

@@ -28,6 +28,10 @@ function order(left: string, right: string): number {
   return 0;
 }
 
+export function betaAboveStable(beta: string, stable: string): boolean {
+  return order(beta, stable) > 0;
+}
+
 async function cargoVersion(): Promise<string> {
   const text = await Deno.readTextFile("Cargo.toml");
   const match = /^version = "([^"]+)"$/m.exec(text);
@@ -196,8 +200,8 @@ async function nextBeta(cargo: string): Promise<[string, number, string, string]
 async function main(): Promise<void> {
   const cargo = await cargoVersion();
   const stable = await stableFloor();
-  if (stable !== null && order(cargo, stable) < 0) {
-    fail(`Cargo version ${cargo} is older than current stable ${stable}`);
+  if (stable !== null && !betaAboveStable(cargo, stable)) {
+    fail(`Cargo version ${cargo} must be newer than current stable ${stable}`);
   }
   const override = (Deno.env.get("BETA_VERSION_OVERRIDE") ?? "").trim();
   let base: string;
@@ -225,4 +229,6 @@ async function main(): Promise<void> {
   await output("state_source", source);
 }
 
-await main();
+if (import.meta.main) {
+  await main();
+}

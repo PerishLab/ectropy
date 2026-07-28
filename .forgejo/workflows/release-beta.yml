@@ -14,6 +14,9 @@ on:
         default: ""
         type: string
 
+permissions:
+  contents: read
+
 concurrency:
   group: ectropy-release-beta
   cancel-in-progress: false
@@ -43,6 +46,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Validate R2 access
         run: bash .forgejo/scripts/release/r2/check.sh
@@ -87,6 +92,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Package
         env:
@@ -118,6 +125,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Package
         env:
@@ -149,6 +158,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Package
         run: pwsh -NoProfile -File .forgejo/scripts/release/assets/package.ps1 "${{ needs.metadata.outputs.release_version }}"
@@ -186,6 +197,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Fetch delivered bytes
         run: |
@@ -259,6 +272,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Wait for public propagation
         run: sleep 30
@@ -276,6 +291,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Wait for public propagation
         run: sleep 30
@@ -293,6 +310,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Wait for public propagation
         run: Start-Sleep -Seconds 30
