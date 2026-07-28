@@ -63,6 +63,20 @@ fn unreadable() {
 }
 
 #[test]
+fn empty() {
+    let seat = Seat::new();
+    fs::write(
+        seat.path().join("ectropy.toml"),
+        "[scan]\ninclude = []\nexclude = []\n",
+    )
+    .expect("write config");
+    fs::write(seat.path().join("bad.rs"), [0xff, 0xfe]).expect("write source");
+    let output = run(&["--strict", seat.path().to_str().expect("path")]);
+    assert!(output.status.success());
+    assert_eq!(text(&output.stdout), "clean\n");
+}
+
+#[test]
 fn ordered() {
     let seat = Seat::new();
     fs::write(seat.path().join("z.rs"), "fn z() {}\n").expect("write z");

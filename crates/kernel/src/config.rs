@@ -2,6 +2,7 @@ use serde::Deserialize;
 use std::fmt;
 use std::path::Path;
 
+mod scan;
 mod validate;
 
 pub struct Config {
@@ -56,11 +57,10 @@ pub struct File {
     pub vocabulary: Vocabulary,
 }
 
-#[derive(Deserialize, Default)]
-#[serde(default, deny_unknown_fields)]
 pub struct Scan {
     pub include: Vec<String>,
     pub exclude: Vec<String>,
+    pub all: bool,
 }
 
 #[derive(Deserialize, Default)]

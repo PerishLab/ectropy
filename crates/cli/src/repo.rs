@@ -80,8 +80,8 @@ impl Repo {
     }
 
     fn within(&self, path: &str) -> bool {
-        let list = &self.config.file.scan.include;
-        list.is_empty() || list.iter().any(|pat| Glob::matches(pat, path))
+        let scan = &self.config.file.scan;
+        scan.all || scan.include.iter().any(|pat| Glob::matches(pat, path))
     }
 
     fn barred(&self, path: &str) -> bool {
