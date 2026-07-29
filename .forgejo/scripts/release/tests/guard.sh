@@ -4,6 +4,10 @@ set -eu
 ROOT=$(CDPATH= cd -- "$(dirname "$0")/../../../.." && pwd)
 temp=$(mktemp -d)
 trap 'rm -rf "$temp"' EXIT INT TERM
+bash="$(dirname "$(command -v sh)")/bash"
+if [ ! -x "$bash" ]; then
+  bash=$(command -v bash)
+fi
 
 fake="$temp/bin"
 mkdir -p "$fake"
@@ -84,7 +88,7 @@ if PATH="$fake:$PATH" \
   ECTROPY_RELEASES_S3_URL=https://example.invalid \
   RELEASE_CHANNEL=stable \
   RELEASE_VERSION=v0.1.0 \
-  bash "$ROOT/.forgejo/scripts/release/r2/absent.sh" >/dev/null 2>&1; then
+  "$bash" "$ROOT/.forgejo/scripts/release/r2/absent.sh" >/dev/null 2>&1; then
   printf '%s\n' 'immutable overwrite was accepted' >&2
   exit 1
 fi
@@ -97,4 +101,4 @@ PATH="$fake:$PATH" \
   ECTROPY_RELEASES_S3_URL=https://example.invalid \
   RELEASE_CHANNEL=stable \
   RELEASE_VERSION=v0.1.0 \
-  bash "$ROOT/.forgejo/scripts/release/r2/absent.sh"
+  "$bash" "$ROOT/.forgejo/scripts/release/r2/absent.sh"

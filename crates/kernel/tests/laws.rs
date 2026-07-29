@@ -24,6 +24,7 @@ fn literal() {
 #[test]
 fn raw() {
     assert!(!laws("fn f() { let text = r#\"{\"#; }").contains(&"coverage".to_string()));
+    assert!(!laws(r#"fn f() { let prefix = r"\\?\UNC\"; }"#).contains(&"coverage".to_string()));
 }
 
 #[test]

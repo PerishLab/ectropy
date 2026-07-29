@@ -181,7 +181,7 @@ impl Repo {
             ))
         })?;
         rel.to_str()
-            .map(str::to_string)
+            .map(|path| path.replace(std::path::MAIN_SEPARATOR, "/"))
             .ok_or_else(|| Error::note(format!("path is not valid UTF-8: {}", rel.display())))
     }
 

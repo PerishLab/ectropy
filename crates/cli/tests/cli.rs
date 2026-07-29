@@ -77,6 +77,26 @@ fn empty() {
 }
 
 #[test]
+fn configured() {
+    let seat = Seat::new();
+    let source = seat.path().join("crates/lib/src");
+    fs::create_dir_all(&source).expect("create source");
+    fs::write(
+        seat.path().join("ectropy.toml"),
+        "[scan]\ninclude = [\"crates/**/*.rs\"]\n",
+    )
+    .expect("write config");
+    fs::write(source.join("bad.rs"), "fn bad_name() {}\n").expect("write source");
+    let output = run(&[seat.path().to_str().expect("path")]);
+    assert_eq!(output.status.code(), Some(1));
+    assert!(
+        text(&output.stdout).contains("crates/lib/src/bad.rs:1:4 word bad_name"),
+        "{}",
+        text(&output.stdout)
+    );
+}
+
+#[test]
 fn error() {
     let seat = Seat::new();
     fs::write(seat.path().join("bad.rs"), "fn read_file() {}\n").expect("write source");
