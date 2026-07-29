@@ -18,7 +18,7 @@ A name should be one vocabulary atom in the current language namespace, not one
 English word. Single-word pressure points downward to the language namespace
 mechanisms that let a short name resolve, and upward to a living business
 vocabulary that gives the atom meaning. Path segments below the owning module
-root are names too: a compound directory or file stem is word debt, so
+root are names too: a compound directory or file stem is a word error, so
 flattening directories by fusing their names into a file cannot silently evade
 either law.
 
@@ -76,17 +76,18 @@ The fifth is a struct refusing to exist: name the bundle and pass it whole.
 
 A named underscore parameter says a function accepts work its body does not
 use. That signal needs local judgment: either the callee should consume the
-work or the caller declared too much contract. Mark the binding as debt and
-follow the burr cookbook; never prescribe one cure mechanically. The lone `_`
-is an honest discard, and pattern parameters remain outside the shared tree.
+work or the caller declared too much contract. Refuse the scan and follow the
+burr cookbook; never prescribe one cure mechanically. A case that must remain
+is a justified boundary, not a tolerated finding. The lone `_` is an honest
+discard, and pattern parameters remain outside the shared tree.
 
 ## Shadow
 
 A literal that copies at least four fifths of its fields bare from one root is
 a bridge between twin structures. Three fields copied whole carry the same
 signal; smaller pairs do not. Derive or compose the destination instead of
-maintaining both declarations by hand. The finding is debt because an honest
-layer border may keep the bridge after local judgment.
+maintaining both declarations by hand. An honest layer border may keep the
+bridge only through an explicit justified boundary.
 
 ## Migration
 
@@ -105,7 +106,7 @@ justified in `ectropy.toml`; it never changes which files are scanned.
 ## Syntax grants
 
 The dual of a boundary: a `[[grant]]` reserves a syntax class to declared
-territory, and that syntax appearing anywhere else is a fault. Test syntax is
+territory, and that syntax appearing anywhere else is an error. Test syntax is
 the first class: with a grant declared, product files hold zero test code, so
 `ls` is the audit. Territory rides each toolchain's own test-discovery
 contract — cargo's `tests/` directory, Deno's `*.test.ts` suffix — one truth
@@ -119,8 +120,8 @@ the class is denied everywhere until a `[[grant]]` names its territory
 (tests, typically). The refusal is a ramp, not a wall: it routes to the
 config cascade, where the same value arrives named, typed, and overridable
 (plumb `docs/config.md`). The rust claim is path-text: `std::env` spelled
-directly or inside a braced `use std::{..}` group; a rebound alias is
-checker debt, not author license.
+directly or inside a braced `use std::{..}` group; a rebound alias is a
+coverage gap to close, not author license.
 
 ## Syntax bans
 

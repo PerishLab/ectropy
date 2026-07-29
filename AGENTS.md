@@ -6,7 +6,7 @@ same constitution ectropy enforces on others.
 ## Laws in practice
 
 - Single word: each name is one vocabulary atom. Maintain vocabulary deltas
-  alongside code diffs (`docs/vocabulary.md`).
+  alongside code diffs (`ectropy.toml`).
 - Block depth <= 4. Path depth <= 4 from a declared module root. Flatten before
   nesting deeper.
 - No comments by default. Move explanation into a name, a test, the vocabulary,

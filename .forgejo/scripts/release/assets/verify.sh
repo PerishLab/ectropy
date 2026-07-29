@@ -10,7 +10,7 @@ ARTIFACT_DIR=${3:-}
 [ -n "$ARTIFACT_DIR" ] || { printf '%s\n' 'missing artifact dir' >&2; exit 1; }
 [ -d "$ARTIFACT_DIR" ] || { printf 'artifact dir missing: %s\n' "$ARTIFACT_DIR" >&2; exit 1; }
 
-ASSETS="ectropy-x86_64-unknown-linux-gnu.tar.gz ectropy-aarch64-apple-darwin.tar.gz ectropy-x86_64-pc-windows-msvc.zip"
+ASSETS="ectropy-x86_64-unknown-linux-gnu.tar.gz ectropy-aarch64-apple-darwin.tar.gz ectropy-skill.tar.gz ectropy-x86_64-pc-windows-msvc.zip"
 
 require_file() {
   [ -f "$ARTIFACT_DIR/$1" ] || { printf 'missing artifact: %s\n' "$1" >&2; exit 1; }
@@ -38,6 +38,8 @@ ensure_zip_contains() {
 check_archive_members() {
   ensure_tar_contains "ectropy-x86_64-unknown-linux-gnu.tar.gz" "ectropy"
   ensure_tar_contains "ectropy-aarch64-apple-darwin.tar.gz" "ectropy"
+  ensure_tar_contains "ectropy-skill.tar.gz" "ectropy/SKILL.md"
+  ensure_tar_contains "ectropy-skill.tar.gz" "ectropy/metadata.json"
   ensure_zip_contains "ectropy-x86_64-pc-windows-msvc.zip" "ectropy.exe"
 }
 

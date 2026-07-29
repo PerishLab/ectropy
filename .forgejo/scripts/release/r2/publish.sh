@@ -80,6 +80,8 @@ cp "$workspace/manage.ps1" "$release_root/manage.ps1"
 upload_pids=""
 upload "$release_root/checksums.txt" "$version_prefix/checksums.txt" "text/plain; charset=utf-8" "public, max-age=31536000, immutable" true &
 upload_pids="$upload_pids $!"
+upload "$release_root/ectropy-skill.tar.gz" "$version_prefix/ectropy-skill.tar.gz" "application/gzip" "public, max-age=31536000, immutable" true &
+upload_pids="$upload_pids $!"
 upload "$release_root/manage.sh" "$version_prefix/manage.sh" "text/x-shellscript; charset=utf-8" "public, max-age=31536000, immutable" true &
 upload_pids="$upload_pids $!"
 upload "$release_root/manage.ps1" "$version_prefix/manage.ps1" "text/plain; charset=utf-8" "public, max-age=31536000, immutable" true &
@@ -115,7 +117,8 @@ artifacts=$(jq -n \
   --argjson darwinArm64 "$(artifact_json ectropy-aarch64-apple-darwin.tar.gz application/gzip)" \
   --argjson windowsX64 "$(artifact_json ectropy-x86_64-pc-windows-msvc.zip application/zip)" \
   --argjson checksums "$(artifact_json checksums.txt 'text/plain; charset=utf-8')" \
-  '{linuxX64: $linuxX64, darwinArm64: $darwinArm64, windowsX64: $windowsX64, checksums: $checksums}')
+  --argjson skillTarGz "$(artifact_json ectropy-skill.tar.gz application/gzip)" \
+  '{linuxX64: $linuxX64, darwinArm64: $darwinArm64, windowsX64: $windowsX64, checksums: $checksums, skillTarGz: $skillTarGz}')
 
 managers=$(jq -n \
   --argjson unix "$(artifact_json manage.sh 'text/x-shellscript; charset=utf-8')" \

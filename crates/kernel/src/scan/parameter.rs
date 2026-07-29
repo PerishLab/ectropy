@@ -1,5 +1,5 @@
 use super::Scan;
-use crate::{Class, Node};
+use crate::Node;
 use grammar::Kind;
 use std::collections::HashMap;
 
@@ -30,7 +30,7 @@ impl Scan<'_> {
                 "{count} parameters over limit {}",
                 self.config.file.limit.param
             );
-            self.mark(seat.span.start, "param", &note, Class::Debt);
+            self.mark(seat.span.start, "param", &note);
         }
     }
 
@@ -47,7 +47,7 @@ impl Scan<'_> {
             return;
         }
         let note = format!("{name} is accepted but unused; see: ectropy cookbook burr");
-        self.mark(node.span.start + offset, "burr", &note, Class::Debt);
+        self.mark(node.span.start + offset, "burr", &note);
     }
 
     pub(super) fn receiver(&mut self, root: &Node) {
@@ -65,7 +65,7 @@ impl Scan<'_> {
             *count += 1;
             if *count > 3 {
                 let note = group(member, &members);
-                self.mark(member.at, "receiver", &note, Class::Debt);
+                self.mark(member.at, "receiver", &note);
             }
         }
     }

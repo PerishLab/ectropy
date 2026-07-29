@@ -1,7 +1,7 @@
 mod parameter;
 
 use crate::config::Config;
-use crate::{Class, Finding, Node};
+use crate::{Finding, Node};
 use grammar::{Kind, Source};
 
 pub(crate) fn run(source: &Source, node: &Node, config: &Config) -> Vec<Finding> {
@@ -49,7 +49,7 @@ impl<'a> Scan<'a> {
             let note = format!(
                 "{copied} of {total} fields copied bare from one root, the twin is redundant; see: ectropy cookbook shadow"
             );
-            self.mark(node.span.start, "shadow", &note, Class::Debt);
+            self.mark(node.span.start, "shadow", &note);
         }
     }
 
@@ -60,7 +60,7 @@ impl<'a> Scan<'a> {
         for at in 2..node.kids.len() {
             if self.table(&node.kids[at - 2..=at]) {
                 let name = self.word(&node.kids[at]);
-                self.mark(node.kids[at].span.start, "dispatch", name, Class::Debt);
+                self.mark(node.kids[at].span.start, "dispatch", name);
             }
         }
     }
@@ -97,7 +97,7 @@ impl<'a> Scan<'a> {
         }
         if self.config.banned(&self.source.path, syntax) {
             let note = format!("{syntax} syntax banned in this path");
-            self.mark(node.span.start, "ban", &note, Class::Fault);
+            self.mark(node.span.start, "ban", &note);
             return;
         }
         if !self.config.granted(&self.source.path, syntax) {
@@ -105,13 +105,13 @@ impl<'a> Scan<'a> {
                 "environment" => "environment syntax outside granted paths, route through the config cascade (plumb docs/config.md)".to_string(),
                 _ => format!("{syntax} syntax outside granted paths"),
             };
-            self.mark(node.span.start, "grant", &note, Class::Fault);
+            self.mark(node.span.start, "grant", &note);
         }
     }
 
     fn coverage(&mut self, node: &Node) {
         if node.kind == Kind::Loose && !self.noise(node) {
-            self.mark(node.span.start, "coverage", "unparsed region", Class::Blind);
+            self.mark(node.span.start, "coverage", "unparsed region");
         }
     }
 
@@ -129,7 +129,7 @@ impl<'a> Scan<'a> {
             && !self.config.registered(name)
             && !self.config.exempt(&self.source.path, "word")
         {
-            self.mark(node.span.start, "word", name, Class::Debt);
+            self.mark(node.span.start, "word", name);
         }
     }
 
@@ -138,7 +138,7 @@ impl<'a> Scan<'a> {
             && node.kind == Kind::Scope
             && !self.config.exempt(&self.source.path, "block")
         {
-            self.mark(node.span.start, "block", "depth over limit", Class::Fault);
+            self.mark(node.span.start, "block", "depth over limit");
         }
     }
 
@@ -147,7 +147,7 @@ impl<'a> Scan<'a> {
             && node.kind == Kind::Markup
             && !self.config.exempt(&self.source.path, "markup")
         {
-            self.mark(node.span.start, "markup", "depth over limit", Class::Fault);
+            self.mark(node.span.start, "markup", "depth over limit");
         }
     }
 
@@ -156,12 +156,7 @@ impl<'a> Scan<'a> {
             && !self.config.file.comment.allow
             && !self.config.exempt(&self.source.path, "comment")
         {
-            self.mark(
-                node.span.start,
-                "comment",
-                "denied by default",
-                Class::Fault,
-            );
+            self.mark(node.span.start, "comment", "denied by default");
         }
     }
 
@@ -172,7 +167,7 @@ impl<'a> Scan<'a> {
             .unwrap_or("")
     }
 
-    fn mark(&mut self, at: usize, law: &str, note: &str, class: Class) {
+    fn mark(&mut self, at: usize, law: &str, note: &str) {
         let (line, col) = place(&self.source.text, at);
         self.findings.push(Finding {
             law: law.to_string(),
@@ -180,7 +175,6 @@ impl<'a> Scan<'a> {
             line,
             col,
             note: note.to_string(),
-            class,
         });
     }
 }

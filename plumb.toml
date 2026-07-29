@@ -1,0 +1,5 @@
+[[lock]]
+name = "skill"
+paths = ["skills/ectropy"]
+version = "0.4.0"
+hash = "0e4df1cdd6cd2c092a3a364990bec636cae740414eeeb9920897ec4a831742f5"

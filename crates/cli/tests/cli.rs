@@ -71,9 +71,49 @@ fn empty() {
     )
     .expect("write config");
     fs::write(seat.path().join("bad.rs"), [0xff, 0xfe]).expect("write source");
-    let output = run(&["--strict", seat.path().to_str().expect("path")]);
+    let output = run(&[seat.path().to_str().expect("path")]);
     assert!(output.status.success());
     assert_eq!(text(&output.stdout), "clean\n");
+}
+
+#[test]
+fn error() {
+    let seat = Seat::new();
+    fs::write(seat.path().join("bad.rs"), "fn read_file() {}\n").expect("write source");
+    let root = seat.path().to_str().expect("path");
+    let output = run(&[root]);
+    assert_eq!(output.status.code(), Some(1));
+    let stdout = text(&output.stdout);
+    assert!(stdout.contains(" word read_file"), "{stdout}");
+    assert!(stdout.contains("1 error"), "{stdout}");
+    assert!(stdout.contains("by law: word=1"), "{stdout}");
+}
+
+#[test]
+fn coverage() {
+    let seat = Seat::new();
+    fs::write(seat.path().join("bad.rs"), "@\n").expect("write source");
+    let output = run(&[seat.path().to_str().expect("path")]);
+    assert_eq!(output.status.code(), Some(1));
+    let stdout = text(&output.stdout);
+    assert!(stdout.contains(" coverage unparsed region"), "{stdout}");
+    assert!(stdout.contains("1 error"), "{stdout}");
+}
+
+#[test]
+fn compatibility() {
+    let seat = Seat::new();
+    fs::write(seat.path().join("bad.rs"), "fn read_file() {}\n").expect("write source");
+    let root = seat.path().to_str().expect("path");
+    let strict = run(&["--strict", root]);
+    assert_eq!(strict.status.code(), Some(1));
+    assert!(text(&strict.stdout).contains(" word read_file"));
+    let debt = run(&["--debt", root]);
+    assert_eq!(debt.status.code(), Some(2));
+    let help = run(&["--help"]);
+    let stdout = text(&help.stdout);
+    assert!(!stdout.contains("--strict"), "{stdout}");
+    assert!(!stdout.contains("--debt"), "{stdout}");
 }
 
 #[test]
@@ -110,7 +150,7 @@ fn symlink() {
     let outside = Seat::new();
     fs::write(outside.path().join("bad.rs"), "fn bad_name() {}\n").expect("write source");
     symlink(outside.path(), seat.path().join("outside")).expect("link directory");
-    let output = run(&["--strict", seat.path().to_str().expect("path")]);
+    let output = run(&[seat.path().to_str().expect("path")]);
     assert!(output.status.success());
     assert_eq!(text(&output.stdout), "clean\n");
 }

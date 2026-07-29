@@ -10,10 +10,8 @@ struct Cli {
     command: Option<Command>,
     #[arg(default_value = ".")]
     root: PathBuf,
-    #[arg(long)]
-    strict: bool,
-    #[arg(long)]
-    debt: bool,
+    #[arg(long = "strict", hide = true)]
+    _strict: bool,
 }
 
 #[derive(Subcommand)]
@@ -29,6 +27,10 @@ enum Command {
     Cookbook {
         entry: Option<String>,
     },
+    Skill {
+        #[command(subcommand)]
+        deed: skill::Deed,
+    },
 }
 
 fn version() -> &'static str {
@@ -38,6 +40,8 @@ fn version() -> &'static str {
 mod cookbook;
 mod repo;
 mod report;
+mod rig;
+mod skill;
 use repo::Repo;
 
 #[derive(Debug)]
@@ -83,9 +87,19 @@ fn main() {
 
 fn run() -> Result<(), Error> {
     let cli = Cli::parse();
+    let command = match cli.command {
+        Some(Command::Skill { deed }) => {
+            let code = skill::run(deed);
+            if code != 0 {
+                std::process::exit(code);
+            }
+            return Ok(());
+        }
+        command => command,
+    };
     let stdout = io::stdout();
     let mut out = BufWriter::new(stdout.lock());
-    match cli.command {
+    match command {
         Some(Command::Cookbook { entry }) => {
             let text = cookbook::render(entry.as_deref()).map_err(Error::note)?;
             out.write_all(text.as_bytes())?;
@@ -98,10 +112,11 @@ fn run() -> Result<(), Error> {
             let repo = Repo::open(&root)?;
             repo.vocabulary(&repo.files()?, &mut out)?;
         }
+        Some(Command::Skill { .. }) => unreachable!(),
         None => {
             let repo = Repo::open(&cli.root)?;
             let findings = repo.scan(&repo.files()?)?;
-            if report::write(&findings, cli.strict, cli.debt, &mut out)? {
+            if report::write(&findings, &mut out)? {
                 out.flush()?;
                 std::process::exit(1);
             }

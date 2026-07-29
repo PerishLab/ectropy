@@ -1,21 +1,14 @@
 use std::collections::BTreeMap;
 use std::io::{self, Write};
 
-pub(crate) fn write(
-    findings: &[kernel::Finding],
-    strict: bool,
-    listed: bool,
-    out: &mut impl Write,
-) -> io::Result<bool> {
+pub(crate) fn write(findings: &[kernel::Finding], out: &mut impl Write) -> io::Result<bool> {
     let mut ordered: Vec<&kernel::Finding> = findings.iter().collect();
     ordered.sort_by(order);
     let sheet = Report { ordered };
-    let faults = sheet.emit(kernel::Class::Fault, true, out)?;
-    let blind = sheet.emit(kernel::Class::Blind, true, out)?;
-    let debt = sheet.emit(kernel::Class::Debt, listed, out)?;
-    summary(faults, blind, debt, out)?;
+    sheet.emit(out)?;
+    summary(sheet.ordered.len(), out)?;
     sheet.digest(out)?;
-    Ok(faults > 0 || (strict && blind > 0))
+    Ok(!sheet.ordered.is_empty())
 }
 
 struct Report<'a> {
@@ -23,12 +16,11 @@ struct Report<'a> {
 }
 
 impl Report<'_> {
-    fn emit(&self, class: kernel::Class, listed: bool, out: &mut impl Write) -> io::Result<usize> {
-        let mut count = 0;
+    fn emit(&self, out: &mut impl Write) -> io::Result<()> {
         for finding in &self.ordered {
-            count += line(finding, class, listed, out)?;
+            line(finding, out)?;
         }
-        Ok(count)
+        Ok(())
     }
 
     fn digest(&self, out: &mut impl Write) -> io::Result<()> {
@@ -70,25 +62,8 @@ fn order(a: &&kernel::Finding, b: &&kernel::Finding) -> std::cmp::Ordering {
     (a.path.as_str(), a.line, a.col).cmp(&(b.path.as_str(), b.line, b.col))
 }
 
-fn line(
-    finding: &kernel::Finding,
-    class: kernel::Class,
-    listed: bool,
-    out: &mut impl Write,
-) -> io::Result<usize> {
-    if finding.class != class {
-        return Ok(0);
-    }
-    if listed {
-        writeln!(
-            out,
-            "{} {} {}",
-            spot(finding),
-            label(class, finding),
-            finding.note
-        )?;
-    }
-    Ok(1)
+fn line(finding: &kernel::Finding, out: &mut impl Write) -> io::Result<()> {
+    writeln!(out, "{} {} {}", spot(finding), finding.law, finding.note)
 }
 
 fn spot(finding: &kernel::Finding) -> String {
@@ -98,25 +73,11 @@ fn spot(finding: &kernel::Finding) -> String {
     format!("{}:{}:{}", finding.path, finding.line, finding.col)
 }
 
-fn label(class: kernel::Class, finding: &kernel::Finding) -> &str {
-    match class {
-        kernel::Class::Blind => "blindspot",
-        kernel::Class::Debt => "debt",
-        kernel::Class::Fault => &finding.law,
-    }
-}
-
-fn summary(faults: usize, blind: usize, debt: usize, out: &mut impl Write) -> io::Result<()> {
-    if faults + blind + debt == 0 {
+fn summary(errors: usize, out: &mut impl Write) -> io::Result<()> {
+    if errors == 0 {
         return writeln!(out, "clean");
     }
-    writeln!(
-        out,
-        "{}, {}, {}",
-        plural(faults, "fault"),
-        plural(blind, "blindspot"),
-        plural(debt, "debt")
-    )
+    writeln!(out, "{}", plural(errors, "error"))
 }
 
 fn plural(count: usize, word: &str) -> String {

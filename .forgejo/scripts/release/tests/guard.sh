@@ -59,6 +59,13 @@ fi
   exit 1
 }
 
+assets="$temp/assets"
+mkdir -p "$assets"
+sh "$ROOT/.forgejo/scripts/release/assets/skill.sh" v0.4.0-beta.1 "$assets" >/dev/null
+tar tzf "$assets/ectropy-skill.tar.gz" | grep -Fx ectropy/SKILL.md >/dev/null
+tar xOf "$assets/ectropy-skill.tar.gz" ectropy/metadata.json |
+  grep -F '"version": "v0.4.0-beta.1"' >/dev/null
+
 cat >"$fake/aws" <<'EOF'
 #!/usr/bin/env sh
 if [ "${AWS_STUB_STATUS:-1}" -eq 0 ]; then

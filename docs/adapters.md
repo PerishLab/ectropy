@@ -56,7 +56,7 @@ extension is per-language law, and the kernel never learns React exists.
 - The `use` prefix is the ecosystem's namespace dialect for hooks, so the
   adapter transcribes it: for any declared word matching `use[A-Z]...`, the
   kernel judges the atom after `use`. `useCart` is judged as `Cart` and passes;
-  `useUserCart` is judged as `UserCart` and is still compound, still debt.
+  `useUserCart` is judged as `UserCart` and is still a compound-name error.
   PascalCase component names get no exemption: their compoundness is judged
   normally, and the structural pressure toward `user/Card.tsx` is intended.
 - Style syntax is marked for territory laws: a `style=`, `class=`, or

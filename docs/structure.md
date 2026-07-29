@@ -34,15 +34,15 @@ a kind is a contract change, reviewed against `principles.md`.
   The grant law confines it to declared test territory; `cfg(not(test))` is
   production gating and stays unmarked.
 - `probe` — the subject of a literal-equality branch (`if x == LIT`). The
-  dispatch law reads consecutive probe runs; a repeated subject is debt.
+  dispatch law reads consecutive probe runs; a repeated subject is an error.
 - `receiver` — the first parameter of a free function (`name: Type`, self
   excluded). The receiver law groups them per file; a fourth function on one
-  receiver is debt. Lifetimes and whitespace are erased before grouping.
+  receiver is an error. Lifetimes and whitespace are erased before grouping.
 - `param` — each parameter after the first (`name: Type`). The param law
-  counts receiver plus params per function; more than four is debt. Pattern
+  counts receiver plus params per function; more than four is an error. Pattern
   parameters stay unmarked, so the count only ever understates.
   The burr law reads the bound name on both receiver and param nodes; a named
-  underscore binding is debt while the lone discard `_` stays unmarked.
+  underscore binding is an error while the lone discard `_` stays unmarked.
 - `markup` — one markup element (a JSX element, self-closing tag, or fragment).
   Markup depth is its own axis: a markup node's `depth` counts markup ancestors,
   and only markup counts toward the markup law. Code scopes inside markup stay

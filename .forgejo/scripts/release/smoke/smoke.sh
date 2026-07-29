@@ -41,6 +41,34 @@ assert_binary() {
   }
 }
 
+smoke_skill() {
+  bin="$1"
+  label="$2"
+  export ECTROPY_HOME="$tmpdir/$label/data"
+  export ECTROPY_RELEASES="$PUBLIC_URL"
+  skill="$tmpdir/$label/agent/skills/ectropy"
+  mkdir -p "$(dirname "$skill")"
+  "$bin" skill install \
+    --channel "$CHANNEL" \
+    --version "$VERSION" \
+    --path "$skill"
+  [ -f "$skill/SKILL.md" ] || {
+    printf '%s\n' "smoke: skill install left no brief" >&2
+    exit 1
+  }
+  [ -f "$skill/metadata.json" ] || {
+    printf '%s\n' "smoke: skill install left no metadata" >&2
+    exit 1
+  }
+  "$bin" skill status --channel "$CHANNEL" --version "$VERSION" >/dev/null
+  "$bin" skill list | grep -F "$VERSION" >/dev/null
+  "$bin" skill uninstall
+  [ ! -e "$skill" ] || {
+    printf '%s\n' "smoke: skill uninstall left $skill" >&2
+    exit 1
+  }
+}
+
 smoke_manager() {
   manager="$1"
   label="$2"
@@ -53,6 +81,7 @@ smoke_manager() {
     --version "$VERSION" \
     --retain=false
   assert_binary "$ECTROPY_LOCAL_BIN_DIR/ectropy"
+  smoke_skill "$ECTROPY_LOCAL_BIN_DIR/ectropy" "$label"
   sh "$manager" uninstall --version "$VERSION"
   [ ! -e "$ECTROPY_INSTALL_ROOT/$VERSION" ] || {
     printf '%s\n' "smoke: version uninstall left $ECTROPY_INSTALL_ROOT/$VERSION" >&2

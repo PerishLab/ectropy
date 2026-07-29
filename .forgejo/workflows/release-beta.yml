@@ -244,6 +244,7 @@ jobs:
         run: |
           set -eu
           export GUARD_VERSION_HASH="$(deno run --allow-read --allow-run --allow-env --allow-net --config .runseal/deno.json --lock .runseal/deno.lock --frozen=true .runseal/wrappers/guard.ts version-hash)"
+          sh .forgejo/scripts/release/assets/skill.sh "$RELEASE_VERSION" "$RELEASE_ROOT"
           sh .forgejo/scripts/release/assets/checksums.sh "$RELEASE_VERSION" "$RELEASE_ROOT"
           sh .forgejo/scripts/release/assets/verify.sh accept "$RELEASE_VERSION" "$RELEASE_ROOT"
           sh .forgejo/scripts/release/assets/verify.sh verify "$RELEASE_VERSION" "$RELEASE_ROOT"

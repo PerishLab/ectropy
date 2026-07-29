@@ -19,6 +19,7 @@ const paths = [
   "ectropy.toml",
   "runseal.toml",
   "manage.sh",
+  "skills/ectropy/SKILL.md",
   "crates/cli/Cargo.toml",
   "crates/kernel/Cargo.toml",
   "crates/grammar/Cargo.toml",
@@ -32,6 +33,7 @@ const paths = [
   ".forgejo/workflows/guard.yml",
   ".forgejo/workflows/release-beta.yml",
   ".forgejo/workflows/release-stable.yml",
+  ".forgejo/scripts/release/assets/skill.sh",
   ".forgejo/release.env.example",
   ".runseal/wrappers/release-env.ts",
 ];

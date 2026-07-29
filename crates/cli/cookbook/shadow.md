@@ -2,7 +2,7 @@
 
 ## Trigger
 
-The `shadow` Debt reports a literal densely copied bare from one source root.
+The `shadow` error reports a literal densely copied bare from one source root.
 
 ## Move
 

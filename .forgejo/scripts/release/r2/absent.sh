@@ -12,6 +12,7 @@ prefix="$RELEASE_CHANNEL/versions/$RELEASE_VERSION"
 for name in \
   ectropy-x86_64-unknown-linux-gnu.tar.gz \
   ectropy-aarch64-apple-darwin.tar.gz \
+  ectropy-skill.tar.gz \
   ectropy-x86_64-pc-windows-msvc.zip \
   checksums.txt \
   manage.sh \

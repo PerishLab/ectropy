@@ -7,41 +7,43 @@ here is not promised.
 
 ## Laws
 
-Fourteen laws judge a codebase, each landing in one of three classes. A fault
-fails the run. Debt is reported and tolerated. A blindspot is the scanner's
-honesty about an unparsed region — `coverage` marks it, and only `--strict`
-makes it fatal.
+Fifteen laws judge a codebase. Every finding is an error and fails the run;
+anything that cannot justify refusal does not emit.
 
 - `word` — a declared name is one vocabulary atom; an unregistered compound is
-  debt.
-- `path` — directory nesting past four levels below the owning module root is a
-  fault.
-- `file` — a file running past three hundred lines is a fault; the fix is a
+  an error.
+- `path` — directory nesting past four levels below the owning module root is an
+  error.
+- `file` — a file running past three hundred lines is an error; the fix is a
   move, not a squeeze.
-- `fanout` — a directory holding more than ten children is a fault.
-- `block` — scope nesting past four is a fault.
-- `markup` — element nesting past eight in one element tree is a fault; markup
+- `fanout` — a directory holding more than ten children is an error.
+- `block` — scope nesting past four is an error.
+- `markup` — element nesting past eight in one element tree is an error; markup
   is its own axis, neither scope nor literal.
-- `comment` — comments are denied by default; each is a fault.
-- `grant` — granted syntax outside its declared territory is a fault; test and
+- `comment` — comments are denied by default; each is an error.
+- `grant` — granted syntax outside its declared territory is an error; test and
   style are the open classes (undeclared means unrestricted), environment is
   sealed (undeclared means denied everywhere) — its refusal routes to the
   config cascade.
-- `ban` — banned syntax inside a declared path is a fault. Matching bans are
+- `ban` — banned syntax inside a declared path is an error. Matching bans are
   cumulative, override matching grants, and cannot be boundary-exempted.
 - `dispatch` — a repeated equality subject across adjacent branches is a table
-  refusing to exist; debt.
+  refusing to exist.
 - `receiver` — a fourth free function in one file on one receiver names an
-  object that does not exist yet; debt. The fourth and every later finding
+  object that does not exist yet. The fourth and every later finding
   names the total group and every member function in source order.
 - `param` — a function holding more than four parameters, receiver included, is
-  a struct refusing a name; debt.
+  a struct refusing a name.
 - `burr` — a receiver or parameter whose bound name begins with an underscore
-  accepts work it does not use and needs local responsibility judgment; debt.
-  The lone discard `_` and unmarked patterns stay outside the law.
+  accepts work it does not use and needs local responsibility judgment. The
+  scan remains blocked until the contract is corrected or a justified boundary
+  records why it must remain. The lone discard `_` and unmarked patterns stay
+  outside the law.
 - `shadow` — at least four fifths of a literal copied bare from one root, or
   three fields copied whole, signals twin structures that should derive or
-  compose; debt.
+  compose. A real layer border must be declared as a justified boundary.
+- `coverage` — an unparsed region is an error because the checker cannot claim
+  a clean result for syntax it did not understand.
 
 ## Dialects
 
@@ -75,13 +77,18 @@ a root ends.
 
 ## Surface
 
-`ectropy [root]` scans one tree, defaulting to `.`. `--strict` promotes
-blindspots to failure and `--debt` lists debt lines. `ectropy shape [root]`
+`ectropy [root]` scans one tree, defaulting to `.`. `ectropy shape [root]`
 prints structure JSON and `ectropy vocabulary [root]` prints the living
-dictionary per module root. Exit 0 is clean or debt only; exit 1 is any fault,
-or any blindspot under `--strict`. Invalid roots, malformed or unreadable
-configuration, source IO failures, and invalid schema references exit 2 and
-never print `clean`.
+dictionary per module root. Exit 0 means exactly `clean`; every finding exits
+1. Invalid roots, malformed or unreadable configuration, source IO failures,
+and invalid schema references exit 2 and never print `clean`.
+
+The v0.4 line accepts the former `--strict` spelling as a hidden inert
+compatibility option. It changes no result and retires in v0.5.0. The former
+`--debt` option is invalid.
+
+`ectropy skill` installs, inspects, upgrades, lists, and removes the versioned
+operating brief shipped with each release.
 
 `ectropy cookbook` prints the embedded entry ledger with every EXIT clause;
 `ectropy cookbook <entry>` prints one trigger, move, evidence, and EXIT.

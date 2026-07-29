@@ -177,7 +177,18 @@ io.print("==> plumb doctor");
 await bin("plumb").run(["doctor", "."]);
 
 io.print("==> ectropy self-check");
-await bin("cargo").run(["run", "--quiet", "--locked", "-p", "ectropy", "--", "--strict", "."]);
+await bin("cargo").run(["run", "--quiet", "--locked", "-p", "ectropy", "--", "."]);
+
+io.print("==> ectropy skill check");
+await bin("cargo").run([
+  "run",
+  "--quiet",
+  "--locked",
+  "-p",
+  "ectropy",
+  "--",
+  "skills/ectropy",
+]);
 
 io.print("==> shell syntax");
 for (
@@ -185,6 +196,7 @@ for (
     ["sh", "manage.sh"],
     ["sh", ".forgejo/scripts/release/assets/checksums.sh"],
     ["sh", ".forgejo/scripts/release/assets/package.sh"],
+    ["sh", ".forgejo/scripts/release/assets/skill.sh"],
     ["sh", ".forgejo/scripts/release/assets/verify.sh"],
     ["bash", ".forgejo/scripts/release/r2/check.sh"],
     ["bash", ".forgejo/scripts/release/r2/absent.sh"],

@@ -2,7 +2,7 @@
 
 ## Trigger
 
-The `burr` Debt marks a function parameter whose underscore spelling says it is accepted but unused.
+The `burr` error marks a function parameter whose underscore spelling says it is accepted but unused.
 
 ## Move
 
@@ -14,4 +14,4 @@ The keel query/run specimen used the same `_plan` symptom for opposite causes; l
 
 ## EXIT
 
-Remove this entry when the burr verdict becomes mechanical or the burr Debt retires.
+Remove this entry when the burr verdict becomes mechanical or the burr law retires.

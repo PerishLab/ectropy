@@ -13,20 +13,12 @@ pub struct Node {
     pub kids: Vec<Node>,
 }
 
-#[derive(Clone, Copy, PartialEq)]
-pub enum Class {
-    Fault,
-    Blind,
-    Debt,
-}
-
 pub struct Finding {
     pub law: String,
     pub path: String,
     pub line: usize,
     pub col: usize,
     pub note: String,
-    pub class: Class,
 }
 
 impl Finding {
@@ -37,7 +29,6 @@ impl Finding {
             line: 0,
             col: 0,
             note: name.to_string(),
-            class: Class::Debt,
         }
     }
 
@@ -48,7 +39,6 @@ impl Finding {
             line: 0,
             col: 0,
             note: note.to_string(),
-            class: Class::Fault,
         }
     }
 
@@ -59,7 +49,6 @@ impl Finding {
             line: 0,
             col: 0,
             note: note.to_string(),
-            class: Class::Fault,
         }
     }
 
@@ -70,7 +59,6 @@ impl Finding {
             line: 0,
             col: 0,
             note: note.to_string(),
-            class: Class::Fault,
         }
     }
 }
