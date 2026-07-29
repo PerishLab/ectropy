@@ -66,6 +66,11 @@ jobs:
             --frozen=true \
             .runseal/wrappers/guard.ts
 
+      - name: Changelog
+        env:
+          RELEASE_VERSION: ${{ steps.stable.outputs.release_version }}
+        run: plumb changelog . --version "$RELEASE_VERSION"
+
       - name: Refuse immutable overwrite
         env:
           RELEASE_VERSION: ${{ steps.stable.outputs.release_version }}

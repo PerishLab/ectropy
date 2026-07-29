@@ -27,3 +27,18 @@ one contract; do not reach around it. Add a language via `docs/adapters.md`
   topic branch on Forgejo.
 - Repo-local operator flows are TypeScript under `.runseal/wrappers`. Do not add
   Python or uv for operator flows.
+
+## Release
+
+- `manage.sh` and `manage.ps1` leave exactly one version under the install root.
+  Earlier versions are removed once the new binary is linked and answers
+  `--version`, and each removal is named. `--retain` keeps what is there. The
+  default used to be the opposite — the manager asked interactively and kept
+  everything when it could not — but a versioned root is not a rollback cache:
+  `install --version <older>` refetches, so nothing ever read what accumulated.
+- A stable release refuses to publish without
+  `docs/CHANGELOG/v<version>/{en,zh}/{INDEX.md,MIGRATION.md}`, enforced by the
+  `Changelog` step in `release-stable.yml` before anything irreversible.
+  `plumb doctor` does not check this: a changelog is owed by a release, not by a
+  working tree. A release requiring nothing of anyone still writes MIGRATION.md
+  saying so. See `plumb/docs/changelog.md`.

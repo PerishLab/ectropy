@@ -36,6 +36,11 @@ Usage:
   manage.ps1 install [--channel stable|beta] [--version vX.Y.Z] [--retain[=true|false]]
   manage.ps1 uninstall [--version vX.Y.Z]
 
+install leaves exactly one version on disk. Earlier versions are removed once
+the new binary is in place and answers --version. Rolling back is
+install --version <older>, which fetches that version again; released artifacts
+are immutable and always retrievable. Pass --retain to keep what is there.
+
 Options:
   --public-url <url>     release metadata and artifact base URL
   --install-root <path>  versioned install root
@@ -85,15 +90,7 @@ function Should-Retain {
     if (![string]::IsNullOrWhiteSpace($retain)) {
         return Normalize-Bool $retain
     }
-    if ([Environment]::UserInteractive -and -not [Console]::IsInputRedirected) {
-        $answer = Read-Host 'ectropy: remove previously installed versions after install? [y/N]'
-        if ($answer -match '^(y|yes)$') {
-            return $false
-        }
-        return $true
-    }
-    [Console]::Error.WriteLine('ectropy: preserving previous versions; pass --retain=false to prune after install')
-    return $true
+    return $false
 }
 
 function Install-Ectropy {
