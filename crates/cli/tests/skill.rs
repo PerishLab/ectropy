@@ -57,7 +57,7 @@ fn help() {
     let output = run(&seat, &["skill", "--help"]);
     assert!(output.status.success(), "{output:?}");
     let stdout = text(&output.stdout);
-    for deed in ["install", "upgrade", "status", "list", "uninstall"] {
+    for deed in ["install", "upgrade", "status", "stage", "list", "uninstall"] {
         assert!(stdout.contains(deed), "{stdout}");
     }
 }

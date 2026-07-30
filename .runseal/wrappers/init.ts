@@ -18,7 +18,6 @@ const paths = [
   "Cargo.toml",
   "ectropy.toml",
   "runseal.toml",
-  "manage.sh",
   "skills/ectropy/SKILL.md",
   "crates/cli/Cargo.toml",
   "crates/kernel/Cargo.toml",
@@ -30,12 +29,10 @@ const paths = [
   ".runseal/wrappers/guard.ts",
   ".runseal/wrappers/init.ts",
   ".runseal/wrappers/land.ts",
+  "plumb.toml",
   ".forgejo/workflows/guard.yml",
-  ".forgejo/workflows/release-beta.yml",
+  ".forgejo/workflows/release-exact.yml",
   ".forgejo/workflows/release-stable.yml",
-  ".forgejo/scripts/release/assets/skill.sh",
-  ".forgejo/release.env.example",
-  ".runseal/wrappers/release-env.ts",
 ];
 
 io.print("==> resolving repository");

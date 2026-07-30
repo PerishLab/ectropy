@@ -25,14 +25,18 @@ Configured include sets no longer match zero files silently on Windows.
 
 The Rust adapter also recognizes zero-hash raw and byte-raw strings, including
 Windows path literals ending in a backslash. A native Windows guard now runs
-the workspace tests and a PowerShell manager smoke for every change.
+the workspace tests for every change.
 
-## One installed version by default
+## Stable consensus delivery
 
-The Unix and PowerShell managers remove older installed versions after the new
-binary is linked and answers `--version`. Pass `--retain` to keep existing
-versions. Released artifacts remain immutable and can be fetched again with an
-explicit version.
+The Ectropy binary and skill are declared once in `plumb.toml`. Stable Plumb
+and the shared Actions workflow now own target builds, immutable artifacts,
+generated managers, verification, and activation.
 
-Stable releases now require English and Chinese index and migration notes
-before publication begins.
+Only stable may occupy the default install and binary seats. Beta and every
+future non-stable candidate require an exact version and explicit isolated
+paths. The shared managers keep one version in each seat after the new binary
+answers `--version`.
+
+Stable releases require English and Chinese index and migration notes before
+publication begins.

@@ -12,9 +12,14 @@ boundary。
 Windows 用户升级后应重新运行 Ectropy。此前因 Windows 路径分隔符而没有匹配任何
 文件的 include 配置，现在会扫描预期目录，因此可能暴露真实 finding。
 
-## 选择是否保留已安装版本
+## 采用 stable 交付
 
-manager install 现在默认只在安装根目录留下一个版本。需要离线保留旧版本目录时，
-请传入 `--retain`；否则回滚使用 `install --version <older>`，重新下载不可变资产。
+CI 应将 `setup-ectropy` 替换为
+`PerishLab/actions/setup-binary@main`，并设置
+`PERISH_SETUP_PRODUCT=ectropy`。
 
-`ectropy.toml` schema 和已有数据都不需要迁移。安装受管 Ectropy skill 是可选项。
+manager 的默认安装现在跟随 stable。安装 non-stable 时，必须指定精确版本，
+并显式提供与默认值互不重叠的安装路径和 binary 路径。
+
+`ectropy.toml` schema 和已有数据都不需要迁移。安装受管 Ectropy skill 仍为
+可选项。

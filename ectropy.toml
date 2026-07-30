@@ -2,6 +2,7 @@
 include = [
   "crates/**/*.rs",
   "docs/**/*.md",
+  "skills/**/*.md",
 ]
 exclude = [
   "**/target/**",
@@ -12,6 +13,7 @@ roots = [
   "crates/*/src",
   "crates/*/tests",
   "docs",
+  "skills/*",
 ]
 
 [limit]
@@ -38,7 +40,7 @@ paths = ["crates/*/tests/**/*.rs"]
 
 [[boundary]]
 paths = [".forgejo/**"]
-note = "release manager is vendored ci infra; product depth and comment laws do not apply"
+note = "release product glue is platform-specific ci infrastructure"
 allow = ["path", "comment"]
 
 [[boundary]]

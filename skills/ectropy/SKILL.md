@@ -111,14 +111,19 @@ ectropy skill install
 ectropy skill status
 ectropy skill upgrade --dry-run
 ectropy skill upgrade
+ectropy skill stage --channel beta --version <exact> --path <isolated>/ectropy
 ectropy skill list
 ectropy skill uninstall
 ```
 
-Skill install and upgrade accept `--channel` and `--version`; every non-stable
-channel requires an exact immutable version. Install may take `--path` ending
-in `ectropy`. Managed replacement requires both the state record and the
-in-path marker; an unowned path refuses.
+Managed install, status, and upgrade accept stable only. Install may take
+`--path` ending in `ectropy`; replacement requires both the state record and
+the in-path marker, and an unowned path refuses.
+
+`skill stage` is the separate candidate path. It requires a non-stable channel,
+an exact immutable version, and a new explicit path ending in `ectropy`. It
+writes a staged marker without reading or writing the managed ledger. Stable
+refuses staging, and non-stable releases refuse every managed operation.
 
 The v0.4 line accepts hidden `--strict` only as an inert compatibility spelling.
 It changes no result and retires in v0.5.0. `--debt` is invalid.

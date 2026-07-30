@@ -22,13 +22,17 @@ release smoke 会在 Linux、macOS 和 Windows 上验证完整的 skill 生命�
 上静默匹配零文件。
 
 Rust adapter 也能识别零 `#` 的 raw string 与 byte raw string，包括以反斜杠
-结尾的 Windows 路径字面量。新的原生 Windows guard 会为每次变更运行 workspace
-测试与 PowerShell manager smoke。
+结尾的 Windows 路径字面量。新的原生 Windows guard 会为每次变更运行
+workspace 测试。
 
-## 默认只保留一个安装版本
+## Stable 共识交付
 
-Unix 与 PowerShell manager 会在新 binary 完成链接并通过 `--version` 后移除
-旧版本。使用 `--retain` 可以保留已有版本。已发布资产保持不可变，也可以通过指定
-版本重新获取。
+Ectropy binary 与 skill 只在 `plumb.toml` 声明一次。target 构建、不可变
+artifact、manager 生成、验证与激活统一由 stable Plumb 和共享 Actions 工作流
+负责。
 
-stable release 现在还会在发布开始前要求完整的中英文变更与迁移说明。
+只有 stable 可以占用默认安装与 binary 席位；beta 以及后续任何 non-stable
+候选都必须指定精确版本和显式隔离路径。新 binary 通过 `--version` 后，共享
+manager 会在每个席位只保留一个版本。
+
+stable release 会在发布开始前要求完整的中英文变更与迁移说明。

@@ -13,11 +13,15 @@ Windows users should rerun Ectropy after upgrading. A configured include set
 that previously matched no files because of Windows path separators now scans
 the intended tree and may reveal real findings.
 
-## Choose whether to retain installed versions
+## Adopt stable delivery
 
-Manager installs now leave one version under the install root. Pass `--retain`
-when old version directories must remain available offline. Otherwise, rollback
-uses `install --version <older>` and downloads the immutable artifact again.
+CI callers replace `setup-ectropy` with
+`PerishLab/actions/setup-binary@main` and set
+`PERISH_SETUP_PRODUCT=ectropy`.
 
-No `ectropy.toml` schema or stored data migration is required. Installing the
-managed Ectropy skill is optional.
+Default manager installation now follows stable. A non-stable installation
+must name its exact version and provide explicit install and binary paths
+disjoint from the defaults.
+
+No `ectropy.toml` schema or stored-data migration is required. Installing the
+managed Ectropy skill remains optional.

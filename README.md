@@ -47,3 +47,17 @@ Unix:
 ```sh
 curl -fsSL https://releases.ectropy.perish.uk/manage.sh | sh
 ```
+
+That canonical command installs the stable consensus into the default user
+paths. Every non-stable release exists only as an exact seal. Resolve its fixed
+manager from that seal and give it an isolated seat:
+
+```sh
+seal=https://releases.ectropy.perish.uk/v1/releases/beta/v0.4.0-beta.1/seal.json
+manager=$(curl -fsSL "$seal" | jq -er '.managers.unix.url')
+curl -fsSL "$manager" | sh -s -- install \
+  --install-root "$RUNNER_TEMP/ectropy-beta/install" \
+  --bin-dir "$RUNNER_TEMP/ectropy-beta/bin"
+```
+
+The exact manager carries the release authority, channel, and version.
