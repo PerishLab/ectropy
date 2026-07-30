@@ -1,7 +1,7 @@
 use super::Scan;
 use crate::Node;
 use grammar::Kind;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 struct Member {
     key: String,
@@ -61,9 +61,12 @@ impl Scan<'_> {
             .collect();
         let mut counts: HashMap<String, usize> = HashMap::new();
         for member in &members {
-            let count = counts.entry(member.key.clone()).or_insert(0);
-            *count += 1;
-            if *count > 3 {
+            *counts.entry(member.key.clone()).or_insert(0) += 1;
+        }
+        let mut seen: HashSet<String> = HashSet::new();
+        for member in &members {
+            let crowded = counts.get(&member.key).is_some_and(|count| *count > 3);
+            if crowded && seen.insert(member.key.clone()) {
                 let note = group(member, &members);
                 self.mark(member.at, "receiver", &note);
             }
@@ -94,7 +97,11 @@ fn group(member: &Member, members: &[Member]) -> String {
         .map(|other| other.name.as_str())
         .collect::<Vec<_>>()
         .join(", ");
-    format!("{} functions share {}: {names}", group.len(), member.seat)
+    format!(
+        "{} functions share {}: {names}; see: ectropy cookbook receiver",
+        group.len(),
+        member.seat
+    )
 }
 
 fn key(text: &str) -> String {

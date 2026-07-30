@@ -15,6 +15,10 @@ const ENTRIES: &[Entry] = &[
         body: include_str!("../cookbook/fanout.md"),
     },
     Entry {
+        name: "receiver",
+        body: include_str!("../cookbook/receiver.md"),
+    },
+    Entry {
         name: "shadow",
         body: include_str!("../cookbook/shadow.md"),
     },

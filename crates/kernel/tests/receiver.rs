@@ -45,11 +45,11 @@ fn receiver() {
         .filter(|finding| finding.law == "receiver")
         .collect();
     assert_eq!(grouped.len(), 1);
-    assert_eq!(grouped[0].line, 4);
-    assert_eq!(grouped[0].col, 11);
+    assert_eq!(grouped[0].line, 1);
+    assert_eq!(grouped[0].col, 9);
     assert_eq!(
         grouped[0].note,
-        "4 functions share app: load, save, query, delete"
+        "4 functions share app: load, save, query, delete; see: ectropy cookbook receiver"
     );
     let trio = "fn a(st: &State) {}\nfn b(st: &State) {}\nfn c(st: &State) {}";
     assert_eq!(count(laws(trio), "receiver"), 0);
@@ -66,7 +66,11 @@ fn receiver() {
         .filter(|finding| finding.law == "receiver")
         .map(|finding| (finding.line, finding.col))
         .collect();
-    assert_eq!(points, vec![(4, 6), (5, 6)]);
+    assert_eq!(points, vec![(1, 6)]);
+    let eight = "fn a(st: &State) {}\nfn b(st: &State) {}\nfn c(st: &State) {}\nfn d(st: &State) {}\nfn e(st: &State) {}\nfn f(st: &State) {}\nfn g(st: &State) {}\nfn h(st: &State) {}";
+    assert_eq!(count(laws(eight), "receiver"), 1);
+    let pair = "fn a(st: &State) {}\nfn b(st: &State) {}\nfn c(st: &State) {}\nfn d(st: &State) {}\nfn e(dw: &Deck) {}\nfn f(dw: &Deck) {}\nfn g(dw: &Deck) {}\nfn h(dw: &Deck) {}";
+    assert_eq!(count(laws(pair), "receiver"), 2);
 }
 
 #[test]
