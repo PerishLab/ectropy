@@ -53,7 +53,7 @@ paths. Every non-stable release exists only as an exact seal. Resolve its fixed
 manager from that seal and give it an isolated seat:
 
 ```sh
-seal=https://releases.ectropy.perish.uk/v1/releases/beta/v0.4.0-beta.1/seal.json
+seal=https://releases.ectropy.perish.uk/v1/releases/beta/v0.5.0-beta.1/seal.json
 manager=$(curl -fsSL "$seal" | jq -er '.managers.unix.url')
 curl -fsSL "$manager" | sh -s -- install \
   --install-root "$RUNNER_TEMP/ectropy-beta/install" \

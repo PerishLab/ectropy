@@ -10,8 +10,6 @@ struct Cli {
     command: Option<Command>,
     #[arg(default_value = ".")]
     root: PathBuf,
-    #[arg(long = "strict", hide = true)]
-    _strict: bool,
 }
 
 #[derive(Subcommand)]

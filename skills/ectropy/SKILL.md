@@ -132,5 +132,5 @@ an exact immutable version, and a new explicit path ending in `ectropy`. It
 writes a staged marker without reading or writing the managed ledger. Stable
 refuses staging, and non-stable releases refuse every managed operation.
 
-The v0.4 line accepts hidden `--strict` only as an inert compatibility spelling.
-It changes no result and retires in v0.5.0. `--debt` is invalid.
+The former `--strict` and `--debt` options are invalid. Ectropy has one refusal
+mode: every finding is an error.

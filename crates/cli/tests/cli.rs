@@ -135,15 +135,13 @@ fn coverage() {
 }
 
 #[test]
-fn compatibility() {
-    let seat = Seat::new();
-    fs::write(seat.path().join("bad.rs"), "fn read_file() {}\n").expect("write source");
-    let root = seat.path().to_str().expect("path");
-    let strict = run(&["--strict", root]);
-    assert_eq!(strict.status.code(), Some(1));
-    assert!(text(&strict.stdout).contains(" word read_file"));
-    let debt = run(&["--debt", root]);
+fn retired() {
+    let strict = run(&["--strict", "."]);
+    assert_eq!(strict.status.code(), Some(2));
+    assert!(text(&strict.stderr).contains("unexpected argument '--strict'"));
+    let debt = run(&["--debt", "."]);
     assert_eq!(debt.status.code(), Some(2));
+    assert!(text(&debt.stderr).contains("unexpected argument '--debt'"));
     let help = run(&["--help"]);
     let stdout = text(&help.stdout);
     assert!(!stdout.contains("--strict"), "{stdout}");

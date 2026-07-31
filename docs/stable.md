@@ -85,9 +85,8 @@ dictionary per module root. Exit 0 means exactly `clean`; every finding exits
 1. Invalid roots, malformed or unreadable configuration, source IO failures,
 and invalid schema references exit 2 and never print `clean`.
 
-The v0.4 line accepts the former `--strict` spelling as a hidden inert
-compatibility option. It changes no result and retires in v0.5.0. The former
-`--debt` option is invalid.
+The former `--strict` and `--debt` options are invalid. Ectropy has one refusal
+mode: every finding is an error.
 
 `ectropy skill` installs, inspects, upgrades, lists, and removes the versioned
 operating brief shipped with each release.
