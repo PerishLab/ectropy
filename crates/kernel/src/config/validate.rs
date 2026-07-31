@@ -83,6 +83,7 @@ fn law(law: &str) -> bool {
         "block"
             | "burr"
             | "comment"
+            | "combination"
             | "coverage"
             | "dispatch"
             | "fanout"

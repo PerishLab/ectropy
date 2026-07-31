@@ -2,7 +2,7 @@
 name = "skill"
 paths = ["skills/ectropy"]
 version = "0.4.0"
-hash = "c733c4b0d9b0e39a72247a3b5fe967efa4e6a64786bc980318bfadccc4ecbe65"
+hash = "a1b6331c752129caab2ccaa81215cdf2a5b88f6ce69a609c4217c92d527c4ad9"
 
 [release]
 product = "ectropy"

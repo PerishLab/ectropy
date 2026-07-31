@@ -65,8 +65,13 @@ fn bare(element: &str) -> Option<String> {
     let [name, colon, root, dot, field] = lot.as_slice() else {
         return None;
     };
-    (colon == ":" && dot == "." && name == field && named(name) && named(root))
-        .then(|| root.clone())
+    if colon != ":" || dot != "." || name != field {
+        return None;
+    }
+    if !named(name) || !named(root) {
+        return None;
+    }
+    Some(root.clone())
 }
 
 fn chunk(rest: &str) -> Option<(String, &str)> {

@@ -12,6 +12,14 @@ honestly detectable signal belongs under law. A procedure awaiting automation
 belongs in the cookbook only while it names the condition that deletes it;
 judgment with no writable exit belongs permanently in principles.
 
+## KISS
+
+KISS refuses anonymous models. A short expression is not simple when it carries
+an unnamed combination space, table, object, parameter structure, or
+translation. Each law names one mechanically detectable projection of that
+absence and pushes the model into structure. KISS is the principle above those
+laws, never a finding of its own.
+
 ## Single word
 
 A name should be one vocabulary atom in the current language namespace, not one
@@ -57,6 +65,14 @@ The second equality against one subject makes sibling branches a table, and a
 table is one match, not a ladder of ifs. A decision is a thing; give it one
 node. Guard chains over different subjects, comparisons between variables,
 and branches separated by other work are not tables and stay untouched.
+
+## Combination
+
+A Boolean expression combines at most three decision atoms. The fourth opens an
+anonymous combination model: temporal facts become an explicit state and
+transition, while orthogonal facts become a classification, pattern, decision
+table, or domain type. Extracting the same expression behind a predicate name
+does not change its model and remains a finding at the new site.
 
 ## Receiver
 

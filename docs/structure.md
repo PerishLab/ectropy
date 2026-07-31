@@ -35,6 +35,11 @@ a kind is a contract change, reviewed against `principles.md`.
   production gating and stays unmarked.
 - `probe` — the subject of a literal-equality branch (`if x == LIT`). The
   dispatch law reads consecutive probe runs; a repeated subject is an error.
+- `decision` — one connected Boolean combination. Its direct `atom` children
+  are the decision atoms after transparent parentheses and negation are
+  flattened. Combinations inside calls remain independent.
+- `atom` — one direct input to a `decision`; the combination law counts these
+  children and refuses the fourth.
 - `receiver` — the first parameter of a free function (`name: Type`, self
   excluded). The receiver law groups them per file; a fourth function on one
   receiver is an error. Lifetimes and whitespace are erased before grouping.

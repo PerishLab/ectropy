@@ -30,6 +30,7 @@ impl<'a> Scan<'a> {
         self.single(node);
         self.grant(node);
         self.dispatch(node);
+        self.combination(node);
         self.arity(node);
         self.burr(node);
         self.shadow(node);
@@ -65,12 +66,30 @@ impl<'a> Scan<'a> {
         }
     }
 
+    fn combination(&mut self, node: &Node) {
+        if node.kind != Kind::Decision || self.config.exempt(&self.source.path, "combination") {
+            return;
+        }
+        let count = node.kids.len();
+        if count <= self.config.file.limit.combination {
+            return;
+        }
+        let note = format!(
+            "{count} decision atoms over limit {}, the boolean expression carries an anonymous combination model; see: ectropy cookbook combination",
+            self.config.file.limit.combination
+        );
+        self.mark(node.span.start, "combination", &note);
+    }
+
     fn table(&self, run: &[Node]) -> bool {
-        run[0].kind == Kind::Probe
-            && run[1].kind == Kind::Scope
-            && run[2].kind == Kind::Probe
-            && self.word(&run[0]) == self.word(&run[2])
-            && self.linked(run[1].span.end, run[2].span.start)
+        let [first, gap, next] = run else {
+            return false;
+        };
+        let kinds = (first.kind, gap.kind, next.kind);
+        if !matches!(kinds, (Kind::Probe, Kind::Scope, Kind::Probe)) {
+            return false;
+        }
+        self.word(first) == self.word(next) && self.linked(gap.span.end, next.span.start)
     }
 
     fn linked(&self, from: usize, to: usize) -> bool {
@@ -123,14 +142,16 @@ impl<'a> Scan<'a> {
 
     fn single(&mut self, node: &Node) {
         let name = self.word(node);
-        if node.kind == Kind::Word
-            && self.config.file.word.single
-            && compound(name)
-            && !self.config.registered(name)
-            && !self.config.exempt(&self.source.path, "word")
-        {
-            self.mark(node.span.start, "word", name);
+        if node.kind != Kind::Word || !self.config.file.word.single {
+            return;
         }
+        if !compound(name) || self.config.registered(name) {
+            return;
+        }
+        if self.config.exempt(&self.source.path, "word") {
+            return;
+        }
+        self.mark(node.span.start, "word", name);
     }
 
     fn block(&mut self, node: &Node) {

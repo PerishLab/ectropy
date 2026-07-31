@@ -7,7 +7,7 @@ here is not promised.
 
 ## Laws
 
-Fifteen laws judge a codebase. Every finding is an error and fails the run;
+Sixteen laws judge a codebase. Every finding is an error and fails the run;
 anything that cannot justify refusal does not emit.
 
 - `word` — a declared name is one vocabulary atom; an unregistered compound is
@@ -29,6 +29,8 @@ anything that cannot justify refusal does not emit.
   cumulative, override matching grants, and cannot be boundary-exempted.
 - `dispatch` — a repeated equality subject across adjacent branches is a table
   refusing to exist.
+- `combination` — a Boolean expression combining more than three decision atoms
+  carries an anonymous combination model.
 - `receiver` — a fourth free function in one file on one receiver names an
   object that does not exist yet. The fourth and every later finding
   names the total group and every member function in source order.
@@ -63,7 +65,7 @@ reviewed contract change. `ectropy shape` emits one valid
 ## Configuration
 
 `ectropy.toml`: `[scan]` include/exclude globs, `[module]` roots, `[limit]`
-block/path/param/markup/file/fanout, `[comment]` allow, `[word]` single,
+block/path/param/combination/markup/file/fanout, `[comment]` allow, `[word]` single,
 `[[boundary]]` paths/allow/note, `[[grant]]` syntax/paths, `[[ban]]`
 syntax/paths, and
 `[[vocabulary.term]]` name/description. Both vocabulary fields are required and

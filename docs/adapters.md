@@ -14,6 +14,9 @@ never a new crate. Adding one is a bounded, declared change.
   the single-word law can resolve names against the language namespace. The first
   rule splits identifiers on snake_case and camelCase boundaries; the living
   vocabulary then reconciles which multi-atom names are legitimate.
+- A Boolean-combination claim over the language's logical conjunction and
+  disjunction spelling. The claim maps connected combinations to shared
+  `decision` and `atom` nodes without exporting a language expression tree.
 
 ## What kernel provides
 
@@ -23,6 +26,13 @@ module roots provide the language-independent coordinate system for path depth;
 they are not adapter or package-manager knowledge. The checks are not
 reimplemented per language. The adapter is only the map from native constructs
 to the shared kind vocabulary plus the namespace-atom spec.
+
+Rust and TypeScript both spell conjunction and disjunction as `&&` and `||`.
+Parentheses and unary negation preserve one connected combination; call
+arguments, assignments, branches, and statement boundaries start independent
+ones. Rust's prefix `||` closure spelling is rectified by its adapter and never
+becomes a disjunction. TypeScript regex literals are opaque after lexical
+expression-start seats, while `/` after an expression remains division.
 
 ## Two layers of law
 

@@ -4,11 +4,15 @@ use crate::rules;
 use crate::{Cst, Kind, Source, Span};
 
 pub(crate) fn rust(root: &mut Cst, source: &Source) {
-    Sweep::load(source, &rules::rust().0).stds(root);
+    let sweep = Sweep::load(source, &rules::rust().0);
+    sweep.decisions(root);
+    sweep.stds(root);
 }
 
 pub(crate) fn web(root: &mut Cst, source: &Source, rules: &(Vec<format::Rule>, Vec<format::Rule>)) {
-    Sweep::load(source, &rules.0).members(root);
+    let sweep = Sweep::load(source, &rules.0);
+    sweep.decisions(root);
+    sweep.members(root);
 }
 
 struct Sweep<'a> {
@@ -30,6 +34,11 @@ impl<'a> Sweep<'a> {
             .get(at)
             .and_then(|token| self.source.text.get(token.start..token.end))
             .unwrap_or("")
+    }
+
+    fn decisions(&self, root: &mut Cst) {
+        let found = crate::decision::scan(self.source, &self.held, root);
+        root.kids.extend(found);
     }
 
     fn stds(&self, root: &mut Cst) {
@@ -85,7 +94,7 @@ impl<'a> Sweep<'a> {
 
     fn handed(&self, at: usize) -> bool {
         let head = self.glyph(at);
-        (head == "Deno" || head == "process")
+        matches!(head, "Deno" | "process")
             && self.glyph(at + 1) == "."
             && self.glyph(at + 2) == "env"
     }

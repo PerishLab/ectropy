@@ -23,6 +23,7 @@ file = 300
 fanout = 10
 markup = 8
 param = 4
+combination = 3
 
 [comment]
 allow = false

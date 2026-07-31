@@ -77,6 +77,20 @@ fn empty() {
 }
 
 #[test]
+fn css() {
+    let seat = Seat::new();
+    fs::write(
+        seat.path().join("ectropy.toml"),
+        "[scan]\ninclude = [\"**/*.css\"]\n[[ban]]\nsyntax = \"style\"\npaths = [\"**/*.css\"]\n",
+    )
+    .expect("write config");
+    fs::write(seat.path().join("app.css"), ".app { color: red; }\n").expect("write css");
+    let output = run(&[seat.path().to_str().expect("path")]);
+    assert_eq!(output.status.code(), Some(1));
+    assert!(text(&output.stdout).contains(" ban style syntax banned"));
+}
+
+#[test]
 fn configured() {
     let seat = Seat::new();
     let source = seat.path().join("crates/lib/src");

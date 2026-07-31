@@ -1,4 +1,5 @@
 mod claim;
+mod decision;
 mod format;
 mod lex;
 mod parse;
@@ -28,6 +29,8 @@ pub enum Kind {
     Markup,
     Style,
     Environment,
+    Decision,
+    Atom,
 }
 
 impl std::fmt::Display for Kind {
@@ -52,6 +55,8 @@ fn name(kind: Kind) -> &'static str {
         Kind::Markup => "markup",
         Kind::Style => "style",
         Kind::Environment => "environment",
+        Kind::Decision => "decision",
+        Kind::Atom => "atom",
     }
 }
 

@@ -9,6 +9,7 @@ fn defaults() {
     let file: File = toml::from_str("").expect("empty config should parse");
     assert_eq!(file.limit.block, 4);
     assert_eq!(file.limit.path, 4);
+    assert_eq!(file.limit.combination, 3);
     assert!(file.module.roots.is_empty());
 }
 

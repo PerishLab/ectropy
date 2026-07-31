@@ -20,6 +20,11 @@ installation.
 
 ## Principles
 
+**KISS.** Refuse anonymous models. A short expression or flat file is not
+simple when it carries an unnamed combination space, table, object, parameter
+structure, or translation. Each law names one detectable projection; KISS is
+the principle above them and never a finding of its own.
+
 **Structure carries explanation.** Prefer a smaller unit, a name, a test, a
 vocabulary entry, or a document over prose embedded beside code.
 
@@ -48,6 +53,8 @@ adapter. The kernel never hard-codes framework identity or package names.
 - `grant` refuses reserved syntax outside granted paths.
 - `ban` refuses banned syntax inside declared paths.
 - `dispatch` refuses adjacent equality branches repeating one subject.
+- `combination` refuses a Boolean expression combining more than three
+  decision atoms.
 - `receiver` refuses a fourth free function sharing one receiver in a file.
 - `param` refuses a function with more than four parameters.
 - `burr` refuses a named underscore parameter accepted but unused.
@@ -84,7 +91,7 @@ segments. A bare directory names only that directory.
 
 Ectropy mechanizes:
 
-- all fifteen laws above over the scanned source set;
+- all sixteen laws above over the scanned source set;
 - configuration parsing and schema validation;
 - deterministic finding order, law digest, and hot-file digest;
 - exit 0 for `clean`, exit 1 for findings, and exit 2 for operational errors;

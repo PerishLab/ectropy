@@ -231,9 +231,8 @@ fn skip(path: &Path) -> bool {
 }
 
 fn source(path: &str) -> bool {
-    path.ends_with(".rs")
-        || path.ends_with(".ts")
-        || path.ends_with(".tsx")
-        || path.ends_with(".scss")
-        || path.ends_with(".md")
+    Path::new(path)
+        .extension()
+        .and_then(|extension| extension.to_str())
+        .is_some_and(|extension| matches!(extension, "css" | "md" | "rs" | "scss" | "ts" | "tsx"))
 }
