@@ -31,16 +31,13 @@ jobs:
       - name: Guard
         run: |
           set -eu
-          deno run \
-            --allow-read \
-            --allow-write \
-            --allow-env \
-            --allow-net \
-            --allow-run \
-            --config .runseal/deno.json \
-            --lock .runseal/deno.lock \
-            --frozen=true \
-            .runseal/wrappers/guard.ts
+          cargo fmt --all --check
+          cargo clippy --locked --workspace --all-targets -- -D warnings
+          cargo check --locked --workspace --all-targets --release
+          cargo test --locked --workspace
+          plumb doctor .
+          cargo run --quiet --locked -p ectropy -- .
+          cargo run --quiet --locked -p ectropy -- skills/ectropy
 
   guard-windows:
     runs-on: windows
