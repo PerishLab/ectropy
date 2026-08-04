@@ -42,7 +42,7 @@ paths = ["packages/*/vitest.config.ts"]
 allow = ["path"]
 
 [[boundary]]
-paths = [".runseal/**"]
+paths = [".operator/**"]
 allow = ["comment"]
 "#,
     )
@@ -51,9 +51,9 @@ allow = ["comment"]
     assert!(config.exempt("packages/react/vitest.config.ts", "path"));
     assert!(!config.exempt("packages/react/vite.config.ts", "path"));
     assert!(!config.exempt("packages/react/vitest.config.ts", "comment"));
-    assert!(config.exempt(".runseal", "comment"));
-    assert!(config.exempt(".runseal/wrappers/land.ts", "comment"));
-    assert!(!config.exempt(".runseallike/land.ts", "comment"));
+    assert!(config.exempt(".operator", "comment"));
+    assert!(config.exempt(".operator/tools/land.ts", "comment"));
+    assert!(!config.exempt(".operatorlike/land.ts", "comment"));
 }
 
 #[test]
@@ -74,7 +74,7 @@ paths = ["apps/*/src/lib/components/**"]
 
 #[test]
 fn glob() {
-    assert!(Glob::matches(".runseal/**", ".runseal/lib/cli.ts"));
+    assert!(Glob::matches(".operator/**", ".operator/lib/cli.ts"));
     assert!(Glob::matches("app/src/**/*.rs", "app/src/lib.rs"));
     assert!(Glob::matches("app/src/**/*.rs", "app/src/core/mod.rs"));
     assert!(Glob::matches("**/target/**", "target/debug/app"));
