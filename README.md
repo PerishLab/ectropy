@@ -30,15 +30,10 @@ evidence, and EXIT for agents that have only the installed binary.
 
 ## Operating
 
-Operator flows run through `runseal`:
-
-- `runseal :init` — validate the repo and install versioned git hooks.
-- `runseal :guard` — format, lint, test, check wrappers, and self-check.
-- `runseal :land` — land the current topic branch on Forgejo through
-  `tea login add --name ectropy --url https://git.perish.top --token <token>`.
-
-The repository guard runs the workspace binary directly, so a fresh checkout
-does not require a previously published ectropy.
+The complete guard is the direct command sequence in
+`.forgejo/workflows/guard.yml`. It formats, lints, checks, tests, runs Plumb
+Doctor, and checks both the repository and the Ectropy skill with the workspace
+binary. Land a passing topic branch with `plumb land`.
 
 ## Install
 

@@ -44,9 +44,4 @@ paths = [".forgejo/**"]
 note = "release product glue is platform-specific ci infrastructure"
 allow = ["path", "comment"]
 
-[[boundary]]
-paths = [".runseal/**"]
-note = "runseal operator glue is vendored; guarded by deno fmt and deno check instead"
-allow = ["path", "comment", "word"]
-
 [vocabulary]

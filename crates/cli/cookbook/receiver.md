@@ -10,7 +10,7 @@ The shared seat is a receiver nobody declared. Read whether the functions need t
 
 ## Evidence
 
-The sealkit ops plane carried fifteen such groups: `Bucket` and `Project` took constructor state, while the command, address and both filesystem seats became static namespaces matching the shape `lib/std/fs.ts` already held. Folding a crowded file into a type costs one level of depth and a few lines — `publish.ts` crossed the file and block limits on the way and had to split into a directory before the fold would hold.
+One operations plane carried fifteen such groups: `Bucket` and `Project` took constructor state, while the command, address and both filesystem seats became static namespaces matching the shape `lib/std/fs.ts` already held. Folding a crowded file into a type costs one level of depth and a few lines — `publish.ts` crossed the file and block limits on the way and had to split into a directory before the fold would hold.
 
 ## EXIT
 

@@ -24,11 +24,10 @@ one contract; do not reach around it. Add a language via `docs/adapters.md`
 
 ## Operating
 
-- Never commit on `main`; the pre-commit hook refuses it. Branch, then commit.
-- `runseal :guard` must pass before landing. `runseal :land` squash-merges the
-  topic branch on Forgejo.
-- Repo-local operator flows are TypeScript under `.runseal/wrappers`. Do not add
-  Python or uv for operator flows.
+- Never commit on `main`. Branch before committing.
+- The complete direct guard in `.forgejo/workflows/guard.yml` must pass before
+  landing.
+- `plumb land` is the landing authority.
 
 ## Release
 
