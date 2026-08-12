@@ -12,15 +12,15 @@ same constitution ectropy enforces on others.
 - Block depth <= 4. Path depth <= 4 from a declared module root. Flatten before
   nesting deeper.
 - No comments by default. Move explanation into a name, a test, the vocabulary,
-  or a doc. Boundary exemptions live in `ectropy.toml`.
+  or an admitted document. Boundary exemptions live in `ectropy.toml`.
 
 ## Architecture
 
 Three crates, no plugin crate: `grammar` (substrate + embedded g4), `kernel`
 (structure tree + checks + thin adapters), `cli`. Dependency direction is
-`cli -> kernel -> grammar`. The structure tree in `docs/structure.md` is the
-one contract; do not reach around it. Add a language via `docs/adapters.md`
-(a grammar resource + a namespace-atom spec), never a new crate.
+`cli -> kernel -> grammar`. [DESIGN.md](DESIGN.md) owns the structure-tree and
+adapter contracts; do not reach around them. Add a language as grammar and
+namespace data inside the existing crates, never as a plugin crate.
 
 ## Operating
 
@@ -51,4 +51,4 @@ one contract; do not reach around it. Add a language via `docs/adapters.md`
   stable capsule compiler before anything irreversible.
   `plumb doctor` does not check this: a changelog is owed by a release, not by a
   working tree. A release requiring nothing of anyone still writes MIGRATION.md
-  saying so. See `plumb/docs/changelog.md`.
+  saying so. Follow the Plumb skill and its release-local CHANGELOG contract.

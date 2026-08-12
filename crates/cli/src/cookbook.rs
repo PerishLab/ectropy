@@ -8,23 +8,23 @@ struct Entry {
 const ENTRIES: &[Entry] = &[
     Entry {
         name: "burr",
-        body: include_str!("../cookbook/burr.md"),
+        body: include_str!("../cookbook/burr.txt"),
     },
     Entry {
         name: "combination",
-        body: include_str!("../cookbook/combination.md"),
+        body: include_str!("../cookbook/combination.txt"),
     },
     Entry {
         name: "fanout",
-        body: include_str!("../cookbook/fanout.md"),
+        body: include_str!("../cookbook/fanout.txt"),
     },
     Entry {
         name: "receiver",
-        body: include_str!("../cookbook/receiver.md"),
+        body: include_str!("../cookbook/receiver.txt"),
     },
     Entry {
         name: "shadow",
-        body: include_str!("../cookbook/shadow.md"),
+        body: include_str!("../cookbook/shadow.txt"),
     },
 ];
 

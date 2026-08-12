@@ -1,11 +1,18 @@
-[[lock]]
-name = "skill"
-paths = ["skills/ectropy"]
-version = "0.6.0"
-hash = "ee304a4df692edbfe84d8368806d363eaddbf03ae4d526c3d7ad5086db45bd5d"
+[[document]]
+strategy = "agent"
+source = [{ path = ".", seal = "9c9847d3cabb2d06e2ce7a4b71f3c680b0988bd2f9090d9bee3257eedfe262b8" }]
+target-seal = "49d16df6de22752c2615fdfe78aae64e01dc17d1dfa2513f27f6b73feff8d0ca"
 
-[skill]
+[[document]]
+strategy = "design"
+source = [{ path = ".", seal = "9c9847d3cabb2d06e2ce7a4b71f3c680b0988bd2f9090d9bee3257eedfe262b8" }]
+target-seal = "f575a3492fc541314fe25dae6501551f9a861313e2d2562d378cc529b571a38d"
+
+[[document]]
 strategy = "brief"
+name = "ectropy"
+source = [{ path = ".", seal = "9c9847d3cabb2d06e2ce7a4b71f3c680b0988bd2f9090d9bee3257eedfe262b8" }]
+target-seal = "b5cc7f35459a658e21c6cce383eadc87a0ea483a71f5134869a2bac164198ab2"
 
 [release]
 product = "ectropy"
