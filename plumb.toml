@@ -1,7 +1,7 @@
 [[lock]]
 name = "skill"
 paths = ["skills/ectropy"]
-version = "0.5.0"
+version = "0.6.0"
 hash = "ee304a4df692edbfe84d8368806d363eaddbf03ae4d526c3d7ad5086db45bd5d"
 
 [skill]

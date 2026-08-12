@@ -24,7 +24,7 @@ anything that cannot justify refusal does not emit.
 - `grant` — granted syntax outside its declared territory is an error; test and
   style are the open classes (undeclared means unrestricted), environment is
   sealed (undeclared means denied everywhere) — its refusal routes to the
-  config cascade.
+  config cascade. A grant is widened, never boundary-exempted.
 - `ban` — banned syntax inside a declared path is an error. Matching bans are
   cumulative, override matching grants, and cannot be boundary-exempted.
 - `dispatch` — a repeated equality subject across adjacent branches is a table
@@ -45,7 +45,12 @@ anything that cannot justify refusal does not emit.
   three fields copied whole, signals twin structures that should derive or
   compose. A real layer border must be declared as a justified boundary.
 - `coverage` — an unparsed region is an error because the checker cannot claim
-  a clean result for syntax it did not understand.
+  a clean result for syntax it did not understand, and it cannot be
+  boundary-exempted for the same reason.
+
+The catalog behind these names is the single truth: `ectropy law` prints every
+law with what it refuses and whether it admits a boundary. Configuration refuses
+a sealed name outright rather than accepting an exemption that never fires.
 
 ## Dialects
 
@@ -90,6 +95,10 @@ mode: every finding is an error.
 
 `ectropy skill` installs, inspects, upgrades, lists, and removes the versioned
 operating brief shipped with each release.
+
+`ectropy law` prints the law catalog; `ectropy law <entry>` prints one law with
+what it refuses and whether it admits a boundary. An unknown name exits 2 and
+lists the available names.
 
 `ectropy cookbook` prints the embedded entry ledger with every EXIT clause;
 `ectropy cookbook <entry>` prints one trigger, move, evidence, and EXIT.
