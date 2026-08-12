@@ -10,8 +10,9 @@
 
 ## Repair a finding
 
-Repair the structure the law names; `ectropy cookbook <entry>` explains a move
-when a finding names one. Never suppress a finding merely to restore exit zero,
+Repair the structure the law names. `ectropy law NAME` states what that law
+refuses and whether it admits a boundary; `ectropy cookbook <entry>` explains a
+move when a finding names one. Never suppress a finding merely to restore exit zero,
 and never narrow the scan to manufacture a clean result. `ectropy shape` prints
 the tree Ectropy judged and `ectropy vocabulary` the living atoms per namespace.
 

@@ -2,7 +2,7 @@
 name = "skill"
 paths = ["skills/ectropy"]
 version = "0.5.0"
-hash = "996ed1a04d0f439b8ab32594a0fc60f51b78210f0a3e3e418ce42e910d6ab8d1"
+hash = "ee304a4df692edbfe84d8368806d363eaddbf03ae4d526c3d7ad5086db45bd5d"
 
 [skill]
 strategy = "brief"

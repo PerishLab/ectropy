@@ -20,27 +20,16 @@ error and exit zero means exactly `clean`. Outside a repository carrying
 
 ## Laws
 
-- `word` refuses an unregistered compound declared name.
-- `path` refuses nesting past four levels below its module root.
-- `file` refuses a source file longer than three hundred lines.
-- `fanout` refuses a scanned directory with more than ten children.
-- `block` refuses scope depth past four.
-- `markup` refuses element depth past eight on its independent axis.
-- `comment` refuses a comment where policy disallows it.
-- `grant` refuses reserved syntax outside granted paths.
-- `ban` refuses banned syntax inside declared paths.
-- `dispatch` refuses adjacent equality branches repeating one subject.
-- `combination` refuses a Boolean expression over more than three atoms.
-- `receiver` refuses a fourth free function sharing one receiver in a file.
-- `param` refuses a function with more than four parameters.
-- `burr` refuses a named underscore parameter accepted but unused.
-- `shadow` refuses a literal densely copied bare from one source root.
-- `coverage` refuses an unparsed region.
+Sixteen named laws each refuse one detectable shape. Query the catalog instead
+of copying it: `ectropy law` lists every name with what it refuses, and
+`ectropy law NAME` reads one. `ban`, `coverage`, and `grant` admit no boundary
+exemption; the catalog says so per law.
 
 ## Actions
 
 ```bash
 ectropy [ROOT]
+ectropy law [NAME]
 ectropy shape [ROOT]
 ectropy vocabulary [ROOT]
 ectropy cookbook [ENTRY]

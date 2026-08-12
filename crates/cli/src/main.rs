@@ -22,6 +22,9 @@ enum Command {
         #[arg(default_value = ".")]
         root: PathBuf,
     },
+    Law {
+        name: Option<String>,
+    },
     Cookbook {
         entry: Option<String>,
     },
@@ -36,6 +39,7 @@ fn version() -> &'static str {
 }
 
 mod cookbook;
+mod law;
 mod repo;
 mod report;
 mod rig;
@@ -100,6 +104,10 @@ fn run() -> Result<(), Error> {
     match command {
         Some(Command::Cookbook { entry }) => {
             let text = cookbook::render(entry.as_deref()).map_err(Error::note)?;
+            out.write_all(text.as_bytes())?;
+        }
+        Some(Command::Law { name }) => {
+            let text = law::render(name.as_deref()).map_err(Error::note)?;
             out.write_all(text.as_bytes())?;
         }
         Some(Command::Shape { root }) => {

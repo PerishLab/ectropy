@@ -25,9 +25,7 @@ pub(super) fn run(file: &File) -> Result<(), Error> {
             return Err(Error::new("boundary allow must not be empty"));
         }
         for name in &edge.allow {
-            if !law(name) {
-                return Err(Error::new(format!("unknown boundary law `{name}`")));
-            }
+            allowed(name)?;
         }
     }
     for grant in &file.grant {
@@ -77,25 +75,17 @@ fn syntax(name: &str) -> bool {
     matches!(name, "environment" | "style" | "test")
 }
 
-fn law(law: &str) -> bool {
-    matches!(
-        law,
-        "block"
-            | "burr"
-            | "comment"
-            | "combination"
-            | "coverage"
-            | "dispatch"
-            | "fanout"
-            | "file"
-            | "grant"
-            | "markup"
-            | "param"
-            | "path"
-            | "receiver"
-            | "shadow"
-            | "word"
-    )
+fn allowed(name: &str) -> Result<(), Error> {
+    let Some(law) = crate::law::find(name) else {
+        return Err(Error::new(format!("unknown boundary law `{name}`")));
+    };
+    if !law.exempt {
+        return Err(Error::new(format!(
+            "boundary law `{name}` admits no exemption: {}",
+            law.note
+        )));
+    }
+    Ok(())
 }
 
 fn glob(pattern: &str) -> Result<(), Error> {

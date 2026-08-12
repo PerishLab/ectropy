@@ -1,4 +1,5 @@
 pub mod config;
+pub mod law;
 pub mod path;
 mod scan;
 mod shadow;

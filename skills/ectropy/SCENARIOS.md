@@ -4,9 +4,10 @@
 
 Add a boundary only for mechanically identifiable territory, keep its path
 narrow, and write the real reason. A boundary changes where a law applies; it is
-not a tolerated diagnostic, and nothing checks that its rationale is true. A
-`ban` finding has no boundary route: `allow` accepts the other fifteen names
-only, so move the syntax or change the ban.
+not a tolerated diagnostic, and nothing checks that its rationale is true. Three
+laws refuse the route outright: `coverage` because a clean result cannot cover
+unread terrain, and `grant` and `ban` because their own declared paths already
+carry the territory. Widen the grant or narrow the ban instead.
 
 ## A name looks like it should be registered
 

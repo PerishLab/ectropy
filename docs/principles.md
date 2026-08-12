@@ -119,11 +119,18 @@ Vendored infra and other mechanically identifiable territory may exempt named
 laws through `[[boundary]]`. An exemption is declared, path-scoped, and
 justified in `ectropy.toml`; it never changes which files are scanned.
 
+Not every law admits one. `coverage` refuses the route because a clean result
+cannot cover terrain nobody parsed, and `grant` and `ban` refuse it because
+their own declarations already carry the territory. The catalog holds which
+laws are sealed, and configuration refuses a sealed name rather than accepting
+an exemption that would never fire. Read it with `ectropy law`.
+
 ## Syntax grants
 
 The dual of a boundary: a `[[grant]]` reserves a syntax class to declared
 territory, and that syntax appearing anywhere else is an error. Test syntax is
-the first class: with a grant declared, product files hold zero test code, so
+the first class: a grant is widened, never exempted, so with one declared
+product files hold zero test code and
 `ls` is the audit. Territory rides each toolchain's own test-discovery
 contract — cargo's `tests/` directory, Deno's `*.test.ts` suffix — one truth
 source per language. No grant declared for a class means that class is
