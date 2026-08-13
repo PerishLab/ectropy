@@ -109,10 +109,18 @@ containers re-enter normal parsing so code scope continues independently. The
 ecosystem `use` prefix is treated as a namespace dialect, while PascalCase
 components receive no compound-name exemption.
 
-Style attributes, style elements, stylesheet imports, and whole CSS or SCSS
-files become `style` evidence. CSS and SCSS internals are intentionally not
-parsed today. Markdown currently exposes heading scopes only. These are honest
-coverage limits, not promises that malformed syntax is acceptable.
+Svelte extends the same TypeScript grammar without teaching kernel about
+Svelte. Script declarations, legacy reactive statements, runes, template
+expressions, control blocks, snippets, special tags, components, and HTML
+comments enter the shared tree through their structural roles. Control blocks
+become `scope`, elements become `markup`, and component filenames remain path
+atoms subject to the same single-word law as every other source file.
+
+Style attributes, style elements, Svelte style blocks, stylesheet imports, and
+whole CSS or SCSS files become `style` evidence. CSS and SCSS internals are
+intentionally not parsed today. Markdown currently exposes heading scopes
+only. These are honest coverage limits, not promises that malformed syntax is
+acceptable.
 
 Per-language calibration may decide how native constructs map into the common
 constitution, but it cannot contradict that constitution. Framework identity,

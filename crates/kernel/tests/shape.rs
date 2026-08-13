@@ -51,6 +51,11 @@ fn word() {
     assert!(kernel::path::word("docs/adapter-contract.md", &config).is_empty());
     assert!(kernel::path::word("app/src/APIBase.rs", &config).len() == 1);
     assert!(kernel::path::word("app/src/vite.config.ts", &config).is_empty());
+    assert!(kernel::path::word("app/src/Card.svelte", &config).is_empty());
+    assert_eq!(
+        kernel::path::word("app/src/UserCard.svelte", &config).len(),
+        1
+    );
     assert_eq!(
         kernel::path::word("app/src/good.bad_name.ts", &config).len(),
         1

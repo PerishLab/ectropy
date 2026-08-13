@@ -234,5 +234,10 @@ fn source(path: &str) -> bool {
     Path::new(path)
         .extension()
         .and_then(|extension| extension.to_str())
-        .is_some_and(|extension| matches!(extension, "css" | "md" | "rs" | "scss" | "ts" | "tsx"))
+        .is_some_and(|extension| {
+            matches!(
+                extension,
+                "css" | "md" | "rs" | "scss" | "svelte" | "ts" | "tsx"
+            )
+        })
 }

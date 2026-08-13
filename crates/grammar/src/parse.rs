@@ -226,6 +226,7 @@ fn kind(r: &Rule) -> Option<Kind> {
         Some("param") => Some(Kind::Param),
         Some("markup") => Some(Kind::Markup),
         Some("style") => Some(Kind::Style),
+        Some("loose") => Some(Kind::Loose),
         _ => None,
     }
 }

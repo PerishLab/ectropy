@@ -81,14 +81,13 @@ pub fn parse(source: &Source) -> Cst {
         return root;
     }
     if source.path.ends_with(".ts") {
-        let mut root = rules::web(rules::ts(), source);
-        claim::web(&mut root, source, rules::ts());
-        return root;
+        return rules::web(rules::ts(), source);
     }
     if source.path.ends_with(".tsx") {
-        let mut root = rules::web(rules::tsx(), source);
-        claim::web(&mut root, source, rules::tsx());
-        return root;
+        return rules::web(rules::tsx(), source);
+    }
+    if source.path.ends_with(".svelte") {
+        return rules::web(rules::svelte(), source);
     }
     if source.path.ends_with(".scss") || source.path.ends_with(".css") {
         return rules::swatch(source.text.len());
