@@ -1,10 +1,11 @@
-use crate::format;
 use crate::{Cst, Kind, Source, Span, braces, hook, sheet};
+use crate::{claim, format};
 use std::sync::OnceLock;
 
 const RUST: &str = include_str!("../grammars/rust.g4");
 const TS: &str = include_str!("../grammars/ts.g4");
 const JSX: &str = include_str!("../grammars/jsx.g4");
+const SVELTE: &str = include_str!("../grammars/svelte.g4");
 
 pub(crate) fn rust() -> &'static (Vec<format::Rule>, Vec<format::Rule>) {
     static CELL: OnceLock<(Vec<format::Rule>, Vec<format::Rule>)> = OnceLock::new();
@@ -19,6 +20,11 @@ pub(crate) fn ts() -> &'static (Vec<format::Rule>, Vec<format::Rule>) {
 pub(crate) fn tsx() -> &'static (Vec<format::Rule>, Vec<format::Rule>) {
     static CELL: OnceLock<(Vec<format::Rule>, Vec<format::Rule>)> = OnceLock::new();
     CELL.get_or_init(|| split(format::load(&[TS, JSX].concat())))
+}
+
+pub(crate) fn svelte() -> &'static (Vec<format::Rule>, Vec<format::Rule>) {
+    static CELL: OnceLock<(Vec<format::Rule>, Vec<format::Rule>)> = OnceLock::new();
+    CELL.get_or_init(|| split(format::load(&[TS, SVELTE].concat())))
 }
 
 fn split(all: Vec<format::Rule>) -> (Vec<format::Rule>, Vec<format::Rule>) {
@@ -48,6 +54,7 @@ fn upper(name: &str) -> bool {
 pub(crate) fn web(rules: &(Vec<format::Rule>, Vec<format::Rule>), source: &Source) -> Cst {
     let mut root = braces(source, rules);
     dialect(&mut root, &source.text);
+    claim::web(&mut root, source, rules);
     root
 }
 

@@ -43,7 +43,7 @@ fn atoms(part: &str, file: bool) -> Vec<&str> {
 }
 
 fn source(extension: &str) -> bool {
-    matches!(extension, "md" | "rs" | "scss" | "ts" | "tsx")
+    matches!(extension, "md" | "rs" | "scss" | "svelte" | "ts" | "tsx")
 }
 
 fn flat(name: &str) -> String {

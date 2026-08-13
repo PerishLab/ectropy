@@ -91,6 +91,22 @@ fn css() {
 }
 
 #[test]
+fn svelte() {
+    let seat = Seat::new();
+    fs::write(
+        seat.path().join("BadName.svelte"),
+        "<script lang=\"ts\">let count = 0;</script><button>{count}</button>\n",
+    )
+    .expect("write svelte");
+    let output = run(&[seat.path().to_str().expect("path")]);
+    assert_eq!(output.status.code(), Some(1));
+    let stdout = text(&output.stdout);
+    assert!(stdout.contains("BadName.svelte"), "{stdout}");
+    assert!(stdout.contains(" word BadName"), "{stdout}");
+    assert!(!stdout.contains(" coverage "), "{stdout}");
+}
+
+#[test]
 fn configured() {
     let seat = Seat::new();
     let source = seat.path().join("crates/lib/src");
