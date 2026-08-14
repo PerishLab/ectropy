@@ -1,17 +1,17 @@
 [[document]]
 strategy = "agent"
-source = [{ path = ".", seal = "999a1f27703acce682098c29d98e2911901914525c54dedac93f1fcefd75525c" }]
+source = [{ path = ".", seal = "e685a26c279b736759ce85b4a1e10c600479315962a6e59287241c6befc62b8a" }]
 target-seal = "49d16df6de22752c2615fdfe78aae64e01dc17d1dfa2513f27f6b73feff8d0ca"
 
 [[document]]
 strategy = "design"
-source = [{ path = ".", seal = "999a1f27703acce682098c29d98e2911901914525c54dedac93f1fcefd75525c" }]
+source = [{ path = ".", seal = "e685a26c279b736759ce85b4a1e10c600479315962a6e59287241c6befc62b8a" }]
 target-seal = "28ee5aa0271e96a60bbf836b4a2319446c9828b0cbe3c1bdd5749e4b7e3854a0"
 
 [[document]]
 strategy = "brief"
 name = "ectropy"
-source = [{ path = ".", seal = "999a1f27703acce682098c29d98e2911901914525c54dedac93f1fcefd75525c" }]
+source = [{ path = ".", seal = "e685a26c279b736759ce85b4a1e10c600479315962a6e59287241c6befc62b8a" }]
 target-seal = "b5cc7f35459a658e21c6cce383eadc87a0ea483a71f5134869a2bac164198ab2"
 
 [release]
