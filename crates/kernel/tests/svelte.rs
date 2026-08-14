@@ -29,6 +29,13 @@ fn structure() {
 }
 
 #[test]
+fn property() {
+    let source = "<script lang=\"ts\">let wide = \"1fr\";</script><div style:--ruled={wide} style=\"--seat: span 7\">x</div>";
+    let found = scan("Grid.svelte", source);
+    assert!(!found.contains(&"coverage".to_string()), "{found:?}");
+}
+
+#[test]
 fn style() {
     let mut config = config(&[], 4);
     config.file.grant.push(kernel::config::Grant {

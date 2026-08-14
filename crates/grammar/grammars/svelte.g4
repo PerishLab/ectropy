@@ -21,7 +21,7 @@ tag : IDENT ( ':' IDENT )? ;
 
 attr : named / expression ;
 named : aname ( '=' aval )? ;
-aname : IDENT ( ( ':' / '-' / '|' ) IDENT )* ;
+aname : IDENT ( ( ':' / '-' / '|' )+ IDENT )* ;
 aval : STRING / SINGLE / TEMPLATE / expression ;
 
 block : ifBlock / eachBlock / awaitBlock / keyBlock / snippetBlock -> scope ;
