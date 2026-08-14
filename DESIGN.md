@@ -114,7 +114,9 @@ Svelte. Script declarations, legacy reactive statements, runes, template
 expressions, control blocks, snippets, special tags, components, and HTML
 comments enter the shared tree through their structural roles. Control blocks
 become `scope`, elements become `markup`, and component filenames remain path
-atoms subject to the same single-word law as every other source file.
+atoms subject to the same single-word law as every other source file. An
+attribute name carries directive prefixes and custom property names alike, so a
+directive that binds a custom property is read rather than left unparsed.
 
 Style attributes, style elements, Svelte style blocks, stylesheet imports, and
 whole CSS or SCSS files become `style` evidence. CSS and SCSS internals are
