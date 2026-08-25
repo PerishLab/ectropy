@@ -1,47 +1,47 @@
-[scan]
-include = [
-  "crates/**/*.rs",
-  "docs/**/*.md",
-  "skills/**/*.md",
+[[boundary]]
+allow = [
+    "path",
+    "comment",
 ]
-exclude = [
-  "**/target/**",
-]
-
-[module]
-roots = [
-  "crates/*/src",
-  "crates/*/tests",
-  "docs",
-  "skills/*",
-]
-
-[limit]
-block = 4
-path = 4
-file = 300
-fanout = 10
-markup = 8
-param = 4
-combination = 3
+note = "release product glue is platform-specific ci infrastructure"
+paths = [".forgejo/**"]
 
 [comment]
 allow = false
 
-[word]
-single = true
-
 [[grant]]
+paths = ["crates/*/tests/**/*.rs"]
 syntax = "test"
-paths = ["crates/*/tests/**/*.rs"]
 
 [[grant]]
-syntax = "environment"
 paths = ["crates/*/tests/**/*.rs"]
+syntax = "environment"
 
-[[boundary]]
-paths = [".forgejo/**"]
-note = "release product glue is platform-specific ci infrastructure"
-allow = ["path", "comment"]
+[limit]
+block = 4
+fanout = 10
+file = 300
+markup = 8
+param = 4
+path = 3
+
+[module]
+roots = [
+    "crates/*/src",
+    "crates/*/tests",
+    "docs",
+    "skills/*",
+]
+
+[scan]
+exclude = ["**/target/**"]
+include = [
+    "crates/**/*.rs",
+    "docs/**/*.md",
+    "skills/**/*.md",
+]
 
 [vocabulary]
+
+[word]
+single = true
