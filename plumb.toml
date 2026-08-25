@@ -1,18 +1,55 @@
-[[document]]
-strategy = "agent"
-source = [{ path = ".", seal = "e685a26c279b736759ce85b4a1e10c600479315962a6e59287241c6befc62b8a" }]
-target-seal = "49d16df6de22752c2615fdfe78aae64e01dc17d1dfa2513f27f6b73feff8d0ca"
+[layout]
 
-[[document]]
-strategy = "design"
-source = [{ path = ".", seal = "e685a26c279b736759ce85b4a1e10c600479315962a6e59287241c6befc62b8a" }]
-target-seal = "28ee5aa0271e96a60bbf836b4a2319446c9828b0cbe3c1bdd5749e4b7e3854a0"
+[[layout.seat]]
+path = "crates/*"
+anchor = ["Cargo.toml"]
+note = "The CLI, kernel, and grammar Rust workspace members."
 
-[[document]]
-strategy = "brief"
-name = "ectropy"
-source = [{ path = ".", seal = "e685a26c279b736759ce85b4a1e10c600479315962a6e59287241c6befc62b8a" }]
-target-seal = "b5cc7f35459a658e21c6cce383eadc87a0ea483a71f5134869a2bac164198ab2"
+[[layout.seat]]
+path = "skills/*"
+anchor = ["SKILL.md"]
+note = "Published agent skill packages."
+
+[[layout.seat]]
+path = "docs"
+note = "Admitted design and release history."
+
+[[layout.seat]]
+path = ".cargo"
+note = "Cargo registry configuration."
+
+[[layout.seat]]
+path = ".forgejo"
+note = "The canonical forge namespace."
+
+[[layout.seat]]
+path = ".runseal"
+note = "Committed inert Runseal resources."
+
+[[layout.seat]]
+path = ".plumb"
+note = "Plumb-owned affirmation records."
+
+[[layout.file]]
+name = ["AGENTS.md"]
+rule = ["rule://seat/affirmed"]
+note = "The repository entrypoint is affirmed against its governed faces."
+
+[[layout.file]]
+name = ["LICENSE", ".gitignore", ".gitattributes"]
+note = "Repository identity and Git policy."
+
+[[layout.file]]
+name = ["Cargo.toml", "Cargo.lock"]
+note = "Rust workspace anchors."
+
+[[layout.file]]
+name = ["plumb.toml", "ectropy.toml", "runseal.toml"]
+note = "Governance and isolated execution declarations."
+
+[[layout.file]]
+name = ["DESIGN.md"]
+note = "The admitted structure-tree and adapter contract."
 
 [release]
 product = "ectropy"
