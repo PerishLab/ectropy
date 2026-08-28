@@ -1,7 +1,9 @@
 use crate::rig::Rig;
 use clap::Subcommand;
-use plumb::skill::{Action, Ask, Done, Kit, Report};
+use plumb::skill::{Action, Ask, Depot, Done, Kit, Report};
 use std::path::PathBuf;
+
+const DEPOT: &str = "https://depot.plumb.perish.uk";
 
 #[derive(Subcommand)]
 pub enum Deed {
@@ -59,10 +61,11 @@ pub fn run(deed: Deed) -> i32 {
         state: PathBuf::from(&rig.home).join("state").join("skills.json"),
         url: rig.releases,
     };
-    act(&kit, deed)
+    let depot = kit.depot(DEPOT, "ectropy", plumb::version!("ECTROPY"));
+    act(&depot, deed)
 }
 
-fn act(kit: &Kit, deed: Deed) -> i32 {
+fn act(depot: &Depot<'_>, deed: Deed) -> i32 {
     match deed {
         Deed::Install {
             channel,
@@ -71,7 +74,7 @@ fn act(kit: &Kit, deed: Deed) -> i32 {
             force,
         } => told(
             "installed",
-            kit.install(&Ask {
+            depot.install(&Ask {
                 channel,
                 version,
                 path,
@@ -91,9 +94,9 @@ fn act(kit: &Kit, deed: Deed) -> i32 {
                 ..Ask::default()
             };
             if dry {
-                report("upgrade_dry_run", kit.status(&ask), json)
+                report("upgrade_dry_run", depot.status(&ask), json)
             } else {
-                told("upgraded", kit.upgrade(&ask), json)
+                told("upgraded", depot.upgrade(&ask), json)
             }
         }
         Deed::Status {
@@ -102,7 +105,7 @@ fn act(kit: &Kit, deed: Deed) -> i32 {
             json,
         } => report(
             "status",
-            kit.status(&Ask {
+            depot.status(&Ask {
                 channel,
                 version,
                 ..Ask::default()
@@ -115,7 +118,7 @@ fn act(kit: &Kit, deed: Deed) -> i32 {
             path,
         } => told(
             "staged",
-            kit.stage(&Ask {
+            depot.stage(&Ask {
                 channel,
                 version: Some(version),
                 path: Some(path),
@@ -123,13 +126,13 @@ fn act(kit: &Kit, deed: Deed) -> i32 {
             }),
             false,
         ),
-        Deed::List => tell(kit),
-        Deed::Uninstall => told("removed", kit.uninstall(), false),
+        Deed::List => tell(depot),
+        Deed::Uninstall => told("removed", depot.uninstall(), false),
     }
 }
 
-fn tell(kit: &Kit) -> i32 {
-    match kit.list() {
+fn tell(depot: &Depot<'_>) -> i32 {
+    match depot.list() {
         Ok(records) => {
             for record in &records {
                 println!(
