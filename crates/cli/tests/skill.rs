@@ -61,3 +61,15 @@ fn help() {
         assert!(stdout.contains(deed), "{stdout}");
     }
 }
+
+#[test]
+fn bound() {
+    let seat = Seat::new();
+    let output = run(&seat, &["skill", "status", "--version", "v0.0.0", "--json"]);
+    assert!(!output.status.success(), "{output:?}");
+    assert!(
+        text(&output.stderr).contains("invalid release version: v0.0.0"),
+        "{}",
+        text(&output.stderr)
+    );
+}
