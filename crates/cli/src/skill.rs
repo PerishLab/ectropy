@@ -3,7 +3,7 @@ use clap::Subcommand;
 use plumb::skill::{Action, Ask, Depot, Done, Kit, Report};
 use std::path::PathBuf;
 
-const DEPOT: &str = "https://depot.plumb.perish.uk";
+const DEPOT: &str = "https://depot.ectropy.perish.uk";
 
 #[derive(Subcommand)]
 pub enum Deed {
