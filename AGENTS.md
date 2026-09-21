@@ -25,30 +25,16 @@ namespace data inside the existing crates, never as a plugin crate.
 ## Operating
 
 - Never commit on `main`. Branch before committing.
-- The complete direct guard in `.forgejo/workflows/guard.yml` must pass before
-  landing.
-- `plumb land` is the landing authority.
+- Guard hooks come from `plumb configuration install`; a commit carries the
+  staged-tree Guard proof, and `plumb land` is the landing authority.
 
 ## Release
 
-- Stable Plumb owns the complete binary release mechanism. This repository
-  declares the product and skill in `plumb.toml`; its exact/stable workflows
-  are thin Actions callers.
-- Every release produces immutable content-addressed objects and one exact seal
-  at `v1/releases/<channel>/<version>/seal.json`.
-- Non-stable releases stop at their exact seal and install only through its
-  generated manager into explicit isolated paths.
-- Stable promotion proves an exact non-stable seal from the same commit. Only
-  stable activation updates `v1/channels/stable.json` and the canonical root
-  managers.
-- Release jobs bind build, publication, smoke, and stable tagging to one
-  resolved commit. Publication and activation use separate credentials.
-- Generated managers and capsules are release outputs, not repository files.
-- Managed skill install, status, and upgrade are stable-only. Exact non-stable
-  briefs use `skill stage` at a new explicit path and never enter the ledger.
-- A stable release requires
-  `docs/CHANGELOG/v<version>/{en,zh}/{INDEX.md,MIGRATION.md}`, enforced by the
-  stable capsule compiler before anything irreversible.
-  `plumb doctor` does not check this: a changelog is owed by a release, not by a
-  working tree. A release requiring nothing of anyone still writes MIGRATION.md
-  saying so. Follow the Plumb skill and its release-local CHANGELOG contract.
+- Plumb owns repository governance, release markers, and landing; wharf
+  builds, binds, and distributes each release. Read their current help and
+  rules; do not restate a release workflow or changelog shape here.
+- `plumb.toml` and `ectropy.toml` are this repository's own declarations,
+  layered over the base Plumb carries in its binary. Where they depart from
+  that base, `plumb doctor` says so as a noted finding.
+- The repository carries no workflow and no release notes. `skills/ectropy` is
+  the skill source; release notes and skill generations live on Depot.

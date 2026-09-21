@@ -1,16 +1,11 @@
-[[boundary]]
-allow = [
-    "path",
-    "comment",
-]
-note = "release product glue is platform-specific ci infrastructure"
-paths = [".forgejo/**"]
-
 [comment]
 allow = false
 
 [[grant]]
-paths = ["crates/*/tests/**/*.rs"]
+paths = [
+    "crates/*/src/**/*.rs",
+    "crates/*/tests/**/*.rs",
+]
 syntax = "test"
 
 [[grant]]
@@ -29,7 +24,6 @@ path = 3
 roots = [
     "crates/*/src",
     "crates/*/tests",
-    "docs",
     "skills/*",
 ]
 
@@ -37,7 +31,6 @@ roots = [
 exclude = ["**/target/**"]
 include = [
     "crates/**/*.rs",
-    "docs/**/*.md",
     "skills/**/*.md",
 ]
 
