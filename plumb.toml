@@ -6,46 +6,25 @@ anchor = ["Cargo.toml"]
 note = "The CLI, kernel, and grammar Rust workspace members."
 
 [[layout.seat]]
-path = "skills/*"
-anchor = ["SKILL.md"]
-note = "Published agent skill packages."
-
-[[layout.seat]]
-path = "docs"
-note = "Admitted design and release history."
+path = "charts/*"
+kind = "retired"
+note = "This product ships no Helm chart; the tombstone keeps the domain seat absent."
 
 [[layout.seat]]
 path = ".cargo"
 note = "Cargo registry configuration."
 
 [[layout.seat]]
-path = ".forgejo"
-note = "The canonical forge namespace."
-
-[[layout.seat]]
 path = ".runseal"
 note = "Committed inert Runseal resources."
 
-[[layout.seat]]
-path = ".plumb"
-note = "Plumb-owned affirmation records."
-
 [[layout.file]]
-name = ["AGENTS.md"]
-rule = ["rule://seat/affirmed"]
-note = "The repository entrypoint is affirmed against its governed faces."
-
-[[layout.file]]
-name = ["LICENSE", ".gitignore", ".gitattributes"]
-note = "Repository identity and Git policy."
+name = [".gitattributes"]
+note = "Git attribute policy."
 
 [[layout.file]]
 name = ["Cargo.toml", "Cargo.lock"]
 note = "Rust workspace anchors."
-
-[[layout.file]]
-name = ["plumb.toml", "ectropy.toml", "runseal.toml"]
-note = "Governance and isolated execution declarations."
 
 [[layout.file]]
 name = ["DESIGN.md"]
