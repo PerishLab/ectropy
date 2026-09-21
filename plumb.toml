@@ -23,8 +23,8 @@ name = [".gitattributes"]
 note = "Git attribute policy."
 
 [[layout.file]]
-name = ["Cargo.toml", "Cargo.lock"]
-note = "Rust workspace anchors."
+name = ["Cargo.toml", "Cargo.lock", "rust-toolchain.toml"]
+note = "Rust workspace anchors and the toolchain wharf builds with."
 
 [[layout.file]]
 name = ["DESIGN.md"]

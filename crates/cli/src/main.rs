@@ -78,6 +78,10 @@ impl From<io::Error> for Error {
 }
 
 fn main() {
+    if let Err(error) = plumb::identity!("ECTROPY") {
+        eprintln!("ectropy: {error}");
+        std::process::exit(2);
+    }
     if let Err(error) = run() {
         if error.broken() {
             return;
@@ -89,6 +93,7 @@ fn main() {
 
 fn run() -> Result<(), Error> {
     let cli = Cli::parse();
+    plumb::identity::ready().map_err(Error::note)?;
     let command = match cli.command {
         Some(Command::Skill { deed }) => {
             let code = skill::run(deed);
