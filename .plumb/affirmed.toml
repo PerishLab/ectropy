@@ -1,5 +1,10 @@
 [[record]]
+target = "skills/ectropy/SKILL.md"
+rule = "rule://seat/affirmed"
+authority = "e3a9e8b207b30b7eb88eef346e98d5496bdab37e33e0a1231c20339c83451642"
+
+[[record]]
 target = "AGENTS.md"
 rule = "rule://seat/affirmed"
-authority = "2965f7749510e81f32962967cdd6d9f88bb81aa5ebf4893c7b3dfb1d00f8e5d4"
+authority = "e3a9e8b207b30b7eb88eef346e98d5496bdab37e33e0a1231c20339c83451642"
 

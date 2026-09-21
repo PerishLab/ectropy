@@ -6,4 +6,4 @@ members = ["crates/cli", "crates/kernel", "crates/grammar"]
 version = "0.7.1"
 edition = "2024"
 license = "MIT"
-repository = "https://git.perish.top/PerishFire/ectropy"
+repository = "https://github.com/PerishLab/ectropy"
