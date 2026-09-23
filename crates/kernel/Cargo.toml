@@ -9,6 +9,6 @@ publish = false
 
 [dependencies]
 grammar = { path = "../grammar" }
-plumb = { version = "0.39.0", registry = "perish" }
+plumb = { version = "0.44.0", registry = "perish" }
 serde = { version = "1.0", features = ["derive"] }
 toml = "0.9"
