@@ -36,5 +36,6 @@ namespace data inside the existing crates, never as a plugin crate.
 - `plumb.toml` and `ectropy.toml` are this repository's own declarations,
   layered over the base Plumb carries in its binary. Where they depart from
   that base, `plumb doctor` says so as a noted finding.
-- The repository carries no workflow and no release notes. `skills/ectropy` is
-  the skill source; release notes and skill generations live on Depot.
+- The repository carries no workflow, no release notes and no skill. Each
+  stable's release notes and skill are written for it and consigned to Depot
+  with `--dir`; the standing generations there are the only source.
