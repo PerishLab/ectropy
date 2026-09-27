@@ -29,6 +29,12 @@ struct Term {
     atoms: Vec<Span>,
 }
 
+#[derive(Clone, Copy)]
+struct Op {
+    at: usize,
+    width: usize,
+}
+
 struct Parse<'a> {
     source: &'a Source,
     held: &'a [Token],
@@ -110,10 +116,10 @@ impl<'a> Parse<'a> {
             return Read::default();
         }
         let ops = self.ops(from, to);
-        if let Some(at) = ops.iter().copied().find(|at| self.prefix(from, *at)) {
+        if let Some(op) = ops.iter().copied().find(|op| self.prefix(from, op.at)) {
             let mut out = Read::default();
-            out.settle(self.range(from, at));
-            out.settle(self.range(at + 2, to));
+            out.settle(self.range(from, op.at));
+            out.settle(self.range(op.at + op.width, to));
             return out;
         }
         if ops.is_empty() {
@@ -125,11 +131,11 @@ impl<'a> Parse<'a> {
         let mut out = Read::default();
         let mut atoms = Vec::new();
         let mut start = from;
-        for at in ops {
-            let mut term = self.term(start, at);
+        for op in ops {
+            let mut term = self.term(start, op.at);
             out.models.append(&mut term.models);
             atoms.append(&mut term.atoms);
-            start = at + 2;
+            start = op.at + op.width;
         }
         let mut term = self.term(start, to);
         out.models.append(&mut term.models);
@@ -203,7 +209,7 @@ impl<'a> Parse<'a> {
 
     fn wrapper(&self, from: usize, to: usize) -> Option<(usize, usize)> {
         let mut at = from;
-        while at < to && self.glyph(at) == "!" {
+        while at < to && matches!(self.glyph(at), "!" | "not") {
             at += 1;
         }
         if at >= to || self.glyph(at) != "(" {
@@ -213,7 +219,7 @@ impl<'a> Parse<'a> {
         (end + 1 == to).then_some((at, end))
     }
 
-    fn ops(&self, from: usize, to: usize) -> Vec<usize> {
+    fn ops(&self, from: usize, to: usize) -> Vec<Op> {
         let mut found = Vec::new();
         let mut at = from;
         while at + 1 < to {
@@ -226,9 +232,12 @@ impl<'a> Parse<'a> {
                 continue;
             }
             if self.double(at, "&") || self.double(at, "|") {
-                found.push(at);
+                found.push(Op { at, width: 2 });
                 at += 2;
                 continue;
+            }
+            if self.source.path.ends_with(".py") && matches!(self.glyph(at), "and" | "or") {
+                found.push(Op { at, width: 1 });
             }
             at += 1;
         }
@@ -246,13 +255,13 @@ impl<'a> Parse<'a> {
     }
 }
 
-fn valid(from: usize, to: usize, ops: &[usize]) -> bool {
+fn valid(from: usize, to: usize, ops: &[Op]) -> bool {
     let mut start = from;
-    for at in ops {
-        if start >= *at {
+    for op in ops {
+        if start >= op.at {
             return false;
         }
-        start = at + 2;
+        start = op.at + op.width;
     }
     start < to
 }
