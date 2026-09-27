@@ -145,9 +145,11 @@ impl Repo {
 
     pub(crate) fn scan(&self, files: &[PathBuf]) -> Result<Vec<kernel::Finding>, Error> {
         let mut findings = Vec::new();
+        let mut records = Vec::new();
         for path in files {
-            self.one(path, &mut findings)?;
+            self.one(path, &mut findings, &mut records)?;
         }
+        findings.extend(kernel::schema::check(&records, &self.config));
         let seats = files
             .iter()
             .map(|path| self.relative(path))
@@ -156,7 +158,12 @@ impl Repo {
         Ok(findings)
     }
 
-    fn one(&self, path: &Path, findings: &mut Vec<kernel::Finding>) -> Result<(), Error> {
+    fn one(
+        &self,
+        path: &Path,
+        findings: &mut Vec<kernel::Finding>,
+        records: &mut Vec<kernel::schema::Record>,
+    ) -> Result<(), Error> {
         let rel = self.relative(path)?;
         if let Some(hit) = kernel::path::depth(&rel, &self.config) {
             findings.push(hit);
@@ -168,6 +175,7 @@ impl Repo {
         }
         let source = grammar::Source { path: rel, text };
         let node = kernel::structure(&source);
+        records.extend(kernel::schema::project(&source, &node));
         findings.extend(kernel::check(&source, &node, &self.config));
         Ok(())
     }

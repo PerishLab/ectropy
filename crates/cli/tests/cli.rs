@@ -136,6 +136,25 @@ fn tuple() {
 }
 
 #[test]
+fn schema() {
+    let seat = Seat::new();
+    for name in ["a", "b", "c"] {
+        fs::write(
+            seat.path().join(format!("{name}.rs")),
+            format!("struct {name} {{ one: u8, two: u8, three: u8, four: u8 }}\n"),
+        )
+        .expect("write schema");
+    }
+    let output = run(&[seat.path().to_str().expect("path")]);
+    assert_eq!(output.status.code(), Some(1));
+    let stdout = text(&output.stdout);
+    assert!(
+        stdout.contains("a.rs:1:1 schema 3 records repeat 4 fields"),
+        "{stdout}"
+    );
+}
+
+#[test]
 fn configured() {
     let seat = Seat::new();
     let source = seat.path().join("crates/lib/src");
