@@ -81,6 +81,11 @@ pub const LAWS: &[Law] = &[
         exempt: true,
     },
     Law {
+        name: "tuple",
+        note: "a positional product with more positions than the limit",
+        exempt: true,
+    },
+    Law {
         name: "word",
         note: "an unregistered compound declared name",
         exempt: true,

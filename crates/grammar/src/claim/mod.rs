@@ -3,21 +3,26 @@ use crate::lex::{self, Slot, Token};
 use crate::rules;
 use crate::{Cst, Kind, Source, Span};
 
+mod tuple;
+
 pub(crate) fn rust(root: &mut Cst, source: &Source) {
     let sweep = Sweep::load(source, &rules::rust().0);
     sweep.decisions(root);
+    sweep.tuples(root);
     sweep.stds(root);
 }
 
 pub(crate) fn web(root: &mut Cst, source: &Source, rules: &(Vec<format::Rule>, Vec<format::Rule>)) {
     let sweep = Sweep::load(source, &rules.0);
     sweep.decisions(root);
+    sweep.tuples(root);
     sweep.members(root);
 }
 
 pub(crate) fn python(root: &mut Cst, source: &Source) {
     let sweep = Sweep::laid(source, &rules::python().0);
     sweep.decisions(root);
+    sweep.tuples(root);
     sweep.docs(root);
     sweep.environs(root);
 }
@@ -55,6 +60,10 @@ impl<'a> Sweep<'a> {
     fn decisions(&self, root: &mut Cst) {
         let found = crate::decision::scan(self.source, &self.held, root);
         root.kids.extend(found);
+    }
+
+    fn tuples(&self, root: &mut Cst) {
+        root.kids.extend(tuple::scan(self.source, &self.held));
     }
 
     fn stds(&self, root: &mut Cst) {

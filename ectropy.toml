@@ -19,6 +19,7 @@ file = 300
 markup = 8
 param = 4
 path = 3
+tuple = 3
 
 [module]
 roots = [
@@ -41,6 +42,14 @@ name = "layout"
 [[vocabulary.term]]
 description = "the Python source language adapter"
 name = "python"
+
+[[vocabulary.term]]
+description = "one ordered field in a positional product"
+name = "position"
+
+[[vocabulary.term]]
+description = "an anonymous positional product"
+name = "tuple"
 
 [word]
 single = true

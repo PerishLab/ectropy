@@ -79,6 +79,7 @@ pub struct Limit {
     pub markup: usize,
     pub file: usize,
     pub fanout: usize,
+    pub tuple: usize,
 }
 
 impl Default for Limit {
@@ -91,6 +92,7 @@ impl Default for Limit {
             markup: 8,
             file: 300,
             fanout: 10,
+            tuple: 3,
         }
     }
 }

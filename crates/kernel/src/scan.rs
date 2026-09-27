@@ -1,4 +1,5 @@
 mod parameter;
+mod tuple;
 
 use crate::config::Config;
 use crate::{Finding, Node};
@@ -34,6 +35,7 @@ impl<'a> Scan<'a> {
         self.arity(node);
         self.burr(node);
         self.shadow(node);
+        self.tuple(node);
         for kid in &node.kids {
             self.laws(kid);
         }
