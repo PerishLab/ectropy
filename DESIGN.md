@@ -118,6 +118,12 @@ atoms subject to the same single-word law as every other source file. An
 attribute name carries directive prefixes and custom property names alike, so a
 directive that binds a custom property is read rather than left unparsed.
 
+Python enters the same grammar substrate through virtual newline, indent, and
+dedent evidence carrying original byte spans. Its adapter maps suites,
+declarations, parameters, docstrings, dictionaries, Boolean words, and the
+explicit `os.environ` surface into shared kinds. It does not infer test identity
+from frameworks or names, invoke a Python runtime, or treat `.pyi` as source.
+
 Style attributes, style elements, Svelte style blocks, stylesheet imports, and
 whole CSS or SCSS files become `style` evidence. CSS and SCSS internals are
 intentionally not parsed today. Markdown currently exposes heading scopes

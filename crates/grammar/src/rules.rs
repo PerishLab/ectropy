@@ -3,6 +3,7 @@ use crate::{claim, format};
 use std::sync::OnceLock;
 
 const RUST: &str = include_str!("../grammars/rust.g4");
+const PYTHON: &str = include_str!("../grammars/python.g4");
 const TS: &str = include_str!("../grammars/ts.g4");
 const JSX: &str = include_str!("../grammars/jsx.g4");
 const SVELTE: &str = include_str!("../grammars/svelte.g4");
@@ -10,6 +11,11 @@ const SVELTE: &str = include_str!("../grammars/svelte.g4");
 pub(crate) fn rust() -> &'static (Vec<format::Rule>, Vec<format::Rule>) {
     static CELL: OnceLock<(Vec<format::Rule>, Vec<format::Rule>)> = OnceLock::new();
     CELL.get_or_init(|| split(format::load(RUST)))
+}
+
+pub(crate) fn python() -> &'static (Vec<format::Rule>, Vec<format::Rule>) {
+    static CELL: OnceLock<(Vec<format::Rule>, Vec<format::Rule>)> = OnceLock::new();
+    CELL.get_or_init(|| split(format::load(PYTHON)))
 }
 
 pub(crate) fn ts() -> &'static (Vec<format::Rule>, Vec<format::Rule>) {
