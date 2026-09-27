@@ -1,0 +1,17 @@
+## Trigger
+
+A tuple carries more positions than the configured limit.
+
+## Move
+
+Name the product and its fields. Keep a tuple only when its positions are the
+irreducible shape of a foreign wire boundary, then declare that narrow boundary.
+
+## Evidence
+
+The replacement exposes field names at every construction, return, and
+destructuring site. Tests cover the named product and the boundary conversion.
+
+## EXIT
+
+Delete this entry when the tuple finding itself names the complete mechanical move.
