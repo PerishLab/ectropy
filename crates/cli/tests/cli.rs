@@ -107,6 +107,21 @@ fn svelte() {
 }
 
 #[test]
+fn python() {
+    let seat = Seat::new();
+    fs::write(
+        seat.path().join("vessel.py"),
+        "def read_file(source):\n    return source\n",
+    )
+    .expect("write python");
+    let output = run(&[seat.path().to_str().expect("path")]);
+    assert_eq!(output.status.code(), Some(1));
+    let stdout = text(&output.stdout);
+    assert!(stdout.contains(" word read_file"), "{stdout}");
+    assert!(!stdout.contains(" coverage "), "{stdout}");
+}
+
+#[test]
 fn configured() {
     let seat = Seat::new();
     let source = seat.path().join("crates/lib/src");

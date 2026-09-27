@@ -52,7 +52,7 @@ impl Parse<'_> {
 
     pub(super) fn hard(&self, at: usize) -> bool {
         match self.glyph(at) {
-            ";" | "," | "=>" => true,
+            ";" | "," | "=>" | "NEWLINE" | "INDENT" | "DEDENT" | "LAYOUT_ERROR" => true,
             ":" => !self.double(at, ":") && !self.before(at, ":"),
             "?" => !self.double(at, "?") && !self.after(at, "."),
             "=" => self.assign(at),
@@ -104,10 +104,11 @@ impl Parse<'_> {
     }
 
     pub(super) fn glyph(&self, at: usize) -> &str {
-        self.held
-            .get(at)
-            .and_then(|token| self.source.text.get(token.start..token.end))
-            .unwrap_or("")
+        let Some(token) = self.held.get(at) else {
+            return "";
+        };
+        let text = self.source.text.get(token.start..token.end).unwrap_or("");
+        if text.is_empty() { &token.name } else { text }
     }
 
     pub(super) fn veil(&self, at: usize) -> Option<usize> {

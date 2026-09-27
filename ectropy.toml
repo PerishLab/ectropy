@@ -34,5 +34,13 @@ include = [
 
 [vocabulary]
 
+[[vocabulary.term]]
+description = "the indentation projection consumed by grammar rules"
+name = "layout"
+
+[[vocabulary.term]]
+description = "the Python source language adapter"
+name = "python"
+
 [word]
 single = true

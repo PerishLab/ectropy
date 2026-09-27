@@ -237,7 +237,7 @@ fn source(path: &str) -> bool {
         .is_some_and(|extension| {
             matches!(
                 extension,
-                "css" | "md" | "rs" | "scss" | "svelte" | "ts" | "tsx"
+                "css" | "md" | "py" | "rs" | "scss" | "svelte" | "ts" | "tsx"
             )
         })
 }

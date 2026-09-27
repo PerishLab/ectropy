@@ -15,6 +15,13 @@ pub(crate) fn web(root: &mut Cst, source: &Source, rules: &(Vec<format::Rule>, V
     sweep.members(root);
 }
 
+pub(crate) fn python(root: &mut Cst, source: &Source) {
+    let sweep = Sweep::laid(source, &rules::python().0);
+    sweep.decisions(root);
+    sweep.docs(root);
+    sweep.environs(root);
+}
+
 struct Sweep<'a> {
     source: &'a Source,
     held: Vec<Token>,
@@ -26,6 +33,15 @@ impl<'a> Sweep<'a> {
             .into_iter()
             .filter(|token| matches!(token.kind, Slot::Emit))
             .collect();
+        Sweep { source, held }
+    }
+
+    fn laid(source: &'a Source, lexers: &[format::Rule]) -> Self {
+        let held = lex::lex(lexers, source.text.as_bytes())
+            .into_iter()
+            .filter(|token| matches!(token.kind, Slot::Emit))
+            .collect();
+        let held = crate::layout::apply(held, source.text.as_bytes());
         Sweep { source, held }
     }
 
@@ -55,7 +71,7 @@ impl<'a> Sweep<'a> {
 
     fn drawn(&self, root: &mut Cst, at: usize) {
         match self.glyph(at + 3) {
-            "env" => stamp(root, self.held[at].start, self.held[at + 3].end),
+            "env" => self.stamp(root, self.held[at].start, self.held[at + 3].end),
             "{" => self.grouped(root, at + 4),
             _ => {}
         }
@@ -80,14 +96,55 @@ impl<'a> Sweep<'a> {
 
     fn member(&self, root: &mut Cst, at: usize, depth: usize, fresh: bool) {
         if depth == 1 && fresh {
-            stamp(root, self.held[at].start, self.held[at].end);
+            self.stamp(root, self.held[at].start, self.held[at].end);
         }
     }
 
     fn members(&self, root: &mut Cst) {
         for at in 0..self.held.len() {
             if self.handed(at) {
-                stamp(root, self.held[at].start, self.held[at + 2].end);
+                self.stamp(root, self.held[at].start, self.held[at + 2].end);
+            }
+        }
+    }
+
+    fn docs(&self, root: &mut Cst) {
+        for at in 0..self.held.len() {
+            if self.doc(at) {
+                let token = &self.held[at];
+                root.kids.push(Cst {
+                    kind: Kind::Comment,
+                    span: Span {
+                        start: token.start,
+                        end: token.end,
+                    },
+                    kids: Vec::new(),
+                });
+            }
+        }
+    }
+
+    fn doc(&self, at: usize) -> bool {
+        let token = &self.held[at];
+        let string = matches!(
+            token.name.as_str(),
+            "TRIPLE2" | "TRIPLE1" | "STRING2" | "STRING1"
+        );
+        let opens = at == 0 || self.held[at - 1].name == "INDENT";
+        let closes = self
+            .held
+            .get(at + 1)
+            .is_some_and(|next| next.name == "NEWLINE");
+        string && opens && closes
+    }
+
+    fn environs(&self, root: &mut Cst) {
+        for at in 0..self.held.len() {
+            if self.glyph(at) == "os"
+                && self.glyph(at + 1) == "."
+                && self.glyph(at + 2) == "environ"
+            {
+                self.stamp(root, self.held[at].start, self.held[at + 2].end);
             }
         }
     }
@@ -98,12 +155,12 @@ impl<'a> Sweep<'a> {
             && self.glyph(at + 1) == "."
             && self.glyph(at + 2) == "env"
     }
-}
 
-fn stamp(root: &mut Cst, start: usize, end: usize) {
-    root.kids.push(Cst {
-        kind: Kind::Environment,
-        span: Span { start, end },
-        kids: Vec::new(),
-    });
+    fn stamp(&self, root: &mut Cst, start: usize, end: usize) {
+        root.kids.push(Cst {
+            kind: Kind::Environment,
+            span: Span { start, end },
+            kids: Vec::new(),
+        });
+    }
 }
