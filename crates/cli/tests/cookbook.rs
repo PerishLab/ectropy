@@ -1,6 +1,13 @@
 use std::process::{Command, Output};
 
-const ENTRIES: &[&str] = &["burr", "combination", "fanout", "receiver", "shadow"];
+const ENTRIES: &[&str] = &[
+    "burr",
+    "combination",
+    "fanout",
+    "receiver",
+    "shadow",
+    "tuple",
+];
 
 fn run(args: &[&str]) -> Output {
     Command::new(env!("CARGO_BIN_EXE_ectropy"))
@@ -41,7 +48,10 @@ fn entries() {
 fn unknown() {
     let output = run(&["cookbook", "missing"]);
     assert_eq!(output.status.code(), Some(2));
-    assert!(text(output.stderr).contains("available: burr, combination, fanout, receiver, shadow"));
+    assert!(
+        text(output.stderr)
+            .contains("available: burr, combination, fanout, receiver, shadow, tuple")
+    );
 }
 
 #[test]

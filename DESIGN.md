@@ -77,6 +77,8 @@ The core kinds express roles, not target syntax:
 - `receiver` and `param` expose function responsibility. Shared receivers
   reveal an undeclared object; excessive parameters reveal an undeclared
   bundle; a named underscore binding reveals accepted but unused work.
+- `tuple` and `position` expose an anonymous positional product and its ordered
+  fields without assigning semantic meaning to those positions.
 - `markup` carries element depth independently of code scopes.
 - `style` and `environment` expose syntax whose lawful territory is assigned by
   grants or bans.
@@ -123,6 +125,11 @@ dedent evidence carrying original byte spans. Its adapter maps suites,
 declarations, parameters, docstrings, dictionaries, Boolean words, and the
 explicit `os.environ` surface into shared kinds. It does not infer test identity
 from frameworks or names, invoke a Python runtime, or treat `.pyi` as source.
+
+Rust and Python tuple expressions, patterns, and types map into shared `tuple`
+and `position` evidence. TypeScript maps tuple types and destructuring, while
+ordinary arrays and function argument lists remain distinct syntax. The tuple
+law measures only visible arity and does not infer semantic exceptions.
 
 Style attributes, style elements, Svelte style blocks, stylesheet imports, and
 whole CSS or SCSS files become `style` evidence. CSS and SCSS internals are

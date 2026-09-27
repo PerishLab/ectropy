@@ -33,6 +33,8 @@ pub enum Kind {
     Environment,
     Decision,
     Atom,
+    Tuple,
+    Position,
 }
 
 impl std::fmt::Display for Kind {
@@ -59,6 +61,8 @@ fn name(kind: Kind) -> &'static str {
         Kind::Environment => "environment",
         Kind::Decision => "decision",
         Kind::Atom => "atom",
+        Kind::Tuple => "tuple",
+        Kind::Position => "position",
     }
 }
 

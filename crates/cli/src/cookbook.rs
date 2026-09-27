@@ -26,6 +26,10 @@ const ENTRIES: &[Entry] = &[
         name: "shadow",
         body: include_str!("../cookbook/shadow.txt"),
     },
+    Entry {
+        name: "tuple",
+        body: include_str!("../cookbook/tuple.txt"),
+    },
 ];
 
 pub(crate) fn render(name: Option<&str>) -> Result<String, String> {

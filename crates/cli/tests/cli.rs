@@ -122,6 +122,20 @@ fn python() {
 }
 
 #[test]
+fn tuple() {
+    let seat = Seat::new();
+    fs::write(
+        seat.path().join("row.py"),
+        "def read():\n    return 1, 2, 3, 4\n",
+    )
+    .expect("write tuple");
+    let output = run(&[seat.path().to_str().expect("path")]);
+    assert_eq!(output.status.code(), Some(1));
+    let stdout = text(&output.stdout);
+    assert!(stdout.contains("row.py:2:5 tuple 4 positions"), "{stdout}");
+}
+
+#[test]
 fn configured() {
     let seat = Seat::new();
     let source = seat.path().join("crates/lib/src");
