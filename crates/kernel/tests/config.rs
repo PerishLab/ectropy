@@ -11,6 +11,7 @@ fn defaults() {
     assert_eq!(file.limit.path, 4);
     assert_eq!(file.limit.combination, 3);
     assert_eq!(file.limit.tuple, 3);
+    assert_eq!(file.limit.schema, 2);
     assert!(file.module.roots.is_empty());
 }
 

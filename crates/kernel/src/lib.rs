@@ -2,6 +2,7 @@ pub mod config;
 pub mod law;
 pub mod path;
 mod scan;
+pub mod schema;
 mod shadow;
 
 use config::Config;

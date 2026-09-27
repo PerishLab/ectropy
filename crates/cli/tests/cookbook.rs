@@ -5,6 +5,7 @@ const ENTRIES: &[&str] = &[
     "combination",
     "fanout",
     "receiver",
+    "schema",
     "shadow",
     "tuple",
 ];
@@ -50,7 +51,7 @@ fn unknown() {
     assert_eq!(output.status.code(), Some(2));
     assert!(
         text(output.stderr)
-            .contains("available: burr, combination, fanout, receiver, shadow, tuple")
+            .contains("available: burr, combination, fanout, receiver, schema, shadow, tuple")
     );
 }
 

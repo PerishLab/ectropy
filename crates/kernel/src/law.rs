@@ -76,6 +76,11 @@ pub const LAWS: &[Law] = &[
         exempt: true,
     },
     Law {
+        name: "schema",
+        note: "an exact four-or-wider record field set repeated more than the limit",
+        exempt: true,
+    },
+    Law {
         name: "shadow",
         note: "a literal densely copied bare from one source root",
         exempt: true,

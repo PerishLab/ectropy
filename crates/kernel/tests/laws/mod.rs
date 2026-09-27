@@ -1,4 +1,7 @@
+#[path = "../seat/mod.rs"]
 mod seat;
+mod schema;
+mod word;
 use seat::*;
 
 #[test]
@@ -287,13 +290,4 @@ fn css() {
         &forbidden(),
     );
     assert!(found.iter().any(|finding| finding.law == "ban"));
-}
-
-#[test]
-fn pathed() {
-    assert!(
-        !laws("fn f() { let some_crate::Kind::Held { x } = y else { return; }; }")
-            .contains(&"word".to_string())
-    );
-    assert!(laws("fn f() { let held_name = 1; }").contains(&"word".to_string()));
 }
