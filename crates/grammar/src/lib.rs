@@ -1,6 +1,8 @@
 mod claim;
 mod decision;
 mod format;
+#[allow(dead_code)]
+mod layout;
 mod lex;
 mod parse;
 mod peg;
