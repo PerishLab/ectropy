@@ -35,6 +35,9 @@ pub enum Kind {
     Atom,
     Tuple,
     Position,
+    Record,
+    Field,
+    Label,
 }
 
 impl std::fmt::Display for Kind {
@@ -63,6 +66,9 @@ fn name(kind: Kind) -> &'static str {
         Kind::Atom => "atom",
         Kind::Tuple => "tuple",
         Kind::Position => "position",
+        Kind::Record => "record",
+        Kind::Field => "field",
+        Kind::Label => "label",
     }
 }
 

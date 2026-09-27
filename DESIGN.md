@@ -79,6 +79,9 @@ The core kinds express roles, not target syntax:
   bundle; a named underscore binding reveals accepted but unused work.
 - `tuple` and `position` expose an anonymous positional product and its ordered
   fields without assigning semantic meaning to those positions.
+- `record`, `label`, and `field` expose a named product declaration, its identity,
+  and its named members. An exact field-name set is its schema; types and
+  declaration names are not.
 - `markup` carries element depth independently of code scopes.
 - `style` and `environment` expose syntax whose lawful territory is assigned by
   grants or bans.
@@ -130,6 +133,15 @@ Rust and Python tuple expressions, patterns, and types map into shared `tuple`
 and `position` evidence. TypeScript maps tuple types and destructuring, while
 ordinary arrays and function argument lists remain distinct syntax. The tuple
 law measures only visible arity and does not infer semantic exceptions.
+
+Rust named-field structs, Python classes with annotated fields, and TypeScript
+type literals and interfaces map into shared `record`, `label`, and `field`
+evidence.
+Tuple structs, literals, index signatures, mapped types, and unannotated Python
+assignments do not. The schema law groups exact unordered field-name sets across
+the admitted repository scan closure after path boundaries are applied. This is
+the one repository-wide structural law; adapters still emit only per-file
+evidence and never inspect another source.
 
 Style attributes, style elements, Svelte style blocks, stylesheet imports, and
 whole CSS or SCSS files become `style` evidence. CSS and SCSS internals are

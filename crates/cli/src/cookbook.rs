@@ -23,6 +23,10 @@ const ENTRIES: &[Entry] = &[
         body: include_str!("../cookbook/receiver.txt"),
     },
     Entry {
+        name: "schema",
+        body: include_str!("../cookbook/schema.txt"),
+    },
+    Entry {
         name: "shadow",
         body: include_str!("../cookbook/shadow.txt"),
     },
