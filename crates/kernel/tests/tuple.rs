@@ -80,3 +80,72 @@ fn boundary() {
         0
     );
 }
+
+#[test]
+fn generics() {
+    let source = "fn mutation() -> (u64, Mutation, BTreeMap<String, String>) { todo!() }";
+    assert_eq!(count(laws(source), "tuple"), 0);
+    assert_eq!(count(laws("type Row = (A, B, Map<K, V>);"), "tuple"), 0);
+    assert_eq!(count(laws("type Row = (A, B, C, D);"), "tuple"), 1);
+    assert_eq!(
+        count(laws("type Row = (A, B, Map<K, Vec<V>>);"), "tuple"),
+        0
+    );
+    assert_eq!(
+        count(laws("type Row = (A, B, Map<K, Vec<V>>, D);"), "tuple"),
+        1
+    );
+}
+
+#[test]
+fn nesting() {
+    assert_eq!(count(laws("type Row = (A, (B, C), D);"), "tuple"), 0);
+    assert_eq!(count(laws("type Row = (A, [B; 2], D);"), "tuple"), 0);
+    assert_eq!(count(laws("type Row = (A, fn(B, C) -> D, E);"), "tuple"), 0);
+    assert_eq!(
+        count(laws("type Row = (A, Box<dyn Fn(B, C) -> D>, E);"), "tuple"),
+        0
+    );
+    assert_eq!(
+        count(
+            laws("fn read() { let row = (a, |b, c| b + c, d); }"),
+            "tuple"
+        ),
+        0
+    );
+    assert_eq!(
+        count(
+            laws("fn read() { let row = (a, move |b, c| b, d, e); }"),
+            "tuple"
+        ),
+        1
+    );
+}
+
+#[test]
+fn comparison() {
+    let source = "fn read() { let row = (a < b, c, d > e, f); }";
+    assert_eq!(count(laws(source), "tuple"), 1);
+}
+
+#[test]
+fn angles() {
+    let source = "type Row = [A, B, Map<K, V>]; const held: [A, Map<K, V>, B] = row;";
+    assert_eq!(count(scan("t.ts", source), "tuple"), 0);
+    let wide = "type Row = [A, B, Map<K, V>, D];";
+    assert_eq!(count(scan("t.ts", wide), "tuple"), 1);
+    let arrow = "type Row = [A, (b: B, c: C) => D, E];";
+    assert_eq!(count(scan("t.ts", arrow), "tuple"), 0);
+    let markup = "type Row = [A, B, Record<K, V>];";
+    assert_eq!(count(scan("t.tsx", markup), "tuple"), 0);
+}
+
+#[test]
+fn lambda() {
+    let source = "def read():\n    return (a, lambda b, c: b, d)\n";
+    assert_eq!(count(scan("t.py", source), "tuple"), 0);
+    let nested = "def read():\n    return (a, Dict[str, int], (b, c))\n";
+    assert_eq!(count(scan("t.py", nested), "tuple"), 0);
+    let wide = "def read():\n    return (a, lambda b: b, c, d)\n";
+    assert_eq!(count(scan("t.py", wide), "tuple"), 1);
+}
