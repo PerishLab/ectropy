@@ -1,6 +1,7 @@
 use crate::lex::Token;
 use crate::{Cst, Kind, Source, Span};
 
+mod nest;
 mod web;
 
 #[derive(Clone, Copy, PartialEq)]
@@ -42,6 +43,7 @@ impl<'a> Read<'a> {
 
     fn scan(mut self) -> Vec<Cst> {
         self.pair();
+        self.angles();
         self.groups();
         if self.dialect == Dialect::Python {
             self.lines();
@@ -137,11 +139,8 @@ impl<'a> Read<'a> {
         let mut at = from;
         let mut comma = false;
         while at < to {
-            if let Some(close) = self.pairs[at]
-                && close > at
-                && close < to
-            {
-                at = close + 1;
+            if let Some(next) = self.hop(at, start, to) {
+                at = next;
                 continue;
             }
             if self.glyph(at) == "," {
