@@ -1,5 +1,6 @@
 use crate::Finding;
 use crate::config::Config;
+use crate::recovery::{FANOUT, code};
 use crate::scan::compound;
 
 pub fn depth(path: &str, config: &Config) -> Option<Finding> {
@@ -90,9 +91,10 @@ pub fn fanout(paths: &[String], config: &Config) -> Vec<Finding> {
             findings.push(Finding::fanout(
                 &seat,
                 &format!(
-                    "fanout {} over limit {}; see: ectropy cookbook fanout",
+                    "fanout {} over limit {}; see: ectropy cookbook {}",
                     names.len(),
-                    config.file.limit.fanout
+                    config.file.limit.fanout,
+                    code(FANOUT)
                 ),
             ));
         }

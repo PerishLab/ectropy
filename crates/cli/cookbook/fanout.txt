@@ -1,10 +1,10 @@
-# fanout
+# structure.fanout
 
 ## Trigger
 
 The `fanout` law fires on a Rust integration-test directory.
 
-## Move
+## Solution
 
 Group related cases behind explicit `[[test]]` entries whose drivers are per-group `main.rs` files. Put shared fixtures in a `world.rs` each group imports; do not trade directory width for hidden module depth.
 

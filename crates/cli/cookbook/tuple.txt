@@ -1,8 +1,10 @@
+# structure.tuple
+
 ## Trigger
 
 A tuple carries more positions than the configured limit.
 
-## Move
+## Solution
 
 Name the product and its fields. Keep a tuple only when its positions are the
 irreducible shape of a foreign wire boundary, then declare that narrow boundary.

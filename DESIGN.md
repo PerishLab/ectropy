@@ -172,9 +172,10 @@ unparsed admitted syntax can never print `clean`. Output ordering and digests
 are deterministic so the same terrain produces the same proof.
 
 The CLI exposes scans, structure and vocabulary projections, the law catalog,
-the bounded cookbook, and stable skill management. Cookbook entries are
-temporary procedural product assets: each names its trigger, a judgment-guided
-move, evidence, and the condition that deletes the entry.
+the bounded Cookbook, and stable skill management. Cookbook entries use the
+shared Plumb code-addressed model. Each exact code names its trigger, a
+judgment-guided solution, evidence, and the condition that deletes the entry;
+Human and JSON views project the same deterministically ordered content.
 
 ## Stability boundary
 

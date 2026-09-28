@@ -2,6 +2,7 @@ mod parameter;
 mod tuple;
 
 use crate::config::Config;
+use crate::recovery::{COMBINATION, SHADOW, code};
 use crate::{Finding, Node};
 use grammar::{Kind, Source};
 
@@ -50,7 +51,8 @@ impl<'a> Scan<'a> {
         let whole = copied >= 3 && copied == total;
         if dense || whole {
             let note = format!(
-                "{copied} of {total} fields copied bare from one root, the twin is redundant; see: ectropy cookbook shadow"
+                "{copied} of {total} fields copied bare from one root, the twin is redundant; see: ectropy cookbook {}",
+                code(SHADOW)
             );
             self.mark(node.span.start, "shadow", &note);
         }
@@ -77,8 +79,9 @@ impl<'a> Scan<'a> {
             return;
         }
         let note = format!(
-            "{count} decision atoms over limit {}, the boolean expression carries an anonymous combination model; see: ectropy cookbook combination",
-            self.config.file.limit.combination
+            "{count} decision atoms over limit {}, the boolean expression carries an anonymous combination model; see: ectropy cookbook {}",
+            self.config.file.limit.combination,
+            code(COMBINATION)
         );
         self.mark(node.span.start, "combination", &note);
     }

@@ -49,7 +49,7 @@ fn receiver() {
     assert_eq!(grouped[0].col, 9);
     assert_eq!(
         grouped[0].note,
-        "4 functions share app: load, save, query, delete; see: ectropy cookbook receiver"
+        "4 functions share app: load, save, query, delete; see: ectropy cookbook structure.receiver"
     );
     let trio = "fn a(st: &State) {}\nfn b(st: &State) {}\nfn c(st: &State) {}";
     assert_eq!(count(laws(trio), "receiver"), 0);
@@ -111,7 +111,7 @@ fn burr() {
     assert_eq!(burrs[0].col, 13);
     assert_eq!(
         burrs[0].note,
-        "_plan is accepted but unused; see: ectropy cookbook burr"
+        "_plan is accepted but unused; see: ectropy cookbook structure.burr"
     );
     let typescript = "export function read(_plan: Plan, _mode?: Mode): void {}";
     assert_eq!(count(scan("t.ts", typescript), "burr"), 2);

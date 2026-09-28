@@ -114,7 +114,7 @@ fn shadow() {
         .expect("shadow");
     assert_eq!(
         hit.note,
-        "4 of 5 fields copied bare from one root, the twin is redundant; see: ectropy cookbook shadow"
+        "4 of 5 fields copied bare from one root, the twin is redundant; see: ectropy cookbook structure.shadow"
     );
     let whole = "fn hold() { let held = Trio { a: other.a, b: other.b, c: other.c, }; }";
     assert_eq!(count(laws(whole), "shadow"), 1);
@@ -233,7 +233,7 @@ fn fanout() {
     assert_eq!(findings[0].path, "src");
     assert_eq!(
         findings[0].note,
-        "fanout 11 over limit 10; see: ectropy cookbook fanout"
+        "fanout 11 over limit 10; see: ectropy cookbook structure.fanout"
     );
     wide.truncate(6);
     wide.extend((0..5).map(|at| format!("src/deep{at}/one.rs")));
