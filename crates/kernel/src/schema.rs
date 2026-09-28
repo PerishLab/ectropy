@@ -1,4 +1,5 @@
 use crate::config::Config;
+use crate::recovery::{SCHEMA, code};
 use crate::{Finding, Node};
 use grammar::{Kind, Source};
 use std::collections::BTreeMap;
@@ -101,7 +102,8 @@ fn finding(records: &[&Record], limit: usize) -> Finding {
     let count = records.len();
     let width = first.fields.len();
     let note = format!(
-        "{count} records repeat {width} fields over limit {limit}: {names}; the schema needs one canonical model; see: ectropy cookbook schema"
+        "{count} records repeat {width} fields over limit {limit}: {names}; the schema needs one canonical model; see: ectropy cookbook {}",
+        code(SCHEMA)
     );
     Finding {
         law: "schema".to_string(),

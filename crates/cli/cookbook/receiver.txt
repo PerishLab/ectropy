@@ -1,10 +1,10 @@
-# receiver
+# structure.receiver
 
 ## Trigger
 
 The `receiver` error reports four or more functions in one root taking the same binding as their first seat.
 
-## Move
+## Solution
 
 The shared seat is a receiver nobody declared. Read whether the functions need the value's state or only its identity. State-holding groups become a type constructed from the binding, with the functions as its methods; identity-only groups become one namespace, the functions as statics, so callers keep the names they already import. The fix removes the parameter — never rename it, and never thread it one level deeper. Prefer the namespace shape the codebase already uses over a new one.
 

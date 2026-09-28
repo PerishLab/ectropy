@@ -1,5 +1,6 @@
 use super::Scan;
 use crate::Node;
+use crate::recovery::{BURR, RECEIVER, code};
 use grammar::Kind;
 use std::collections::{HashMap, HashSet};
 
@@ -46,7 +47,10 @@ impl Scan<'_> {
         if !named(name) {
             return;
         }
-        let note = format!("{name} is accepted but unused; see: ectropy cookbook burr");
+        let note = format!(
+            "{name} is accepted but unused; see: ectropy cookbook {}",
+            code(BURR)
+        );
         self.mark(node.span.start + offset, "burr", &note);
     }
 
@@ -98,9 +102,10 @@ fn group(member: &Member, members: &[Member]) -> String {
         .collect::<Vec<_>>()
         .join(", ");
     format!(
-        "{} functions share {}: {names}; see: ectropy cookbook receiver",
+        "{} functions share {}: {names}; see: ectropy cookbook {}",
         group.len(),
-        member.seat
+        member.seat,
+        code(RECEIVER)
     )
 }
 
