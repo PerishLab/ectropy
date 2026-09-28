@@ -1,6 +1,7 @@
 pub mod config;
 pub mod law;
 pub mod path;
+pub mod recovery;
 mod scan;
 pub mod schema;
 mod shadow;

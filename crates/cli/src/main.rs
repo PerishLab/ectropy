@@ -26,7 +26,9 @@ enum Command {
         name: Option<String>,
     },
     Cookbook {
-        entry: Option<String>,
+        code: Option<String>,
+        #[arg(long)]
+        json: bool,
     },
     Skill {
         #[command(subcommand)]
@@ -107,8 +109,8 @@ fn run() -> Result<(), Error> {
     let stdout = io::stdout();
     let mut out = BufWriter::new(stdout.lock());
     match command {
-        Some(Command::Cookbook { entry }) => {
-            let text = cookbook::render(entry.as_deref()).map_err(Error::note)?;
+        Some(Command::Cookbook { code, json }) => {
+            let text = cookbook::render(code.as_deref(), json).map_err(Error::note)?;
             out.write_all(text.as_bytes())?;
         }
         Some(Command::Law { name }) => {

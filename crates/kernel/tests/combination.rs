@@ -20,7 +20,7 @@ fn mixed() {
         .expect("combination");
     assert_eq!(
         hit.note,
-        "4 decision atoms over limit 3, the boolean expression carries an anonymous combination model; see: ectropy cookbook combination"
+        "4 decision atoms over limit 3, the boolean expression carries an anonymous combination model; see: ectropy cookbook structure.combination"
     );
 }
 

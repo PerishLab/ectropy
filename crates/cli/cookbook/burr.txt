@@ -1,10 +1,10 @@
-# burr
+# structure.burr
 
 ## Trigger
 
 The `burr` error marks a function parameter whose underscore spelling says it is accepted but unused.
 
-## Move
+## Solution
 
 Read the function body and every call site before editing. If the work belongs to the callee, consume the value and remove any redundant sibling parameter. If the caller over-declared the contract, delete the parameter honestly. Never sweep underscore parameters mechanically.
 

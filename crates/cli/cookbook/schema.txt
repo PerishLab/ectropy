@@ -1,9 +1,11 @@
+# structure.schema
+
 ## Trigger
 
 More named records than the configured limit repeat the same four-or-wider
 field-name schema across the admitted scan closure.
 
-## Move
+## Solution
 
 Choose one canonical model. Make storage, wire, view, and runtime differences
 explicit adapters around that model instead of copying its field inventory.

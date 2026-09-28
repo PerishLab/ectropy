@@ -1,70 +1,79 @@
+use plumb::cookbook::{Cookbook, Entry};
 use std::fmt::Write;
 
-struct Entry {
-    name: &'static str,
-    body: &'static str,
-}
-
-const ENTRIES: &[Entry] = &[
-    Entry {
-        name: "burr",
-        body: include_str!("../cookbook/burr.txt"),
-    },
-    Entry {
-        name: "combination",
-        body: include_str!("../cookbook/combination.txt"),
-    },
-    Entry {
-        name: "fanout",
-        body: include_str!("../cookbook/fanout.txt"),
-    },
-    Entry {
-        name: "receiver",
-        body: include_str!("../cookbook/receiver.txt"),
-    },
-    Entry {
-        name: "schema",
-        body: include_str!("../cookbook/schema.txt"),
-    },
-    Entry {
-        name: "shadow",
-        body: include_str!("../cookbook/shadow.txt"),
-    },
-    Entry {
-        name: "tuple",
-        body: include_str!("../cookbook/tuple.txt"),
-    },
+const SOURCES: &[&str] = &[
+    include_str!("../cookbook/burr.txt"),
+    include_str!("../cookbook/combination.txt"),
+    include_str!("../cookbook/fanout.txt"),
+    include_str!("../cookbook/receiver.txt"),
+    include_str!("../cookbook/schema.txt"),
+    include_str!("../cookbook/shadow.txt"),
+    include_str!("../cookbook/tuple.txt"),
 ];
 
-pub(crate) fn render(name: Option<&str>) -> Result<String, String> {
-    let Some(name) = name else {
-        return Ok(ledger());
+pub(crate) fn render(code: Option<&str>, json: bool) -> Result<String, String> {
+    let book = book()?;
+    let Some(code) = code else {
+        return if json {
+            serde_json::to_string_pretty(&book).map_err(|error| error.to_string())
+        } else {
+            Ok(ledger(&book))
+        };
     };
-    ENTRIES
-        .iter()
-        .find(|entry| entry.name == name)
-        .map(|entry| entry.body.to_string())
-        .ok_or_else(|| format!("unknown cookbook entry `{name}`; available: {}", names()))
+    let entry = book.get(code).ok_or_else(|| {
+        format!(
+            "unknown Cookbook code `{code}`; available: {}",
+            names(&book)
+        )
+    })?;
+    if json {
+        serde_json::to_string_pretty(entry).map_err(|error| error.to_string())
+    } else {
+        Ok(page(entry))
+    }
 }
 
-fn ledger() -> String {
+fn book() -> Result<Cookbook, String> {
+    let entries = SOURCES
+        .iter()
+        .map(|source| Entry::parse(source))
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|error| error.to_string())?;
+    Cookbook::new(entries).map_err(|error| error.to_string())
+}
+
+fn ledger(book: &Cookbook) -> String {
     let mut out = String::new();
-    for entry in ENTRIES {
-        let _ = writeln!(out, "{}\n  EXIT: {}", entry.name, exit(entry.body));
+    for entry in book.entries() {
+        let _ = writeln!(out, "{}", entry.code());
+        if let Some(exit) = entry.exit() {
+            let _ = writeln!(out, "  EXIT: {exit}");
+        }
+    }
+    out.trim_end().to_string()
+}
+
+fn page(entry: &Entry) -> String {
+    let mut out = format!("# {}", entry.code());
+    section(&mut out, "Trigger", entry.trigger());
+    section(&mut out, "Solution", entry.solution());
+    if let Some(evidence) = entry.evidence() {
+        section(&mut out, "Evidence", evidence);
+    }
+    if let Some(exit) = entry.exit() {
+        section(&mut out, "EXIT", exit);
     }
     out
 }
 
-fn exit(body: &str) -> &str {
-    body.split_once("## EXIT\n")
-        .map(|(_, clause)| clause.trim())
-        .unwrap_or("")
+fn section(page: &mut String, name: &str, body: &str) {
+    let _ = write!(page, "\n\n## {name}\n\n{body}");
 }
 
-fn names() -> String {
-    ENTRIES
+fn names(book: &Cookbook) -> String {
+    book.entries()
         .iter()
-        .map(|entry| entry.name)
+        .map(|entry| entry.code().text())
         .collect::<Vec<_>>()
         .join(", ")
 }
