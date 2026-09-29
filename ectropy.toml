@@ -12,6 +12,13 @@ syntax = "test"
 paths = ["crates/*/tests/**/*.rs"]
 syntax = "environment"
 
+[[grant]]
+paths = [
+    "crates/cli/src/cookbook.rs",
+    "crates/grammar/src/rules.rs",
+]
+syntax = "embed"
+
 [limit]
 block = 4
 fanout = 10
