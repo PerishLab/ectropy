@@ -1,6 +1,6 @@
 use std::process::{Command, Output};
 
-const SEALED: &[&str] = &["ban", "coverage", "grant"];
+const SEALED: &[&str] = &["ban", "coverage", "grant", "reach"];
 
 fn run(args: &[&str]) -> Output {
     Command::new(env!("CARGO_BIN_EXE_ectropy"))

@@ -119,3 +119,81 @@ fn python() {
     assert_eq!(hits("src/load.py", source, &granted()), 0);
     assert_eq!(hits("tools/load.py", "name = \"__file__\"\n", &bare), 0);
 }
+
+fn reaches(path: &str, text: &str) -> Vec<String> {
+    findings(path, text, &config(&[], 4))
+        .into_iter()
+        .filter(|finding| finding.law == "reach")
+        .map(|finding| finding.note)
+        .collect()
+}
+
+#[test]
+fn wire() {
+    let found = reaches("tests/cli.rs", "#[path = \"../../src/x.rs\"]\nmod x;");
+    assert_eq!(found.len(), 1, "{found:?}");
+    assert!(found[0].contains("climbs into a src tree"), "{found:?}");
+    assert!(found[0].contains("structure.reach"), "{found:?}");
+    assert_eq!(
+        reaches("src/lib.rs", "#[path = \"../src/x.rs\"]\nmod x;").len(),
+        1
+    );
+    for source in [
+        "#[path = \"support/mod.rs\"]\nmod support;",
+        "#[path = \"../support/mod.rs\"]\nmod support;",
+        "#[path = \"control/doctor.rs\"]\nmod doctor;",
+        "#[path = \"src/../x.rs\"]\nmod x;",
+        "fn f() { let path = \"../src/x.rs\"; }",
+    ] {
+        assert_eq!(reaches("tests/cli.rs", source).len(), 0, "{source}");
+    }
+}
+
+#[test]
+fn script() {
+    for path in ["tests/x.ts", "tests/x.tsx", "src/x.svelte"] {
+        for source in [
+            "import \"../src/x\";",
+            "import { x } from \"../src/x\";",
+            "import x from '../../src/x';",
+            "import type { X } from \"../../packages/web/src/x\";",
+            "export { x } from \"../src/x\";",
+            "export * from '../src/x';",
+            "const x = await import(\"../src/x\");",
+            "const x = await import(`../src/x`);",
+        ] {
+            let text = wrap(path, source);
+            assert_eq!(reaches(path, &text).len(), 1, "{path}: {source}");
+        }
+    }
+}
+
+#[test]
+fn allowed() {
+    for path in ["tests/x.ts", "tests/x.tsx", "src/x.svelte"] {
+        for source in [
+            "import \"./x\";",
+            "import { x } from \"./src/x\";",
+            "import { x } from \"../tests/helper\";",
+            "import { x } from \"@noema/web/hooks\";",
+            "import { x } from \"../source/x\";",
+            "export { x } from \"./x\";",
+            "const x = await import(\"./x\");",
+            "const x = await import(`../${root}/src/x`);",
+            "const note = \"../src/x\";",
+            "const x = Array.from(\"../src\");",
+            "vi.mock(\"../src/x\");",
+        ] {
+            let text = wrap(path, source);
+            assert_eq!(reaches(path, &text).len(), 0, "{path}: {source}");
+        }
+    }
+}
+
+fn wrap(path: &str, source: &str) -> String {
+    if path.ends_with(".svelte") {
+        format!("<script lang=\"ts\">\n{source}\n</script>\n")
+    } else {
+        source.to_string()
+    }
+}

@@ -4,6 +4,7 @@ use crate::rules;
 use crate::{Cst, Kind, Source, Span};
 
 mod embed;
+mod link;
 mod record;
 mod tuple;
 
@@ -14,6 +15,7 @@ pub(crate) fn rust(root: &mut Cst, source: &Source) {
     sweep.tuples(root);
     sweep.stds(root);
     sweep.anchors(root);
+    sweep.wires(root);
 }
 
 pub(crate) fn web(root: &mut Cst, source: &Source, rules: &(Vec<format::Rule>, Vec<format::Rule>)) {
@@ -23,6 +25,7 @@ pub(crate) fn web(root: &mut Cst, source: &Source, rules: &(Vec<format::Rule>, V
     sweep.tuples(root);
     sweep.members(root);
     sweep.metas(root);
+    sweep.specifiers(root);
 }
 
 pub(crate) fn python(root: &mut Cst, source: &Source) {

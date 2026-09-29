@@ -91,6 +91,8 @@ The core kinds express roles, not target syntax:
 - `style`, `environment`, and `embed` expose syntax whose lawful territory is
   assigned by grants or bans. `embed` binds a repository file's content or
   location into code.
+- `link` exposes a path value that wires another source file in as code: a
+  Rust `#[path]` value or a TypeScript import specifier.
 
 Module roots provide the coordinate system for path depth. They neither select
 files nor change law. Each scanned file belongs to the most specific matching
@@ -158,6 +160,17 @@ Framework conventions such as Vite `?raw` imports are not language dialect and
 stay out. Runtime reads by relative path cannot be told apart from temporary
 fixtures without symbol resolution.
 
+Rust `#[path = "…"]` values and TypeScript, TSX, and Svelte string specifiers
+after `from`, in a bare `import "…"`, and in a dynamic `import("…")` become
+`link` evidence. The `reach` law refuses a link whose path has a `..` segment
+followed later by a `src` segment: a relative path never climbs into a `src`
+tree, and the recovery names the package through its `exports`. It holds
+everywhere, admits no boundary, needs no grant or syntax class, and reads
+neither package manifests nor test identity. Framework calls such as
+`vi.mock("…")` carry framework identity rather than language syntax and stay
+out, as do template specifiers that interpolate, since their path is not
+visible.
+
 Style attributes, style elements, Svelte style blocks, stylesheet imports, and
 whole CSS or SCSS files become `style` evidence. CSS and SCSS internals are
 intentionally not parsed today. Markdown currently exposes heading scopes
@@ -201,7 +214,8 @@ stable promise and may widen as coverage becomes honest. The beta channel is a
 place to break before stable and carries no compatibility promise.
 
 Current known understatements remain explicit: stylesheet internals and most
-Markdown syntax are opaque, the fanout law sees only scanned files, adapters do
-not perform symbol resolution, and malformed TSX can sometimes distort a local
+Markdown syntax are opaque, the fanout law sees only scanned files, `reach` does
+not read `vi.mock("…")` arguments or interpolated template specifiers, adapters
+do not perform symbol resolution, and malformed TSX can sometimes distort a local
 parse before coverage refuses the unread region. These are coverage work, not
 authorization to claim more than the tree proves.
