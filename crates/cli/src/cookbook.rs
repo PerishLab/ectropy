@@ -4,6 +4,7 @@ use std::fmt::Write;
 const SOURCES: &[&str] = &[
     include_str!("../cookbook/burr.txt"),
     include_str!("../cookbook/combination.txt"),
+    include_str!("../cookbook/embed.txt"),
     include_str!("../cookbook/fanout.txt"),
     include_str!("../cookbook/receiver.txt"),
     include_str!("../cookbook/schema.txt"),

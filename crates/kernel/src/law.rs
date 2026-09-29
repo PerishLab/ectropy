@@ -52,7 +52,7 @@ pub const LAWS: &[Law] = &[
     },
     Law {
         name: "grant",
-        note: "reserved syntax outside granted paths; widen the grant itself",
+        note: "reserved syntax outside granted paths, or embed syntax inside test code; widen the grant itself",
         exempt: false,
     },
     Law {
