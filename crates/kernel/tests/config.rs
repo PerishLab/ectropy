@@ -1,4 +1,5 @@
 use kernel::config::{Config, File, Glob};
+use kernel::law::LAWS;
 use std::fs;
 use std::sync::atomic::{AtomicU64, Ordering};
 
@@ -106,4 +107,69 @@ fn validation() {
         fs::remove_dir_all(&root).expect("remove config root");
         assert!(loaded.is_err(), "case {at} should fail");
     }
+}
+
+fn edge(allow: &str) -> Result<(), String> {
+    load(&format!(
+        "[[boundary]]\npaths = [\"src/**\"]\nallow = [\"{allow}\"]\nnote = \"probe\"\n"
+    ))
+}
+
+fn load(text: &str) -> Result<(), String> {
+    let id = NEXT.fetch_add(1, Ordering::Relaxed);
+    let root = std::env::temp_dir().join(format!("ectropy-law-{id}"));
+    fs::create_dir(&root).expect("create law root");
+    fs::write(root.join("ectropy.toml"), text).expect("write config");
+    let loaded = kernel::config::load(&root);
+    fs::remove_dir_all(&root).expect("remove law root");
+    loaded.map(|_| ()).map_err(|error| error.to_string())
+}
+
+#[test]
+fn embed() {
+    for table in ["grant", "ban"] {
+        let text = format!("[[{table}]]\nsyntax = \"embed\"\npaths = [\"src/**\"]\n");
+        load(&text).unwrap_or_else(|error| panic!("{table}: {error}"));
+    }
+    let error = edge("embed").expect_err("embed names no law");
+    assert!(error.contains("unknown boundary law `embed`"), "{error}");
+    let config = Config {
+        file: File::default(),
+    };
+    assert!(!config.granted("src/lib.rs", "embed"));
+    assert!(config.granted("src/lib.rs", "style"));
+}
+
+#[test]
+fn catalog() {
+    let names: Vec<&str> = LAWS.iter().map(|law| law.name).collect();
+    let mut sorted = names.clone();
+    sorted.sort_unstable();
+    sorted.dedup();
+    assert_eq!(sorted, names, "catalog must be sorted and unique");
+    for law in LAWS {
+        assert!(!law.note.trim().is_empty(), "{}", law.name);
+    }
+}
+
+#[test]
+fn sealed() {
+    for name in ["ban", "coverage", "grant"] {
+        assert!(!kernel::law::find(name).expect(name).exempt);
+        let error = edge(name).expect_err(name);
+        assert!(error.contains("admits no exemption"), "{error}");
+    }
+}
+
+#[test]
+fn exemptable() {
+    for law in LAWS.iter().filter(|law| law.exempt) {
+        edge(law.name).unwrap_or_else(|error| panic!("{}: {error}", law.name));
+    }
+}
+
+#[test]
+fn unknown() {
+    let error = edge("missing").expect_err("unknown law");
+    assert!(error.contains("unknown boundary law `missing`"), "{error}");
 }

@@ -42,6 +42,11 @@ also admit no boundary: their own paths already define their territory. Grants
 reserve a syntax class to named terrain; bans deny a class within named terrain
 and win when both match.
 
+`environment` and `embed` are sealed: they refuse everywhere a grant does not
+name. Grants name production resources; tests never hold one, so the rule
+needs no test identity. A Rust test marker still outranks a grant: `embed`
+inside an item carrying `#[test]` or `#[cfg(test)]` refuses in a granted file.
+
 ## Product shape
 
 The repository has three crates with one dependency direction:
@@ -83,8 +88,9 @@ The core kinds express roles, not target syntax:
   and its named members. An exact field-name set is its schema; types and
   declaration names are not.
 - `markup` carries element depth independently of code scopes.
-- `style` and `environment` expose syntax whose lawful territory is assigned by
-  grants or bans.
+- `style`, `environment`, and `embed` expose syntax whose lawful territory is
+  assigned by grants or bans. `embed` binds a repository file's content or
+  location into code.
 
 Module roots provide the coordinate system for path depth. They neither select
 files nor change law. Each scanned file belongs to the most specific matching
@@ -142,6 +148,15 @@ assignments do not. The schema law groups exact unordered field-name sets across
 the admitted repository scan closure after path boundaries are applied. This is
 the one repository-wide structural law; adapters still emit only per-file
 evidence and never inspect another source.
+
+Rust `include_str!`, `include_bytes!`, `include!`, and the
+`CARGO_MANIFEST_DIR` token; TypeScript `import.meta.url`, `dirname`,
+`filename`, and `glob` with `__dirname` and `__filename`; and Python `__file__`
+become `embed` evidence. Rust `#[path]` is module wiring, a file compiled as
+code rather than content or location bound as data, so it is not `embed`.
+Framework conventions such as Vite `?raw` imports are not language dialect and
+stay out. Runtime reads by relative path cannot be told apart from temporary
+fixtures without symbol resolution.
 
 Style attributes, style elements, Svelte style blocks, stylesheet imports, and
 whole CSS or SCSS files become `style` evidence. CSS and SCSS internals are

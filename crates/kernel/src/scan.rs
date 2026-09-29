@@ -1,8 +1,9 @@
+mod marker;
 mod parameter;
 mod tuple;
 
 use crate::config::Config;
-use crate::recovery::{COMBINATION, SHADOW, code};
+use crate::recovery::{COMBINATION, EMBED, SHADOW, code};
 use crate::{Finding, Node};
 use grammar::{Kind, Source};
 
@@ -10,6 +11,7 @@ pub(crate) fn run(source: &Source, node: &Node, config: &Config) -> Vec<Finding>
     let mut scan = Scan {
         source,
         config,
+        marked: marker::spans(node, &source.text),
         findings: Vec::new(),
     };
     scan.laws(node);
@@ -20,6 +22,7 @@ pub(crate) fn run(source: &Source, node: &Node, config: &Config) -> Vec<Finding>
 struct Scan<'a> {
     source: &'a Source,
     config: &'a Config,
+    marked: Vec<std::ops::Range<usize>>,
     findings: Vec<Finding>,
 }
 
@@ -113,6 +116,7 @@ impl<'a> Scan<'a> {
         self.claim(node, Kind::Test, "test");
         self.claim(node, Kind::Style, "style");
         self.claim(node, Kind::Environment, "environment");
+        self.claim(node, Kind::Embed, "embed");
     }
 
     fn claim(&mut self, node: &Node, kind: Kind, syntax: &str) {
@@ -127,10 +131,25 @@ impl<'a> Scan<'a> {
         if !self.config.granted(&self.source.path, syntax) {
             let note = match syntax {
                 "environment" => "environment syntax outside granted paths, route through the config cascade (plumb docs/config.md)".to_string(),
+                "embed" => format!("embed syntax outside granted paths, test code never embeds repository files; see: ectropy cookbook {}", code(EMBED)),
                 _ => format!("{syntax} syntax outside granted paths"),
             };
             self.mark(node.span.start, "grant", &note);
+            return;
         }
+        if kind == Kind::Embed && self.tested(node) {
+            let note = format!(
+                "embed syntax inside test code, a test marker outranks the grant; see: ectropy cookbook {}",
+                code(EMBED)
+            );
+            self.mark(node.span.start, "grant", &note);
+        }
+    }
+
+    fn tested(&self, node: &Node) -> bool {
+        self.marked
+            .iter()
+            .any(|span| span.contains(&node.span.start))
     }
 
     fn coverage(&mut self, node: &Node) {
