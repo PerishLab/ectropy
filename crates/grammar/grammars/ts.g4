@@ -13,6 +13,7 @@ LPAREN    : '(' ;
 RPAREN    : ')' ;
 LBRACK    : '[' ;
 RBRACK    : ']' ;
+REGEX     : '/' ![/*] ( '\\' . / '[' ( '\\' . / ~[\]\\\n] )* ']' / ~[/\\\n] )+ '/' [a-zA-Z]* -> regex ;
 OTHER     : . ;
 
 unit : item ;
