@@ -6,6 +6,7 @@ const SOURCES: &[&str] = &[
     include_str!("../cookbook/combination.txt"),
     include_str!("../cookbook/embed.txt"),
     include_str!("../cookbook/fanout.txt"),
+    include_str!("../cookbook/reach.txt"),
     include_str!("../cookbook/receiver.txt"),
     include_str!("../cookbook/schema.txt"),
     include_str!("../cookbook/shadow.txt"),

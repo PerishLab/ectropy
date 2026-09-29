@@ -3,7 +3,7 @@ mod parameter;
 mod tuple;
 
 use crate::config::Config;
-use crate::recovery::{COMBINATION, EMBED, SHADOW, code};
+use crate::recovery::{COMBINATION, EMBED, REACH, SHADOW, code};
 use crate::{Finding, Node};
 use grammar::{Kind, Source};
 
@@ -40,6 +40,7 @@ impl<'a> Scan<'a> {
         self.burr(node);
         self.shadow(node);
         self.tuple(node);
+        self.reach(node);
         for kid in &node.kids {
             self.laws(kid);
         }
@@ -59,6 +60,17 @@ impl<'a> Scan<'a> {
             );
             self.mark(node.span.start, "shadow", &note);
         }
+    }
+
+    fn reach(&mut self, node: &Node) {
+        if node.kind != Kind::Link || !climbs(self.word(node)) {
+            return;
+        }
+        let note = format!(
+            "relative path climbs into a src tree; name the package through its exports; see: ectropy cookbook {}",
+            code(REACH)
+        );
+        self.mark(node.span.start, "reach", &note);
     }
 
     fn dispatch(&mut self, node: &Node) {
@@ -230,6 +242,11 @@ fn place(text: &str, at: usize) -> (usize, usize) {
     let line = head.matches('\n').count() + 1;
     let start = head.rfind('\n').map(|nl| nl + 1).unwrap_or(0);
     (line, at - start + 1)
+}
+
+fn climbs(value: &str) -> bool {
+    let mut parts = value.split('/');
+    parts.any(|part| part == "..") && parts.any(|part| part == "src")
 }
 
 pub(crate) fn compound(name: &str) -> bool {

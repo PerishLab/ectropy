@@ -23,7 +23,7 @@ impl Sweep<'_> {
         (MACROS.contains(&head) && invoked).then_some(at + 1)
     }
 
-    fn spelled(&self, at: usize, glyphs: &[&str]) -> bool {
+    pub(super) fn spelled(&self, at: usize, glyphs: &[&str]) -> bool {
         glyphs
             .iter()
             .enumerate()
