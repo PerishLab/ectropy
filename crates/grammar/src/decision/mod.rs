@@ -1,4 +1,3 @@
-mod regex;
 mod syntax;
 
 use crate::lex::Token;
@@ -41,7 +40,6 @@ struct Parse<'a> {
     mates: Vec<Option<usize>>,
     scopes: Vec<usize>,
     marks: Vec<(usize, usize)>,
-    veils: Vec<Option<usize>>,
 }
 
 pub(crate) fn scan(source: &Source, held: &[Token], root: &Cst) -> Vec<Cst> {
@@ -66,7 +64,6 @@ impl<'a> Parse<'a> {
             mates: vec![None; held.len()],
             scopes,
             marks,
-            veils: regex::scan(source, held),
         };
         parse.pair();
         parse
@@ -80,10 +77,6 @@ impl<'a> Parse<'a> {
         let mut start = from;
         let mut at = from;
         while at < to {
-            if self.veil(at).is_some() {
-                at = self.step(at, to);
-                continue;
-            }
             if matches!(self.glyph(at), "(" | "[") || (self.glyph(at) == "{" && !self.boundary(at))
             {
                 at = self.step(at, to);
@@ -190,10 +183,6 @@ impl<'a> Parse<'a> {
         let mut out = Read::default();
         let mut at = from;
         while at < to {
-            if self.veil(at).is_some() {
-                at = self.step(at, to);
-                continue;
-            }
             if matches!(self.glyph(at), "(" | "[" | "{") {
                 let end = self.mate(at, to);
                 if end > at {
@@ -223,10 +212,6 @@ impl<'a> Parse<'a> {
         let mut found = Vec::new();
         let mut at = from;
         while at + 1 < to {
-            if self.veil(at).is_some() {
-                at = self.step(at, to);
-                continue;
-            }
             if matches!(self.glyph(at), "(" | "[" | "{") {
                 at = self.step(at, to);
                 continue;

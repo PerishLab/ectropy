@@ -6,10 +6,6 @@ impl Parse<'_> {
         let mut stack = Vec::new();
         let mut at = 0;
         while at < self.held.len() {
-            if self.veil(at).is_some() {
-                at = self.step(at, self.held.len());
-                continue;
-            }
             if matches!(self.glyph(at), "(" | "[" | "{") {
                 stack.push(at);
                 at += 1;
@@ -33,10 +29,6 @@ impl Parse<'_> {
     pub(super) fn cuts(&self, from: usize, to: usize) -> bool {
         let mut at = from;
         while at < to {
-            if self.veil(at).is_some() {
-                at = self.step(at, to);
-                continue;
-            }
             if matches!(self.glyph(at), "(" | "[") || (self.glyph(at) == "{" && !self.boundary(at))
             {
                 at = self.step(at, to);
@@ -88,9 +80,6 @@ impl Parse<'_> {
     }
 
     pub(super) fn step(&self, at: usize, to: usize) -> usize {
-        if let Some(end) = self.veil(at).filter(|end| *end < to) {
-            return end + 1;
-        }
         let end = self.mate(at, to);
         if end > at { end + 1 } else { at + 1 }
     }
@@ -109,10 +98,6 @@ impl Parse<'_> {
         };
         let text = self.source.text.get(token.start..token.end).unwrap_or("");
         if text.is_empty() { &token.name } else { text }
-    }
-
-    pub(super) fn veil(&self, at: usize) -> Option<usize> {
-        self.veils.get(at).and_then(|end| *end)
     }
 
     pub(super) fn boundary(&self, at: usize) -> bool {
