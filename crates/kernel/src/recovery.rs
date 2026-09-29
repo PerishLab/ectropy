@@ -4,6 +4,7 @@ pub const BURR: &str = "structure.burr";
 pub const COMBINATION: &str = "structure.combination";
 pub const EMBED: &str = "structure.embed";
 pub const FANOUT: &str = "structure.fanout";
+pub const REACH: &str = "structure.reach";
 pub const RECEIVER: &str = "structure.receiver";
 pub const SCHEMA: &str = "structure.schema";
 pub const SHADOW: &str = "structure.shadow";
@@ -14,6 +15,7 @@ pub const CODES: &[&str] = &[
     COMBINATION,
     EMBED,
     FANOUT,
+    REACH,
     RECEIVER,
     SCHEMA,
     SHADOW,

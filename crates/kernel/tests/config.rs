@@ -154,7 +154,7 @@ fn catalog() {
 
 #[test]
 fn sealed() {
-    for name in ["ban", "coverage", "grant"] {
+    for name in ["ban", "coverage", "grant", "reach"] {
         assert!(!kernel::law::find(name).expect(name).exempt);
         let error = edge(name).expect_err(name);
         assert!(error.contains("admits no exemption"), "{error}");

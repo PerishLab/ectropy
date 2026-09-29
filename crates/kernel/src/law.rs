@@ -71,6 +71,11 @@ pub const LAWS: &[Law] = &[
         exempt: true,
     },
     Law {
+        name: "reach",
+        note: "a relative path climbing into a src tree instead of naming the package",
+        exempt: false,
+    },
+    Law {
         name: "receiver",
         note: "a fourth free function sharing one receiver in a file",
         exempt: true,

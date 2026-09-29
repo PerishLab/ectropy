@@ -1,0 +1,17 @@
+# structure.reach
+
+## Trigger
+
+The `reach` law reports a relative path whose `..` segment is followed by a `src` segment: a Rust `#[path = "…"]` value, or a TypeScript, TSX or Svelte specifier in `import … from`, `export … from`, a bare `import "…"` or a dynamic `import("…")`.
+
+## Solution
+
+Name the package instead of climbing into its source. Every package and app, private apps included, declares an `exports` map with explicit subpaths for the modules others may reach, and tests import through self-reference such as `@noema/web/hooks`; the resolver then enforces what is public. Never wildcard `src` wholesale in `exports`. Where the package name would resolve to build output, add a `source` export condition pointing at the source file and list that condition in the vitest resolve conditions, so tests run against source without a build step. A Rust test that compiles a private module through `#[path]` into `src` tests the crate's public API instead: exercise the item through the library or binary the crate ships, and promote what the test genuinely needs to that surface.
+
+## Evidence
+
+Across the TypeScript repositories every relative specifier in a test climbed into `src`, and Rust tests compiled private modules through `#[path = "../../src/…"]`; both coupled tests to internal layout and could pass while the real interface stayed untested.
+
+## EXIT
+
+Remove this entry when package self-reference is the only reach a repository offers and the finding itself names the exported subpath.
