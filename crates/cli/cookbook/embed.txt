@@ -1,0 +1,17 @@
+# structure.embed
+
+## Trigger
+
+The `grant` law reports embed syntax outside granted paths or inside test code.
+
+## Solution
+
+Decide whether the embedded file is a product resource or a test fixture. A resource the shipped binary carries, such as a grammar, cookbook, or rule catalog, earns a narrow `[[grant]]` naming only the loading file. A test that reads repository sources, configuration, or product data asserts on wording and layout rather than behaviour: exercise the product's own loading path, or inline the smallest fixture the behaviour needs.
+
+## Evidence
+
+Tests that embedded real sources through `include_str!` and `CARGO_MANIFEST_DIR` broke on renames and moves while rarely catching a defect; ectropy's own grammar and cookbook embeds stay granted production resources.
+
+## EXIT
+
+Remove this entry when the embed finding itself names whether the site is a resource or a fixture.
