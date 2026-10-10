@@ -47,7 +47,7 @@ declItem : declKw 'mut'? name ( !';' loose )* ';'? -> item ;
 plainItem : lineKw ( !';' loose )* ';'? -> item ;
 declKw : 'static' / 'type' / 'const' / 'mod' ;
 name       : IDENT -> word ;
-quals      : ( 'async' / 'unsafe' / 'const' / 'extern' / 'default' / 'move' )* ;
+quals      : ( 'extern' STRING? / 'async' / 'unsafe' / 'const' / 'default' / 'move' )* ;
 lineKw     : 'use' / 'extern' ;
 
 makeItem : 'macro_rules' '!' name LBRACE arm* RBRACE -> item ;

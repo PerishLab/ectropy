@@ -197,3 +197,39 @@ fn wrap(path: &str, source: &str) -> String {
         source.to_string()
     }
 }
+
+#[test]
+fn abi() {
+    for qualifier in [
+        "extern",
+        "extern \"system\"",
+        "unsafe extern \"system\"",
+        "unsafe extern \"C\"",
+        "extern \"C-unwind\"",
+    ] {
+        let source = format!(
+            "pub {qualifier} fn callback(handle: usize, message: u32, word: usize, parameter: isize) -> isize {{ 0 }}"
+        );
+        assert!(!laws(&source).contains(&"coverage".to_string()), "{source}");
+    }
+}
+
+#[test]
+fn callback() {
+    let source = r#"pub unsafe extern "system" fn bad_name(a: usize, b: usize, c: usize, d: usize, e: usize) { if a { if b { if c { if d { return; } } } } }"#;
+    let found = laws(source);
+    assert!(!found.contains(&"coverage".to_string()));
+    assert!(found.contains(&"word".to_string()));
+    assert!(found.contains(&"param".to_string()));
+    assert!(found.contains(&"block".to_string()));
+}
+
+#[test]
+fn malformed() {
+    for source in [
+        r#"pub unsafe extern 123 fn callback() {}"#,
+        r#"pub unsafe extern "system" "C" fn callback() {}"#,
+    ] {
+        assert!(laws(source).contains(&"coverage".to_string()), "{source}");
+    }
+}
