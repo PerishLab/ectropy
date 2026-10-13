@@ -4,7 +4,11 @@ use std::io::{self, BufWriter, Write};
 use std::path::PathBuf;
 
 #[derive(Parser)]
-#[command(name = "ectropy", version = version())]
+#[command(
+    name = "ectropy",
+    version = version(),
+    after_help = "Optional Locus observation: set [locus] enabled = true in config.toml below the existing Ectropy data home. endpoint defaults to LOCUS_API or http://127.0.0.1:43308; buffer uses state/locus below that home. Missing configuration disables observation. Repository ectropy.toml remains scan policy."
+)]
 struct Cli {
     #[command(subcommand)]
     command: Option<Command>,
@@ -42,6 +46,7 @@ fn version() -> &'static str {
 
 mod cookbook;
 mod law;
+mod observation;
 mod repo;
 mod report;
 mod rig;
@@ -84,25 +89,30 @@ fn main() {
         eprintln!("ectropy: {error}");
         std::process::exit(2);
     }
-    if let Err(error) = run() {
-        if error.broken() {
-            return;
+    let cli = Cli::parse();
+    let observation = observation::Run::start(observation::name(&cli.command));
+    let code = match execute(cli) {
+        Ok(code) => code,
+        Err(error) if error.broken() => 0,
+        Err(error) => {
+            eprintln!("ectropy: {error}");
+            2
         }
-        eprintln!("ectropy: {error}");
-        std::process::exit(2);
+    };
+    if let Some(observation) = observation {
+        observation.finish(code);
+    }
+    if code != 0 {
+        std::process::exit(code);
     }
 }
 
-fn run() -> Result<(), Error> {
-    let cli = Cli::parse();
+#[locus::trace(with = observation::view())]
+fn execute(cli: Cli) -> Result<i32, Error> {
     plumb::identity::ready().map_err(Error::note)?;
     let command = match cli.command {
         Some(Command::Skill { deed }) => {
-            let code = skill::run(deed);
-            if code != 0 {
-                std::process::exit(code);
-            }
-            return Ok(());
+            return Ok(skill::run(deed));
         }
         command => command,
     };
@@ -131,10 +141,10 @@ fn run() -> Result<(), Error> {
             let findings = repo.scan(&repo.files()?)?;
             if report::write(&findings, &mut out)? {
                 out.flush()?;
-                std::process::exit(1);
+                return Ok(1);
             }
         }
     }
     out.flush()?;
-    Ok(())
+    Ok(0)
 }

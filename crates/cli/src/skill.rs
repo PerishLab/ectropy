@@ -47,6 +47,7 @@ pub enum Deed {
     Uninstall,
 }
 
+#[locus::trace(with = crate::observation::view())]
 pub fn run(deed: Deed) -> i32 {
     let rig = match Rig::resolve(None) {
         Ok(rig) => rig,
