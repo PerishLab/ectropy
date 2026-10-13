@@ -17,3 +17,9 @@ kernel = { path = "../kernel" }
 grammar = { path = "../grammar" }
 clap = { version = "4.5", features = ["derive"] }
 serde_json = "1.0"
+
+serde = { version = "1", features = ["derive"] }
+locus = { version = "0", registry = "perish" }
+
+[dev-dependencies]
+tempfile = "3"
