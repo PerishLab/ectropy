@@ -56,6 +56,11 @@ pub const LAWS: &[Law] = &[
         exempt: false,
     },
     Law {
+        name: "ignore",
+        note: "#[ignore] without a reason; write #[ignore = \"...\"]",
+        exempt: true,
+    },
+    Law {
         name: "markup",
         note: "markup element depth past the markup limit",
         exempt: true,
@@ -88,6 +93,11 @@ pub const LAWS: &[Law] = &[
     Law {
         name: "shadow",
         note: "a literal densely copied bare from one source root",
+        exempt: true,
+    },
+    Law {
+        name: "tempdir",
+        note: "a temporary directory named only by a literal or in-process counter; use tempfile::tempdir()",
         exempt: true,
     },
     Law {

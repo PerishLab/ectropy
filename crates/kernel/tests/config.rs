@@ -1,9 +1,6 @@
 use kernel::config::{Config, File, Glob};
 use kernel::law::LAWS;
 use std::fs;
-use std::sync::atomic::{AtomicU64, Ordering};
-
-static NEXT: AtomicU64 = AtomicU64::new(0);
 
 #[test]
 fn defaults() {
@@ -99,12 +96,9 @@ fn validation() {
         "[[vocabulary.term]]\nname = \"two_words\"\ndescription = \"one\"\n[[vocabulary.term]]\nname = \"two_words\"\ndescription = \"two\"\n",
     ];
     for (at, text) in cases.iter().enumerate() {
-        let id = NEXT.fetch_add(1, Ordering::Relaxed);
-        let root = std::env::temp_dir().join(format!("ectropy-config-{id}-{at}"));
-        fs::create_dir(&root).expect("create config root");
-        fs::write(root.join("ectropy.toml"), text).expect("write config");
-        let loaded = kernel::config::load(&root);
-        fs::remove_dir_all(&root).expect("remove config root");
+        let root = tempfile::tempdir().expect("create config root");
+        fs::write(root.path().join("ectropy.toml"), text).expect("write config");
+        let loaded = kernel::config::load(root.path());
         assert!(loaded.is_err(), "case {at} should fail");
     }
 }
@@ -116,12 +110,9 @@ fn edge(allow: &str) -> Result<(), String> {
 }
 
 fn load(text: &str) -> Result<(), String> {
-    let id = NEXT.fetch_add(1, Ordering::Relaxed);
-    let root = std::env::temp_dir().join(format!("ectropy-law-{id}"));
-    fs::create_dir(&root).expect("create law root");
-    fs::write(root.join("ectropy.toml"), text).expect("write config");
-    let loaded = kernel::config::load(&root);
-    fs::remove_dir_all(&root).expect("remove law root");
+    let root = tempfile::tempdir().expect("create law root");
+    fs::write(root.path().join("ectropy.toml"), text).expect("write config");
+    let loaded = kernel::config::load(root.path());
     loaded.map(|_| ()).map_err(|error| error.to_string())
 }
 
