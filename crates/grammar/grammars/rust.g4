@@ -20,9 +20,10 @@ OTHER     : . ;
 unit : item ;
 
 item : outer* vis core ;
-outer : sign / plain ;
+outer : sign / ignore / plain ;
 sign : '#' '!'? LBRACK gate RBRACK -> test ;
 gate : 'cfg' LPAREN 'test' RPAREN / 'test' ;
+ignore : '#' '!'? LBRACK 'ignore' ( '=' lit )? RBRACK -> test ;
 plain : '#' '!'? LBRACK loose* RBRACK ;
 vis : ( 'pub' pgroup? )? ;
 core : modItem / nestItem / fnItem / structItem / makeItem / callItem / lineItem ;

@@ -1,5 +1,7 @@
 #![allow(dead_code)]
 
+mod shapes;
+
 use grammar::Source;
 
 pub fn findings(path: &str, text: &str, config: &kernel::config::Config) -> Vec<kernel::Finding> {

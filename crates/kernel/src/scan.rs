@@ -1,5 +1,6 @@
 mod marker;
 mod parameter;
+mod shapes;
 mod tuple;
 
 use crate::config::Config;
@@ -16,6 +17,7 @@ pub(crate) fn run(source: &Source, node: &Node, config: &Config) -> Vec<Finding>
     };
     scan.laws(node);
     scan.receiver(node);
+    scan.temps();
     scan.findings
 }
 
@@ -34,6 +36,7 @@ impl<'a> Scan<'a> {
         self.coverage(node);
         self.single(node);
         self.grant(node);
+        self.ignore(node);
         self.dispatch(node);
         self.combination(node);
         self.arity(node);
@@ -222,6 +225,21 @@ impl<'a> Scan<'a> {
             .text
             .get(node.span.start..node.span.end)
             .unwrap_or("")
+    }
+
+    fn ignore(&mut self, node: &Node) {
+        let exempt = self.config.exempt(&self.source.path, "ignore");
+        if let Some(at) = shapes::ignore(node, self.word(node), exempt) {
+            self.mark(at, "ignore", shapes::IGNORE);
+        }
+    }
+    fn temps(&mut self) {
+        if self.config.exempt(&self.source.path, "tempdir") {
+            return;
+        }
+        for at in shapes::temps(&self.source.path, &self.source.text) {
+            self.mark(at, "tempdir", shapes::TEMPDIR);
+        }
     }
 
     fn mark(&mut self, at: usize, law: &str, note: &str) {
