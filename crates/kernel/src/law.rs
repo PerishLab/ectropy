@@ -32,7 +32,7 @@ pub const LAWS: &[Law] = &[
     },
     Law {
         name: "coverage",
-        note: "an unparsed region; a clean result cannot cover unread terrain",
+        note: "an unparsed region, or recognized source outside every scan include; a clean result cannot cover unread terrain",
         exempt: false,
     },
     Law {

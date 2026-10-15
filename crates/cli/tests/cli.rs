@@ -72,8 +72,11 @@ fn empty() {
     .expect("write config");
     fs::write(seat.path().join("bad.rs"), [0xff, 0xfe]).expect("write source");
     let output = run(&[seat.path().to_str().expect("path")]);
-    assert!(output.status.success());
-    assert_eq!(text(&output.stdout), "clean\n");
+    assert_eq!(output.status.code(), Some(1));
+    assert!(text(&output.stderr).is_empty());
+    let stdout = text(&output.stdout);
+    assert!(stdout.contains("bad.rs coverage"), "{stdout}");
+    assert!(stdout.contains("1 error"), "{stdout}");
 }
 
 #[test]

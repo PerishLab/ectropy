@@ -6,6 +6,11 @@ use std::fs;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
+pub(crate) struct Terrain {
+    pub(crate) files: Vec<PathBuf>,
+    gaps: Vec<String>,
+}
+
 pub(crate) struct Repo {
     base: PathBuf,
     config: Config,
@@ -31,14 +36,18 @@ impl Repo {
     }
 
     #[locus::trace(with = crate::observation::view())]
-    pub(crate) fn files(&self) -> Result<Vec<PathBuf>, Error> {
-        let mut files = Vec::new();
-        self.walk(&self.base, &mut files)?;
-        files.sort();
-        Ok(files)
+    pub(crate) fn terrain(&self) -> Result<Terrain, Error> {
+        let mut terrain = Terrain {
+            files: Vec::new(),
+            gaps: Vec::new(),
+        };
+        self.walk(&self.base, &mut terrain)?;
+        terrain.files.sort();
+        terrain.gaps.sort();
+        Ok(terrain)
     }
 
-    fn walk(&self, dir: &Path, files: &mut Vec<PathBuf>) -> Result<(), Error> {
+    fn walk(&self, dir: &Path, terrain: &mut Terrain) -> Result<(), Error> {
         let entries = fs::read_dir(dir).map_err(|source| {
             Error::note(format!("cannot read directory {}: {source}", dir.display()))
         })?;
@@ -49,12 +58,12 @@ impl Repo {
                     dir.display()
                 ))
             })?;
-            self.visit(&entry.path(), files)?;
+            self.visit(&entry.path(), terrain)?;
         }
         Ok(())
     }
 
-    fn visit(&self, path: &Path, files: &mut Vec<PathBuf>) -> Result<(), Error> {
+    fn visit(&self, path: &Path, terrain: &mut Terrain) -> Result<(), Error> {
         if skip(path) {
             return Ok(());
         }
@@ -65,20 +74,21 @@ impl Repo {
             return Ok(());
         }
         if kind.is_dir() {
-            return self.walk(path, files);
+            return self.walk(path, terrain);
         }
         if !kind.is_file() {
             return Ok(());
         }
         let rel = self.relative(path)?;
-        if self.wanted(&rel) {
-            files.push(path.to_path_buf());
+        if !source(&rel) || self.barred(&rel) {
+            return Ok(());
+        }
+        if self.within(&rel) {
+            terrain.files.push(path.to_path_buf());
+        } else if !rel.ends_with(".md") {
+            terrain.gaps.push(rel);
         }
         Ok(())
-    }
-
-    fn wanted(&self, path: &str) -> bool {
-        source(path) && self.within(path) && !self.barred(path)
     }
 
     fn within(&self, path: &str) -> bool {
@@ -148,8 +158,13 @@ impl Repo {
     }
 
     #[locus::trace(with = crate::observation::view())]
-    pub(crate) fn scan(&self, files: &[PathBuf]) -> Result<Vec<kernel::Finding>, Error> {
-        let mut findings = Vec::new();
+    pub(crate) fn scan(&self, terrain: &Terrain) -> Result<Vec<kernel::Finding>, Error> {
+        let files = &terrain.files;
+        let mut findings: Vec<kernel::Finding> = terrain
+            .gaps
+            .iter()
+            .map(|gap| kernel::Finding::gap(gap))
+            .collect();
         let mut records = Vec::new();
         for path in files {
             self.one(path, &mut findings, &mut records)?;
@@ -239,7 +254,7 @@ fn skip(path: &Path) -> bool {
         .unwrap_or("");
     matches!(
         name,
-        "target" | ".git" | ".task" | "node_modules" | ".local"
+        "target" | ".git" | ".task" | "node_modules" | ".local" | "dist"
     )
 }
 
@@ -247,10 +262,5 @@ fn source(path: &str) -> bool {
     Path::new(path)
         .extension()
         .and_then(|extension| extension.to_str())
-        .is_some_and(|extension| {
-            matches!(
-                extension,
-                "css" | "md" | "py" | "rs" | "scss" | "svelte" | "ts" | "tsx"
-            )
-        })
+        .is_some_and(kernel::path::source)
 }
