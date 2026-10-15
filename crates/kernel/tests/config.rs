@@ -173,3 +173,9 @@ fn unknown() {
     let error = edge("missing").expect_err("unknown law");
     assert!(error.contains("unknown boundary law `missing`"), "{error}");
 }
+
+#[test]
+fn extension() {
+    assert!(kernel::path::source("css"));
+    assert!(!kernel::path::source("js"));
+}

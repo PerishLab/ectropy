@@ -43,10 +43,10 @@ fn atoms(part: &str, file: bool) -> Vec<&str> {
     parts
 }
 
-fn source(extension: &str) -> bool {
+pub fn source(extension: &str) -> bool {
     matches!(
         extension,
-        "md" | "py" | "rs" | "scss" | "svelte" | "ts" | "tsx"
+        "css" | "md" | "py" | "rs" | "scss" | "svelte" | "ts" | "tsx"
     )
 }
 

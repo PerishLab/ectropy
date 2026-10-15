@@ -55,6 +55,16 @@ impl Finding {
         }
     }
 
+    pub fn gap(path: &str) -> Finding {
+        Finding {
+            law: "coverage".to_string(),
+            path: path.to_string(),
+            line: 0,
+            col: 0,
+            note: "recognized source outside every scan include".to_string(),
+        }
+    }
+
     fn path(path: &str, note: &str) -> Finding {
         Finding {
             law: "path".to_string(),

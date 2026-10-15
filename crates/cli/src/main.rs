@@ -129,16 +129,16 @@ fn execute(cli: Cli) -> Result<i32, Error> {
         }
         Some(Command::Shape { root }) => {
             let repo = Repo::open(&root)?;
-            repo.shape(&repo.files()?, &mut out)?;
+            repo.shape(&repo.terrain()?.files, &mut out)?;
         }
         Some(Command::Vocabulary { root }) => {
             let repo = Repo::open(&root)?;
-            repo.vocabulary(&repo.files()?, &mut out)?;
+            repo.vocabulary(&repo.terrain()?.files, &mut out)?;
         }
         Some(Command::Skill { .. }) => unreachable!(),
         None => {
             let repo = Repo::open(&cli.root)?;
-            let findings = repo.scan(&repo.files()?)?;
+            let findings = repo.scan(&repo.terrain()?)?;
             if report::write(&findings, &mut out)? {
                 out.flush()?;
                 return Ok(1);
