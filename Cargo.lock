@@ -369,9 +369,9 @@ checksum = "32a66949e030da00e8c7d4434b251670a91556f4144941d37452769c25d58a53"
 
 [[package]]
 name = "locus"
-version = "0.6.1"
+version = "0.10.0"
 source = "sparse+https://cargo.perish.uk/"
-checksum = "fbdd06eb4800e6cc8140b399a4ab6e6606da426ad9b50a4a95733579120a9614"
+checksum = "ad56a6ba4a83ef219cf75d03a9d4a8248da8327224c25c42170c5e3363bd4864"
 dependencies = [
  "getrandom 0.3.4",
  "locus-macro",
@@ -381,9 +381,9 @@ dependencies = [
 
 [[package]]
 name = "locus-macro"
-version = "0.6.1"
+version = "0.10.0"
 source = "sparse+https://cargo.perish.uk/"
-checksum = "bf1ab6e8cb2da6e2cbe624418231e9b5564f203efa58290a16acd68dfcd4e9ff"
+checksum = "1f95de18634c9d1c91b14b13b3f105b6de0061cad4272388e6893908562e23a0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -447,9 +447,9 @@ checksum = "a89322df9ebe1c1578d689c92318e070967d1042b512afbe49518723f4e6d5cd"
 
 [[package]]
 name = "plumb"
-version = "0.93.0"
+version = "0.100.0"
 source = "sparse+https://cargo.perish.uk/"
-checksum = "8a233d0704c55d1a8e9d83093ab345b360ccd92d62f4ca3cef4fa56ef0a00bee"
+checksum = "da3657b3668dbdc1278c68047f4afc2731b8279dbf7b8005370a4451013bdaf9"
 dependencies = [
  "base64",
  "clap",
@@ -472,9 +472,9 @@ dependencies = [
 
 [[package]]
 name = "plumb-macro"
-version = "0.93.0"
+version = "0.100.0"
 source = "sparse+https://cargo.perish.uk/"
-checksum = "b8c1f2afa83bcea58c444fe3d271510bbb7e86398b1138408c9335d76714adba"
+checksum = "09cc9772d76bd0d0d71050160e8976d69e84f3c1f1aea9a40ac4ac5af0a9fc07"
 dependencies = [
  "proc-macro2",
  "quote",
