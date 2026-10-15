@@ -202,3 +202,31 @@ fn opaque() {
     let division = "const ready = open / total && known && safe && local;\n";
     assert_eq!(count(scan("t.ts", division), "combination"), 1);
 }
+const STATEMENTS: [&str; 12] = [
+    "x = 2;",
+    "x += 2;",
+    "x -= 2;",
+    "x **= 2;",
+    "x ??= 2;",
+    "x ||= 2;",
+    "x >>>= 2;",
+    "o.a = 2;",
+    "o.a.b = f(1);",
+    "o[\"k\"] = 2;",
+    "env.KEY = pg ? { kind: \"pg\" } : {};",
+    "x = 2",
+];
+
+#[test]
+fn assignment() {
+    for statement in STATEMENTS {
+        let text = format!("let x = 1;\nconst o = {{ a: 1 }};\n{statement}\nexport {{ o, x }};\n");
+        for path in ["t.ts", "t.tsx"] {
+            let found = scan(path, &text);
+            assert!(
+                !found.contains(&"coverage".to_string()),
+                "{path}: {text}: {found:?}"
+            );
+        }
+    }
+}

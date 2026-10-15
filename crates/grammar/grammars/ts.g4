@@ -18,7 +18,7 @@ OTHER     : . ;
 
 unit : item ;
 
-item : importItem / exportItem / fnItem / typeItem / interfaceItem / classItem / declItem / ambient / control / callItem / lineItem ;
+item : importItem / exportItem / fnItem / typeItem / interfaceItem / classItem / declItem / ambient / control / assignItem / callItem / lineItem ;
 importItem : 'import' tail -> item ;
 exportItem : 'export' ( 'default' )? ( fnItem / typeItem / interfaceItem / classItem / declItem / shipItem / callItem / lineItem ) ;
 shipItem : 'type'? LBRACE ( port ( ',' port )* ','? )? RBRACE ( 'from' lit )? ';'? -> item ;
@@ -39,6 +39,8 @@ classItem : 'class' name head group -> item ;
 declItem : decl ( name init / bgroup init / group init ) -> item ;
 callItem : path tpar? pgroup tail -> item ;
 lineItem : line tail -> item ;
+assignItem : path bgroup* assign tail -> item ;
+assign : '=' !'=' / ( '*' '*' / '?' '?' / '&' '&' / '|' '|' / '<' '<' / '>' '>' '>' / '>' '>' / '+' / '-' / '*' / '%' / '&' / '|' / '^' ) '=' ;
 
 name : IDENT -> word ;
 flags : ( 'async' )* ;
