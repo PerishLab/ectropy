@@ -173,3 +173,67 @@ fn pipe() {
             .count()
     );
 }
+
+#[test]
+fn fault() {
+    let home = tempfile::tempdir().unwrap();
+    let root = tempfile::tempdir().unwrap();
+    configure(home.path(), ENABLED);
+    assert_eq!(run(home.path(), root.path(), &[]).status.code(), Some(0));
+    std::fs::write(root.path().join("bad.rs"), "fn read_file() {}\n").unwrap();
+    assert_eq!(run(home.path(), root.path(), &[]).status.code(), Some(1));
+    std::fs::write(root.path().join("ectropy.toml"), "[limit\n").unwrap();
+    assert_eq!(run(home.path(), root.path(), &[]).status.code(), Some(2));
+    let finishes: Vec<Value> = records(home.path())
+        .into_iter()
+        .filter(|atom| atom["payload"]["event"] == "cli.finish")
+        .collect();
+    assert_eq!(finishes.len(), 3);
+    for atom in &finishes {
+        let seen = &atom["context"]["ectropy.fault"];
+        match atom["payload"]["code"].as_i64() {
+            Some(1) => assert_eq!(seen, "word"),
+            _ => assert!(seen.is_null()),
+        }
+    }
+}
+
+#[test]
+fn parity() {
+    let root = tempfile::tempdir().unwrap();
+    let commands: [&[&str]; 5] = [
+        &[],
+        &["shape"],
+        &["law"],
+        &["law", "absent"],
+        &["cookbook", "absent"],
+    ];
+    for args in commands {
+        compare(root.path(), args);
+    }
+    std::fs::write(root.path().join("bad.rs"), "fn read_file() {}\n").unwrap();
+    compare(root.path(), &[]);
+    std::fs::write(root.path().join("ectropy.toml"), "[limit\n").unwrap();
+    compare(root.path(), &[]);
+}
+
+fn compare(root: &Path, args: &[&str]) {
+    let off = tempfile::tempdir().unwrap();
+    let on = tempfile::tempdir().unwrap();
+    configure(on.path(), ENABLED);
+    let quiet = run(off.path(), root, args);
+    let observed = run(on.path(), root, args);
+    assert_eq!(quiet.status.code(), observed.status.code());
+    assert_eq!(quiet.stdout, observed.stdout);
+    assert_eq!(lines(&quiet.stderr), lines(&observed.stderr));
+    assert!(!off.path().join("state/locus").exists());
+    assert!(on.path().join("state/locus").exists());
+}
+
+fn lines(stderr: &[u8]) -> Vec<String> {
+    String::from_utf8_lossy(stderr)
+        .lines()
+        .filter(|line| !line.starts_with("locus engine diagnostic"))
+        .map(str::to_string)
+        .collect()
+}

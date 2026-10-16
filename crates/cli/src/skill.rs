@@ -7,7 +7,7 @@ pub use plumb::skill::command::Deed;
 
 const DEPOT: &str = "https://depot.ectropy.perish.uk";
 
-#[locus::trace(with = crate::observation::view())]
+#[locus::trace(with = plumb::observation::view())]
 pub fn run(deed: Deed) -> i32 {
     let rig = match Rig::resolve(None) {
         Ok(rig) => rig,
