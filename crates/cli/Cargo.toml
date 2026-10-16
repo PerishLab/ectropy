@@ -22,4 +22,5 @@ serde = { version = "1", features = ["derive"] }
 locus = { version = "0", registry = "perish" }
 
 [dev-dependencies]
+plumb = { version = "0", registry = "perish", features = ["testing"] }
 tempfile = "3"

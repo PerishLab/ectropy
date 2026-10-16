@@ -1,7 +1,11 @@
+mod exec;
 mod marker;
+mod name;
 mod parameter;
 mod shapes;
 mod tuple;
+
+pub(crate) use name::compound;
 
 use crate::config::Config;
 use crate::recovery::{COMBINATION, EMBED, REACH, SHADOW, code};
@@ -18,6 +22,7 @@ pub(crate) fn run(source: &Source, node: &Node, config: &Config) -> Vec<Finding>
     scan.laws(node);
     scan.receiver(node);
     scan.temps();
+    scan.execs();
     scan.findings
 }
 
@@ -242,6 +247,14 @@ impl<'a> Scan<'a> {
         }
     }
 
+    fn execs(&mut self) {
+        if !self.config.exempt(&self.source.path, "exec") {
+            for at in exec::find(&self.source.path, &self.source.text, &self.marked) {
+                self.mark(at, "exec", exec::NOTE);
+            }
+        }
+    }
+
     fn mark(&mut self, at: usize, law: &str, note: &str) {
         let (line, col) = place(&self.source.text, at);
         self.findings.push(Finding {
@@ -265,36 +278,4 @@ fn place(text: &str, at: usize) -> (usize, usize) {
 fn climbs(value: &str) -> bool {
     let mut parts = value.split('/');
     parts.any(|part| part == "..") && parts.any(|part| part == "src")
-}
-
-pub(crate) fn compound(name: &str) -> bool {
-    segments(name) > 1
-}
-
-fn segments(name: &str) -> usize {
-    let glyphs: Vec<char> = name.chars().collect();
-    let mut count = 0;
-    let mut prev: Option<char> = None;
-    for (at, glyph) in glyphs.iter().copied().enumerate() {
-        count += grow(prev, glyph, glyphs.get(at + 1).copied());
-        prev = seat(glyph);
-    }
-    count
-}
-
-fn grow(prev: Option<char>, glyph: char, next: Option<char>) -> usize {
-    if glyph == '_' {
-        return 0;
-    }
-    match prev {
-        None => 1,
-        Some(before) => usize::from(
-            glyph.is_uppercase()
-                && (!before.is_uppercase() || next.is_some_and(char::is_lowercase)),
-        ),
-    }
-}
-
-fn seat(glyph: char) -> Option<char> {
-    if glyph == '_' { None } else { Some(glyph) }
 }

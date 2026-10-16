@@ -37,17 +37,15 @@ fn identity() {
         other.marker = "v0.8.1".into();
         assert!(plumb::identity::bind(&bound, &other).is_err());
         #[cfg(target_os = "linux")]
-        probe(&seat.0, source, marker, &bound);
+        probe(&seat.0, marker, &bound);
     }
     assert_eq!(fs::read(source).unwrap(), bytes);
 }
 
 #[cfg(target_os = "linux")]
-fn probe(root: &Path, source: &Path, marker: &str, bytes: &[u8]) {
+fn probe(root: &Path, marker: &str, bytes: &[u8]) {
     let path = root.join(marker);
-    fs::write(&path, bytes).expect("bound copy");
-    fs::set_permissions(&path, fs::metadata(source).unwrap().permissions())
-        .expect("executable permissions");
+    plumb::testing::executable(&path, bytes);
     let output = Command::new(&path)
         .arg("--version")
         .output()

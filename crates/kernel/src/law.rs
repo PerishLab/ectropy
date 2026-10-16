@@ -41,6 +41,11 @@ pub const LAWS: &[Law] = &[
         exempt: true,
     },
     Law {
+        name: "exec",
+        note: "an executable written in-process and made executable in one test function; use plumb::testing::executable or plumb::testing::link",
+        exempt: true,
+    },
+    Law {
         name: "fanout",
         note: "a scanned directory with more children than the limit",
         exempt: true,
