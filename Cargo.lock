@@ -194,7 +194,6 @@ dependencies = [
  "kernel",
  "locus",
  "plumb",
- "serde",
  "serde_json",
  "tempfile",
 ]
@@ -444,6 +443,7 @@ dependencies = [
  "base64",
  "clap",
  "flate2",
+ "locus",
  "object",
  "pin-project-lite",
  "plumb-macro",
