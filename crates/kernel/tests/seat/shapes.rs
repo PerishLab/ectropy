@@ -32,7 +32,8 @@ fn inner() {
 
 #[test]
 fn literal() {
-    let text = "fn probe() {\n    let root = std::env::temp_dir().join(\"ectropy-x\");\n}\n";
+    let text =
+        "#[test]\nfn probe() {\n    let root = std::env::temp_dir().join(\"ectropy-x\");\n}\n";
     assert!(
         laws(text).contains(&"tempdir".to_string()),
         "{:?}",
@@ -42,7 +43,7 @@ fn literal() {
 
 #[test]
 fn counter() {
-    let text = "fn probe() {\n    let root = std::env::temp_dir().join(format!(\"ectropy-{id}\", id = 1));\n}\n";
+    let text = "#[test]\nfn probe() {\n    let root = std::env::temp_dir().join(format!(\"ectropy-{id}\", id = 1));\n}\n";
     assert!(
         laws(text).contains(&"tempdir".to_string()),
         "{:?}",
@@ -52,7 +53,7 @@ fn counter() {
 
 #[test]
 fn process() {
-    let text = "fn probe() {\n    let root = std::env::temp_dir().join(format!(\"ectropy-{}\", std::process::id()));\n}\n";
+    let text = "#[test]\nfn probe() {\n    let root = std::env::temp_dir().join(format!(\"ectropy-{}\", std::process::id()));\n}\n";
     assert!(
         !laws(text).contains(&"tempdir".to_string()),
         "{:?}",
@@ -62,7 +63,7 @@ fn process() {
 
 #[test]
 fn uuid() {
-    let text = "fn probe() {\n    let root = std::env::temp_dir().join(format!(\"ectropy-{}\", Uuid::new_v4()));\n}\n";
+    let text = "#[test]\nfn probe() {\n    let root = std::env::temp_dir().join(format!(\"ectropy-{}\", Uuid::new_v4()));\n}\n";
     assert!(
         !laws(text).contains(&"tempdir".to_string()),
         "{:?}",
@@ -72,7 +73,7 @@ fn uuid() {
 
 #[test]
 fn held() {
-    let text = "fn probe() {\n    let root = tempfile::tempdir().unwrap();\n}\n";
+    let text = "#[test]\nfn probe() {\n    let root = tempfile::tempdir().unwrap();\n}\n";
     assert!(
         !laws(text).contains(&"tempdir".to_string()),
         "{:?}",
@@ -82,7 +83,8 @@ fn held() {
 
 #[test]
 fn name() {
-    let text = "fn probe(name: String) {\n    let root = std::env::temp_dir().join(name);\n}\n";
+    let text =
+        "#[test]\nfn probe(name: String) {\n    let root = std::env::temp_dir().join(name);\n}\n";
     assert!(
         !laws(text).contains(&"tempdir".to_string()),
         "{:?}",
@@ -124,4 +126,60 @@ fn product() {
         "{:?}",
         scan("src/install.rs", text)
     );
+}
+
+#[test]
+fn nonce() {
+    let text = "#[test]\nfn probe() {\n    let root = std::env::temp_dir().join(format!(\"sidecar-{name}-{nonce}\"));\n}\n";
+    assert!(
+        !laws(text).contains(&"tempdir".to_string()),
+        "{:?}",
+        laws(text)
+    );
+}
+
+#[test]
+fn shared() {
+    let text = "#[test]\nfn probe() {\n    let root = std::env::temp_dir().join(format!(\"x-{}\", COUNTER.fetch_add(1, SeqCst)));\n}\n";
+    assert!(
+        laws(text).contains(&"tempdir".to_string()),
+        "{:?}",
+        laws(text)
+    );
+}
+
+#[test]
+fn runtime() {
+    let text = "fn log() {\n    let path = std::env::temp_dir().join(\"broker.log\");\n}\n";
+    assert!(
+        !scan("src/runtime.rs", text).contains(&"tempdir".to_string()),
+        "{:?}",
+        scan("src/runtime.rs", text)
+    );
+}
+
+#[test]
+fn private() {
+    let text = "#[test]\nfn probe() {\n    fs::write(&key, text).unwrap();\n    fs::set_permissions(&key, Permissions::from_mode(0o600)).unwrap();\n}\n";
+    assert!(
+        !laws(text).contains(&"exec".to_string()),
+        "{:?}",
+        laws(text)
+    );
+}
+
+#[test]
+fn readonly() {
+    let text = "#[test]\nfn probe() {\n    fs::write(&path, b\"x\").unwrap();\n    let mut permissions = fs::metadata(&path).unwrap().permissions();\n    permissions.set_readonly(true);\n    fs::set_permissions(&path, permissions).unwrap();\n}\n";
+    assert!(
+        !laws(text).contains(&"exec".to_string()),
+        "{:?}",
+        laws(text)
+    );
+}
+
+#[test]
+fn copy() {
+    let text = "#[test]\nfn probe() {\n    fs::write(&path, bytes).unwrap();\n    fs::set_permissions(&path, fs::metadata(source).unwrap().permissions()).unwrap();\n}\n";
+    assert!(laws(text).contains(&"exec".to_string()), "{:?}", laws(text));
 }
