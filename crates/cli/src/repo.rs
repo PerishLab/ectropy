@@ -17,7 +17,7 @@ pub(crate) struct Repo {
 }
 
 impl Repo {
-    #[locus::trace(with = crate::observation::view())]
+    #[locus::trace(with = plumb::observation::view())]
     pub(crate) fn open(root: &Path) -> Result<Self, Error> {
         let base = fs::canonicalize(root)
             .map_err(|source| Error::note(format!("cannot open {}: {source}", root.display())))?;
@@ -35,7 +35,7 @@ impl Repo {
         Ok(Self { base, config })
     }
 
-    #[locus::trace(with = crate::observation::view())]
+    #[locus::trace(with = plumb::observation::view())]
     pub(crate) fn terrain(&self) -> Result<Terrain, Error> {
         let mut terrain = Terrain {
             files: Vec::new(),
@@ -105,7 +105,7 @@ impl Repo {
             .any(|pat| Glob::matches(pat, path))
     }
 
-    #[locus::trace(with = crate::observation::view())]
+    #[locus::trace(with = plumb::observation::view())]
     pub(crate) fn vocabulary(&self, files: &[PathBuf], out: &mut impl Write) -> Result<(), Error> {
         let mut book: BTreeMap<String, BTreeMap<String, usize>> = BTreeMap::new();
         for path in files {
@@ -134,7 +134,7 @@ impl Repo {
         Ok(())
     }
 
-    #[locus::trace(with = crate::observation::view())]
+    #[locus::trace(with = plumb::observation::view())]
     pub(crate) fn shape(&self, files: &[PathBuf], out: &mut impl Write) -> Result<(), Error> {
         for path in files {
             self.draw(path, out)?;
@@ -157,7 +157,7 @@ impl Repo {
         Ok(())
     }
 
-    #[locus::trace(with = crate::observation::view())]
+    #[locus::trace(with = plumb::observation::view())]
     pub(crate) fn scan(&self, terrain: &Terrain) -> Result<Vec<kernel::Finding>, Error> {
         let files = &terrain.files;
         let mut findings: Vec<kernel::Finding> = terrain

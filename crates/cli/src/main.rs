@@ -1,4 +1,5 @@
 use clap::{Parser, Subcommand};
+use plumb::observation::{self, Declaration, Run};
 use std::fmt;
 use std::io::{self, BufWriter, Write};
 use std::path::PathBuf;
@@ -46,7 +47,6 @@ fn version() -> &'static str {
 
 mod cookbook;
 mod law;
-mod observation;
 mod repo;
 mod report;
 mod rig;
@@ -90,7 +90,7 @@ fn main() {
         std::process::exit(2);
     }
     let cli = Cli::parse();
-    let observation = observation::Run::start(observation::name(&cli.command));
+    let observation = observe(&cli.command);
     let code = match execute(cli) {
         Ok(code) => code,
         Err(error) if error.broken() => 0,
@@ -104,6 +104,37 @@ fn main() {
     }
     if code != 0 {
         std::process::exit(code);
+    }
+}
+
+fn observe(command: &Option<Command>) -> Option<Run> {
+    let rig = match rig::Rig::resolve(None) {
+        Ok(rig) => rig,
+        Err(error) => {
+            eprintln!("ectropy locus: {error}");
+            return None;
+        }
+    };
+    if rig.home.is_empty() {
+        return None;
+    }
+    let home = PathBuf::from(rig.home);
+    let declaration = Declaration {
+        producer: "ectropy",
+        file: &home.join("config.toml"),
+        buffer: home.join("state/locus"),
+    };
+    Run::start(declaration, name(command))
+}
+
+fn name(command: &Option<Command>) -> &'static str {
+    match command {
+        None => "scan",
+        Some(Command::Shape { .. }) => "shape",
+        Some(Command::Vocabulary { .. }) => "vocabulary",
+        Some(Command::Law { .. }) => "law",
+        Some(Command::Cookbook { .. }) => "cookbook",
+        Some(Command::Skill { .. }) => "skill",
     }
 }
 
@@ -141,6 +172,7 @@ fn execute(cli: Cli) -> Result<i32, Error> {
             let findings = repo.scan(&repo.terrain()?)?;
             if report::write(&findings, &mut out)? {
                 out.flush()?;
+                report::fault(&findings);
                 return Ok(1);
             }
         }

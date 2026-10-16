@@ -11,6 +11,13 @@ pub(crate) fn write(findings: &[kernel::Finding], out: &mut impl Write) -> io::R
     Ok(!sheet.ordered.is_empty())
 }
 
+pub(crate) fn fault(findings: &[kernel::Finding]) {
+    let lead = findings.iter().min_by(order);
+    if let Some(law) = lead.and_then(|finding| kernel::law::find(&finding.law)) {
+        plumb::observation::fault(law.name);
+    }
+}
+
 struct Report<'a> {
     ordered: Vec<&'a kernel::Finding>,
 }
