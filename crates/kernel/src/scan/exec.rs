@@ -6,7 +6,6 @@ pub(super) fn find(path: &str, text: &str, marked: &[Range<usize>]) -> Vec<usize
     if !path.ends_with(".rs") {
         return Vec::new();
     }
-    let suite = path.starts_with("tests/") || path.contains("/tests/");
     let code = mask(text);
     let mut found = Vec::new();
     let mut from = 0;
@@ -21,17 +20,42 @@ pub(super) fn find(path: &str, text: &str, marked: &[Range<usize>]) -> Vec<usize
         let Some(body) = body(&code, at) else {
             continue;
         };
-        let tested = suite || marked.iter().any(|span| span.contains(&at));
-        if tested && writes(body) {
+        if tested(path, marked, at) && writes(body) {
             found.push(at);
         }
     }
     found
 }
 
+pub(super) fn tested(path: &str, marked: &[Range<usize>], at: usize) -> bool {
+    let suite = path.starts_with("tests/") || path.contains("/tests/");
+    suite || marked.iter().any(|span| span.contains(&at))
+}
+
 fn writes(body: &str) -> bool {
     let write = body.contains("fs::write(") || body.contains("File::create(");
-    write && (body.contains("set_permissions(") || body.contains("from_mode("))
+    write && (moded(body) || copied(body))
+}
+
+fn moded(body: &str) -> bool {
+    ["from_mode(", "set_mode("].iter().any(|call| {
+        body.match_indices(call).any(|(at, _)| {
+            let digits: Vec<u32> = body[at + call.len()..]
+                .trim_start()
+                .trim_start_matches("0o")
+                .chars()
+                .map_while(|glyph| glyph.to_digit(8))
+                .collect();
+            digits.iter().rev().take(3).any(|digit| digit % 2 == 1)
+        })
+    })
+}
+
+fn copied(body: &str) -> bool {
+    body.match_indices("set_permissions(").any(|(at, _)| {
+        let call = body[at..].split(';').next().unwrap_or("");
+        call.contains("metadata(") && call.contains(".permissions()")
+    })
 }
 
 fn body(code: &str, at: usize) -> Option<&str> {
