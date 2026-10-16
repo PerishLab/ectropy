@@ -243,7 +243,9 @@ impl<'a> Scan<'a> {
             return;
         }
         for at in shapes::temps(&self.source.path, &self.source.text) {
-            self.mark(at, "tempdir", shapes::TEMPDIR);
+            if exec::tested(&self.source.path, &self.marked, at) {
+                self.mark(at, "tempdir", shapes::TEMPDIR);
+            }
         }
     }
 

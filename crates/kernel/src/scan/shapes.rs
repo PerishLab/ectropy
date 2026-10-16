@@ -147,7 +147,48 @@ fn unique(source: &str, from: usize, end: usize) -> bool {
     if !trimmed.starts_with("format!") {
         return true;
     }
-    marked(body)
+    marked(body) || variable(body)
+}
+
+fn variable(body: &str) -> bool {
+    let lower = body.to_ascii_lowercase();
+    if lower.contains("fetch_add") || lower.contains("counter") {
+        return false;
+    }
+    let Some(open) = body.find('"') else {
+        return false;
+    };
+    let Some(len) = body[open + 1..].find('"') else {
+        return false;
+    };
+    let template = &body[open + 1..open + 1 + len];
+    let args: Vec<&str> = body[open + 2 + len..]
+        .split(',')
+        .map(str::trim)
+        .filter(|arg| !arg.is_empty() && *arg != ")")
+        .collect();
+    let bound = |name: &str| {
+        args.iter().any(|arg| {
+            arg.split_once('=')
+                .is_some_and(|(key, value)| key.trim() == name && constant(value))
+        })
+    };
+    let inline = template.split('{').skip(1).any(|piece| {
+        let name: String = piece
+            .chars()
+            .take_while(|glyph| glyph.is_alphanumeric() || *glyph == '_')
+            .collect();
+        !name.is_empty() && !name.chars().all(|glyph| glyph.is_ascii_digit()) && !bound(&name)
+    });
+    inline || args.iter().any(|arg| !arg.contains('=') && !constant(arg))
+}
+
+fn constant(value: &str) -> bool {
+    let value = value.trim().trim_end_matches(')').trim();
+    value.starts_with('"')
+        || value
+            .chars()
+            .all(|glyph| glyph.is_ascii_digit() || glyph == '_')
 }
 
 fn literal(trimmed: &str) -> bool {
