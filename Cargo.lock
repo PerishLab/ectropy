@@ -276,19 +276,8 @@ checksum = "899def5c37c4fd7b2664648c28120ecec138e4d395b459e5ca34f9cce2dd77fd"
 dependencies = [
  "cfg-if",
  "libc",
- "r-efi 5.3.0",
+ "r-efi",
  "wasip2",
-]
-
-[[package]]
-name = "getrandom"
-version = "0.4.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "300e883d756b2e4ec94e02791f39b04b522276138852cfc41d9fb7e904106099"
-dependencies = [
- "cfg-if",
- "libc",
- "r-efi 6.0.0",
 ]
 
 [[package]]
@@ -370,9 +359,9 @@ checksum = "32a66949e030da00e8c7d4434b251670a91556f4144941d37452769c25d58a53"
 
 [[package]]
 name = "locus"
-version = "0.10.0"
+version = "0.11.0"
 source = "sparse+https://cargo.perish.uk/"
-checksum = "ad56a6ba4a83ef219cf75d03a9d4a8248da8327224c25c42170c5e3363bd4864"
+checksum = "e65f745d304cf123e5c18e4ca242611a2ac953ff80baf85d26078a27d4bc4873"
 dependencies = [
  "getrandom 0.3.4",
  "locus-macro",
@@ -382,9 +371,9 @@ dependencies = [
 
 [[package]]
 name = "locus-macro"
-version = "0.10.0"
+version = "0.11.0"
 source = "sparse+https://cargo.perish.uk/"
-checksum = "1f95de18634c9d1c91b14b13b3f105b6de0061cad4272388e6893908562e23a0"
+checksum = "e459c29c2b6f9a88d5b3cf2bd89f29d85846194934b04fd55325c88a7d674a01"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -448,9 +437,9 @@ checksum = "a89322df9ebe1c1578d689c92318e070967d1042b512afbe49518723f4e6d5cd"
 
 [[package]]
 name = "plumb"
-version = "0.100.0"
+version = "0.101.0"
 source = "sparse+https://cargo.perish.uk/"
-checksum = "da3657b3668dbdc1278c68047f4afc2731b8279dbf7b8005370a4451013bdaf9"
+checksum = "df7438a3d8c1a6bd1bf66cef2a1570fe1d104de83465f939cc9d4803c81e5420"
 dependencies = [
  "base64",
  "clap",
@@ -473,9 +462,9 @@ dependencies = [
 
 [[package]]
 name = "plumb-macro"
-version = "0.100.0"
+version = "0.101.0"
 source = "sparse+https://cargo.perish.uk/"
-checksum = "09cc9772d76bd0d0d71050160e8976d69e84f3c1f1aea9a40ac4ac5af0a9fc07"
+checksum = "dfb82fd505eacd805614ad7ebfe33f0b194a08391de2a8883fbe91b85fc8e732"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -506,12 +495,6 @@ name = "r-efi"
 version = "5.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "69cdb34c158ceb288df11e18b4bd39de994f6657d83847bdffdbd7f346754b0f"
-
-[[package]]
-name = "r-efi"
-version = "6.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f8dcc9c7d52a811697d2151c701e0d08956f92b0e24136cf4cf27b57a6a0d9bf"
 
 [[package]]
 name = "ring"
@@ -716,7 +699,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32497e9a4c7b38532efcdebeef879707aa9f794296a4f0244f6f69e9bc8574bd"
 dependencies = [
  "fastrand",
- "getrandom 0.4.3",
+ "getrandom 0.3.4",
  "once_cell",
  "rustix",
  "windows-sys 0.61.2",
