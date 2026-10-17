@@ -24,7 +24,8 @@ decorated : decorator+ ( fnItem / classItem ) ;
 decorator : '@' rest NEWLINE ;
 
 fnItem : 'async'? 'def' name fparams returns? ':' suite -> item ;
-classItem : 'class' name pgroup? ':' suite -> item ;
+classItem : 'class' name pgroup? ':' body -> item ;
+body : NEWLINE INDENT stmt+ DEDENT / rest NEWLINE ;
 returns : '-' '>' header ;
 
 fparams : LPAREN RPAREN / LPAREN seat tails RPAREN / LPAREN marker ( ',' entry )* ','? RPAREN ;
