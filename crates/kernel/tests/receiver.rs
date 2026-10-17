@@ -149,3 +149,152 @@ fn hoist() {
     let shaped = "function shape(): { wide: boolean } | null {\n  return null;\n}";
     assert!(!scan("t.ts", shaped).contains(&"coverage".to_string()));
 }
+
+const PARAMS: &str = "(a: boolean, b: boolean, c: boolean, d: boolean, e: boolean): number";
+const BODY: &str = "{\n    const deepValue = 1;\n    if (a) { if (b) { if (c) { if (d) { if (e) { return deepValue; } } } } }\n    return 0;\n  }";
+
+type Marks = Vec<(String, String)>;
+
+fn marks(path: &str, text: &str) -> Marks {
+    let found = findings(path, text, &config(&[], 4)).into_iter();
+    let mut found: Marks = found.map(|hit| (hit.law, hit.note)).collect();
+    found.sort();
+    found
+}
+
+fn hit(law: &str, note: &str) -> (String, String) {
+    (law.to_string(), note.to_string())
+}
+
+fn tally(want: &Marks, law: &str) -> usize {
+    want.iter().filter(|mark| mark.0 == law).count()
+}
+
+fn script(text: &str) -> String {
+    format!("<script lang=\"ts\">\n{text}\n</script>\n")
+}
+
+fn class(members: &str) -> String {
+    format!("export class Walker {{\n{members}\n}}\n")
+}
+
+fn agree(text: &str, want: &[(String, String)]) {
+    assert_eq!(marks("walker.ts", text), want, "{text}");
+    assert_eq!(marks("walker.tsx", text), want, "{text}");
+    assert_eq!(marks("walker.svelte", &script(text)), want, "{text}");
+}
+
+fn free() -> Marks {
+    let text = format!("export function walkTree{PARAMS} {BODY}\n");
+    marks("walker.ts", &text)
+}
+
+fn method(head: &str) -> String {
+    format!("  {head}{PARAMS} {BODY}")
+}
+
+#[test]
+fn parity() {
+    let want = free();
+    assert_eq!(tally(&want, "block"), 2);
+    assert!(want.contains(&hit("param", "5 parameters over limit 4")));
+    assert!(want.contains(&hit("word", "walkTree")));
+    assert!(want.contains(&hit("word", "deepValue")));
+    agree(&class(&method("walkTree")), &want);
+    let late = format!("class Walker {{\n  walkTree{PARAMS} {BODY}\n}}\nexport {{ Walker }};\n");
+    agree(&late, &want);
+}
+
+#[test]
+fn modifiers() {
+    let want = free();
+    let heads = [
+        "static async walkTree",
+        "public walkTree",
+        "private static walkTree",
+        "protected override walkTree",
+        "async *walkTree",
+        "get walkTree",
+        "walkTree?",
+        "walkTree<T>",
+        "@trace(\"walk\")\n  @sealed\n  walkTree",
+    ];
+    for head in heads {
+        agree(&class(&method(head)), &want);
+    }
+    let heads = [
+        "export default class",
+        "export default class extends Base",
+        "class Walker extends Base<Item> implements Thing, Other",
+        "export abstract class Walker",
+    ];
+    for head in heads {
+        agree(&format!("{head} {{\n{}\n}}\n", method("walkTree")), &want);
+    }
+}
+
+#[test]
+fn constructor() {
+    let mut want = free();
+    want.retain(|mark| mark.1 != "walkTree");
+    agree(&class(&method("constructor")), &want);
+    let props = "(private readonly a: boolean, public b: boolean, protected c: boolean, readonly d: boolean, e: boolean)";
+    agree(&class(&format!("  constructor{props} {BODY}")), &want);
+    agree(&class("  constructor(private readonly db: Store) {}"), &[]);
+}
+
+#[test]
+fn fields() {
+    let arrow = format!("{PARAMS} => {BODY};");
+    let want = marks("walker.ts", &format!("export const walkTree = {arrow}\n"));
+    assert!(want.contains(&hit("word", "deepValue")));
+    agree(&class(&format!("  private walkTree = {arrow}")), &want);
+    let plain = "  #count = 0;\n  name?: string;\n  readonly size!: number;\n  static table: Map<string, () => void> = new Map();\n  [key: string]: unknown;\n  shape: { kind: string; deep: { wide: boolean } };\n  last = 1";
+    agree(&class(plain), &[]);
+    let named = class("  deepCount = 0;\n  #wideName = 1;\n  pathName?: string;");
+    let found = marks("walker.ts", &named);
+    let words: Vec<&str> = found.iter().map(|mark| mark.1.as_str()).collect();
+    assert_eq!(words, ["deepCount", "pathName", "wideName"]);
+}
+
+#[test]
+fn signatures() {
+    let text = format!(
+        "export abstract class Walker {{\n  abstract shape(): {{ kind: string }};\n  abstract load(): Promise<{{ kind: string }}>;\n  declare ready: boolean;\n  walk(a: string): void;\n  walk(a: number): void;\n  walk(a: string | number): void {{}}\n  static {{\n    setup();\n  }}\n  walkTree{PARAMS} {BODY}\n}}\n"
+    );
+    agree(&text, &free());
+}
+
+#[test]
+fn nesting() {
+    let local =
+        format!("export function outer(): void {{\n  function walkTree{PARAMS} {BODY}\n}}\n");
+    let want = marks("walker.ts", &local);
+    assert_eq!(tally(&want, "block"), 3);
+    let member = class(&method("walkTree"));
+    let inner = format!("export function outer(): void {{\n  {member}}}\n");
+    agree(&inner, &want);
+    let shallow =
+        "  walk(a: boolean, b: boolean): void {\n    if (a) { if (b) { if (a) { go(); } } }\n  }";
+    agree(&class(shallow), &[]);
+    let deep = "  walk(a: boolean, b: boolean): void {\n    if (a) { if (b) { if (a) { if (b) { go(); } } } }\n  }";
+    agree(&class(deep), &[hit("block", "depth over limit")]);
+}
+
+#[test]
+fn bound() {
+    let top = "export function load(app: App): void {}\nexport function save(app: App): void {}\nexport function query(app: App): void {}\nexport function drop(app: App): void {}\n";
+    assert_eq!(count(scan("walker.ts", top), "receiver"), 1);
+    let bound = "  load(app: App): void {}\n  save(app: App): void {}\n  query(app: App): void {}\n  drop(app: App): void {}";
+    agree(&class(bound), &[]);
+}
+
+#[test]
+fn coverage() {
+    agree("export class Walker {}\n", &[]);
+    agree(&class("  ;"), &[]);
+    let odd = class("  walk(): void {}\n  ~ ~\n  run(): void {}");
+    assert!(scan("walker.ts", &odd).contains(&"coverage".to_string()));
+    assert!(scan("walker.tsx", &odd).contains(&"coverage".to_string()));
+    assert!(scan("walker.svelte", &script(&odd)).contains(&"coverage".to_string()));
+}
