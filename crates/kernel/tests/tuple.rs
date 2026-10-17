@@ -149,3 +149,51 @@ fn lambda() {
     let wide = "def read():\n    return (a, lambda b: b, c, d)\n";
     assert_eq!(count(scan("t.py", wide), "tuple"), 1);
 }
+
+fn notes(text: &str) -> Vec<String> {
+    findings("t.py", text, &config(&[], 4))
+        .into_iter()
+        .filter(|finding| finding.law == "tuple")
+        .map(|finding| format!("{}:{} {}", finding.line, finding.col, finding.note))
+        .collect()
+}
+
+fn arity(text: &str) -> Vec<String> {
+    notes(text)
+        .iter()
+        .map(|note| note.split(" positions").next().unwrap_or("").to_string())
+        .collect()
+}
+
+#[test]
+fn sides() {
+    let source = "def swap(one, two, three):\n    first, second, third = one, two, three\n    return first, second, third\n\n\ndef walk(rows):\n    for first, second in rows, rows, rows:\n        return first, second\n";
+    assert_eq!(notes(source), Vec::<String>::new());
+    let fields = "self.one, self.two, self.three = one, two, three\n";
+    assert_eq!(notes(fields), Vec::<String>::new());
+    let chain = "one = two = three, four, five\n";
+    assert_eq!(notes(chain), Vec::<String>::new());
+}
+
+#[test]
+fn wide() {
+    assert_eq!(arity("a, b, c, d = x\n"), ["1:1 4"]);
+    assert_eq!(arity("a = w, x, y, z\n"), ["1:5 4"]);
+    assert_eq!(arity("a, b, c, d = w, x, y, z\n"), ["1:1 4", "1:14 4"]);
+    assert_eq!(arity("for a, b, c, d in rows:\n    pass\n"), ["1:5 4"]);
+    assert_eq!(arity("for a in w, x, y, z:\n    pass\n"), ["1:10 4"]);
+    let fields = "self.a, self.b, self.c, self.d = a, b, c, d\n";
+    assert_eq!(arity(fields), ["1:1 4", "1:34 4"]);
+    assert_eq!(arity("a, b = w, x, y, z\n"), ["1:8 4"]);
+}
+
+#[test]
+fn operators() {
+    assert_eq!(arity("a = b == c, d, e, f\n"), ["1:5 4"]);
+    assert_eq!(arity("a = b <= c, d, e, f\n"), ["1:5 4"]);
+    assert_eq!(arity("a = b != c, d, e, f\n"), ["1:5 4"]);
+    assert_eq!(arity("a += w, x, y, z\n"), ["1:6 4"]);
+    assert_eq!(arity("a >>= w, x, y, z\n"), ["1:7 4"]);
+    assert_eq!(arity("a: Row = w, x, y, z\n"), ["1:10 4"]);
+    assert_eq!(arity("for a, b in rows: c = w, x, y, z\n"), ["1:23 4"]);
+}

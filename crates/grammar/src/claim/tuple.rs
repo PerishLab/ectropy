@@ -2,6 +2,7 @@ use crate::lex::Token;
 use crate::{Cst, Kind, Source, Span};
 
 mod nest;
+mod python;
 mod web;
 
 #[derive(Clone, Copy, PartialEq)]
@@ -163,57 +164,6 @@ impl<'a> Read<'a> {
             start: first.start,
             end: last.end,
         })
-    }
-
-    fn lines(&mut self) {
-        let mut from = 0;
-        for at in 0..=self.held.len() {
-            if at == self.held.len() || self.held[at].name == "NEWLINE" {
-                self.line(from, at);
-                from = at + 1;
-            }
-        }
-    }
-
-    fn line(&mut self, from: usize, to: usize) {
-        let from = self.layout(from, to);
-        if from >= to || !self.linekind(from, to) {
-            return;
-        }
-        let Some(parts) = self.parts(from, to) else {
-            return;
-        };
-        let Some(span) = self.span(from, to) else {
-            return;
-        };
-        self.emit(span, parts);
-    }
-
-    fn layout(&self, mut from: usize, to: usize) -> usize {
-        while from < to && matches!(self.held[from].name.as_str(), "INDENT" | "DEDENT") {
-            from += 1;
-        }
-        from
-    }
-
-    fn linekind(&self, from: usize, to: usize) -> bool {
-        if matches!(self.glyph(from), "return" | "yield") {
-            return true;
-        }
-        if (from..to).any(|at| self.glyph(at) == "lambda") {
-            return false;
-        }
-        let mut depth = 0usize;
-        for at in from..to {
-            match self.glyph(at) {
-                "(" | "[" | "{" => depth += 1,
-                ")" | "]" | "}" => depth = depth.saturating_sub(1),
-                "=" if depth == 0 => return true,
-                "in" if depth == 0 && self.glyph(from) == "for" => return true,
-                _ => {}
-            }
-        }
-        false
     }
 
     fn emit(&mut self, span: Span, parts: Vec<Span>) {
