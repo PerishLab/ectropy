@@ -216,6 +216,8 @@ place to break before stable and carries no compatibility promise.
 Current known understatements remain explicit: stylesheet internals and most
 Markdown syntax are opaque, the fanout law sees only scanned files, `reach` does
 not read `vi.mock("…")` arguments or interpolated template specifiers, adapters
-do not perform symbol resolution, and malformed TSX can sometimes distort a local
-parse before coverage refuses the unread region. These are coverage work, not
-authorization to claim more than the tree proves.
+do not perform symbol resolution, malformed TSX can sometimes distort a local
+parse before coverage refuses the unread region, and a labeled bare block
+(`name: { … }`) inside a TypeScript function body reads as an object literal, so
+its own brace adds no block level. These are coverage work, not authorization
+to claim more than the tree proves.

@@ -69,7 +69,9 @@ after : ( !LBRACE !RBRACE !';' !LPAREN !'function' !'export' !'const' !'let' !'v
 path : mark / IDENT ( '.' IDENT )* ;
 mark : 'Deno' '.' 'test' -> test ;
 
-stmt : control / fnItem / typeItem / interfaceItem / classItem / declItem / scope / ( !RBRACE . ) ;
+stmt : control / fnItem / typeItem / interfaceItem / classItem / declItem / scope / lead record / ( !RBRACE . ) ;
+lead : LPAREN / LBRACK / ',' / ':' / '=' / '?' / '&' / '|' / '.' / 'return' / 'throw' / 'yield' ;
+record : LBRACE stmt* RBRACE ;
 control : ifExpr / whileExpr / forExpr / switchExpr / tryExpr ;
 ifExpr : 'if' LPAREN probe RPAREN scope elseTail / 'if' head scope elseTail ;
 probe : subject '=' '=' '='? lit ;
@@ -78,7 +80,9 @@ lit : STRING / SINGLE / TEMPLATE / NUMBER / 'true' / 'false' / 'null' / 'undefin
 elseTail : ( 'else' ( ifExpr / scope ) )? ;
 whileExpr : 'while' head scope ;
 forExpr : 'for' head scope ;
-switchExpr : 'switch' head scope ;
+switchExpr : 'switch' head cases ;
+cases : LBRACE ( arm / stmt )* RBRACE -> scope ;
+arm : ( 'case' ( !':' !LBRACE !RBRACE . )+ / 'default' ) ':' scope ;
 tryExpr : 'try' scope catchTail finallyTail ;
 catchTail : ( 'catch' head scope )? ;
 finallyTail : ( 'finally' scope )? ;
