@@ -200,3 +200,22 @@ fn generics() {
         assert_eq!(read("host.tsx", &body), five(), "{body}");
     }
 }
+
+#[test]
+fn angles() {
+    let five = "(a: A, b: B, c: C, d: D, e: E) => void";
+    let angle = format!("export function host(y: unknown): unknown {{ return <{five}>y; }}\n");
+    let via = format!("export function host(y: unknown): unknown {{ return y as {five}; }}\n");
+    let want = read("host.ts", &via);
+    assert_eq!(want, Marks::new(), "{via}");
+    assert_eq!(read("host.ts", &angle), want, "{angle}");
+    let script = format!("<script lang=\"ts\">\n{angle}</script>\n");
+    assert_eq!(read("host.svelte", &script), want, "{script}");
+    assert_eq!(
+        read(
+            "host.ts",
+            "export function host(y: unknown): unknown { return <number>y; }\n"
+        ),
+        Marks::new()
+    );
+}

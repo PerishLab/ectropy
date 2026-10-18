@@ -26,30 +26,30 @@ named : aname ( '=' aval )? ;
 aname : IDENT ( ( ':' / '-' / '|' )+ IDENT )* ;
 aval : QUOTE expression QUOTE / STRING / SINGLE / TEMPLATE / template / expression ;
 
-block : ifBlock / scoped ;
-scoped : eachBlock / awaitBlock / keyBlock / snippetBlock -> scope ;
+block : ifBlock / eachBlock / awaitBlock / keyBlock / snippetBlock ;
 ifBlock : LBRACE '#' 'if' cond branch ( 'else' 'if' cond branch )* ( 'else' branch )? 'if' RBRACE ;
 cond : probe !!RBRACE / expr* ;
 branch : RBRACE node* LBRACE ( ':' / '/' ) -> scope ;
 elsePart : LBRACE ':' 'else' RBRACE node* ;
 
-eachBlock : openEach node* elsePart? closeEach ;
-openEach : LBRACE '#' 'each' expr* RBRACE ;
+eachBlock : LBRACE '#' 'each' headExpr eachBody ;
+eachBody : RBRACE node* elsePart? closeEach -> scope ;
 closeEach : LBRACE '/' 'each' RBRACE ;
 
-awaitBlock : openAwait node* thenPart? catchPart? closeAwait ;
-openAwait : LBRACE '#' 'await' expr* RBRACE ;
+awaitBlock : LBRACE '#' 'await' headExpr awaitBody ;
+awaitBody : RBRACE node* thenPart? catchPart? closeAwait -> scope ;
 thenPart : LBRACE ':' 'then' expr* RBRACE node* ;
 catchPart : LBRACE ':' 'catch' expr* RBRACE node* ;
 closeAwait : LBRACE '/' 'await' RBRACE ;
 
-keyBlock : openKey node* closeKey ;
-openKey : LBRACE '#' 'key' expr* RBRACE ;
+keyBlock : LBRACE '#' 'key' headExpr keyBody ;
+keyBody : RBRACE node* closeKey -> scope ;
 closeKey : LBRACE '/' 'key' RBRACE ;
 
-snippetBlock : openSnippet node* closeSnippet ;
+snippetBlock : openSnippet node* closeSnippet -> scope ;
 openSnippet : LBRACE '#' 'snippet' name fpar? expr* RBRACE ;
 closeSnippet : LBRACE '/' 'snippet' RBRACE ;
+headExpr : probe !!RBRACE / expr* ;
 
 special : constSpecial / ordinarySpecial ;
 constSpecial : LBRACE '@' 'const' name expr* RBRACE -> item ;
@@ -57,5 +57,5 @@ ordinarySpecial : LBRACE '@' expr* RBRACE -> item ;
 
 expression : !boundary LBRACE expr* RBRACE ;
 boundary : LBRACE ( '#' / ':' / '/' / '@' ) ;
-expr : template / arrow / cast / vtarg / bolt / lambda / pgroup / bgroup / group / ( !RBRACE . ) ;
+expr : template / arrow / cast / vtarg / angle / bolt / lambda / pgroup / bgroup / group / ( !RBRACE . ) ;
 text : !'<' !LBRACE !RBRACE . ;
