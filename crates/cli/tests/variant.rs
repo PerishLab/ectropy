@@ -101,3 +101,139 @@ fn others() {
     assert_eq!(kinds(text, grammar::Kind::Record), 0);
     assert_eq!(kinds(text, grammar::Kind::Loose), 0);
 }
+
+const SPELLINGS: [&str; 15] = [
+    "a: number, b: number, c: number, d: number, e: number",
+    "a, b, c, d, e",
+    "a = 1, b = 2, c = 3, d = 4, e = 5",
+    "a?: number, b = 2, c, d: string = \"x\", e",
+    "{ a }: { a: number }, b: number, c: number, d: number, e: number",
+    "{ a, b }, c, d, e, f",
+    "[a, b]: number[], c, d, e, f",
+    "a: number, { b }: { b: number }, c: number, d: number, e: number",
+    "{ a } = { a: 1 }, b, c, d, e",
+    "a, b, c, d, ...e",
+    "a: number, b: number, c: number, d: number, ...e: number[]",
+    "a: Map<string, number>, b, c, d, e",
+    "a, b: Record<string, number>, c, d, e",
+    "a: Map<string, Array<Record<string, number>>>, b, c, d, e",
+    "a: Map<string, (x: number, y: number) => void>, b, c, d, e",
+];
+
+const HOSTS: [&str; 12] = [
+    "export function host(LIST) { return 1; }",
+    "export class Host { run(LIST) { return 1; } }",
+    "export const host = function (LIST) { return 1; };",
+    "export const host = (LIST) => { return 1; };",
+    "export const host = async <T,>(LIST): Promise<T> => { return go(); };",
+    "export class Host { run = (LIST) => { return 1; }; }",
+    "register((LIST) => { return 1; });",
+    "register((LIST) => a + b);",
+    "export const shape = { run: (LIST) => a, walk: (LIST) => { return a; } };",
+    "export function host(): void { run((LIST) => a); }",
+    "export function host(): void { const run = (LIST) => { return a; }; go(run); }",
+    "export function host() { return (LIST) => a; }",
+];
+
+fn read(path: &str, text: &str) -> Marks {
+    let config = kernel::config::Config {
+        file: Default::default(),
+    };
+    let source = grammar::Source {
+        path: path.to_string(),
+        text: text.to_string(),
+    };
+    let found = kernel::check(&source, &kernel::structure(&source), &config).into_iter();
+    let mut found: Marks = found.map(|hit| (hit.law, hit.note)).collect();
+    found.sort();
+    found
+}
+
+fn agree(form: &str, want: &Marks) {
+    assert_eq!(read("host.ts", form), *want, "{form}");
+    assert_eq!(read("host.tsx", form), *want, "{form}");
+    let script = format!("<script lang=\"ts\">\n{form}\n</script>\n");
+    assert_eq!(read("host.svelte", &script), *want, "{form}");
+}
+
+fn over(times: usize) -> Marks {
+    let hit = ("param".to_string(), "5 parameters over limit 4".to_string());
+    std::iter::repeat_n(hit, times).collect()
+}
+
+#[test]
+fn spellings() {
+    for list in SPELLINGS {
+        agree(&format!("export function host({list}) {{}}\n"), &over(1));
+    }
+    for list in ["a, b, c, d", "{ a, b }, [c], d = 1, ...e", "...e"] {
+        agree(&format!("export function host({list}) {{}}\n"), &over(0));
+    }
+    let script = "<script>\n  function host(a, b, c, d, e) { return a; }\n</script>\n";
+    assert_eq!(read("host.svelte", script), over(1));
+}
+
+#[test]
+fn arrows() {
+    for list in [
+        "a, b, c, d, e",
+        "a: T, b = 2, { c }: T, [d]: T[], ...e: T[]",
+    ] {
+        for host in HOSTS {
+            let text = host.replace("LIST", list);
+            agree(&text, &over(text.matches("=>").count().max(1)));
+        }
+    }
+    for text in [
+        "export const View = (a, b, c, d, e) => <p>x</p>;",
+        "export function View() { return <ul>{items.map((a, b, c, d, e) => <li>x</li>)}</ul>; }",
+        "export function View() { return <List render={(a, b, c, d, e) => <p>x</p>} />; }",
+    ] {
+        assert_eq!(read("view.tsx", text), over(1), "{text}");
+    }
+    let bare = "register(item => { return item; }, async item => item, { run: item => item });";
+    let seats = ["host.ts", "host.tsx"].map(|path| {
+        let source = grammar::Source {
+            path: path.to_string(),
+            text: bare.to_string(),
+        };
+        let mut seats = 0;
+        let mut stack = vec![kernel::structure(&source)];
+        while let Some(node) = stack.pop() {
+            seats += usize::from(node.kind == grammar::Kind::Receiver);
+            stack.extend(node.kids);
+        }
+        seats
+    });
+    assert_eq!(seats, [3, 3]);
+}
+
+const TYPES: [&str; 13] = [
+    "export type Handler = FN;",
+    "export type Handler = { run: FN; walk(x: X): void };",
+    "export type Handler = Map<string, FN> | null;",
+    "export type Handler = (x: X) => { run: FN };",
+    "export interface Host { run: FN; walk(cb: FN): void; cfg: { go: FN } }",
+    "export function host(cb: { run: FN }, go: (inner: FN) => void): void { cb.run(go); }",
+    "export function host(): { run: FN } { return make(); }",
+    "export const host = (cb: Map<K, FN>): (FN) => { return cb; };",
+    "export class Host { run: FN; cfg: { go: FN } = make(); }",
+    "export const host: { run: FN } = make();",
+    "export function host(): void { type H = FN; go(make() as FN, run satisfies { go: FN }); }",
+    "declare module \"x\" { export type H = FN; }",
+    "export const host = make<FN>(run) as { run: FN };",
+];
+
+#[test]
+fn types() {
+    for list in [
+        "a: A, b: B, c: C, d: D, e: E",
+        "a, b, c, d, e",
+        "_event: Event",
+    ] {
+        for host in TYPES {
+            let form = host.replace("FN", &format!("({list}) => void"));
+            agree(&form, &read("host.ts", &host.replace("FN", "Handler")));
+        }
+    }
+}
