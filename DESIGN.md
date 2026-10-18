@@ -113,7 +113,7 @@ reimplemented per language.
 Boolean conjunction and disjunction become connected `decision` trees;
 parentheses and negation are transparent while calls, assignments, branches,
 and statement boundaries start independent decisions. Rust closure spelling is
-rectified before it can look like disjunction. Rust macro input is read by the statement reader at every level; tokens that form no Rust structure carry no evidence. TypeScript regular expressions
+rectified before it can look like disjunction. Rust macro input inside a function, and braced macro input at module level, is read by the statement reader; tokens that form no Rust structure carry no evidence. TypeScript regular expressions
 are opaque only where lexical expression-start rules prove them to be literals.
 
 TSX extends the TypeScript grammar without teaching kernel about React. Paired
@@ -235,11 +235,31 @@ a minor-or-higher version; a patch may preserve it. Grammar breadth is not a
 stable promise and may widen as coverage becomes honest. The beta channel is a
 place to break before stable and carries no compatibility promise.
 
-Current known understatements remain explicit: stylesheet internals and most
-Markdown syntax are opaque, the fanout law sees only scanned files, `reach` does
-not read `vi.mock("…")` arguments or interpolated template specifiers, adapters
-do not perform symbol resolution, malformed TSX can sometimes distort a local
-parse before coverage refuses the unread region, and a labeled bare block
-(`name: { … }`) inside a TypeScript function body reads as an object literal, so
-its own brace adds no block level. These are coverage work, not authorization
-to claim more than the tree proves.
+Current known understatements remain explicit. They are coverage work, not
+authorization to claim more than the tree proves:
+
+- Stylesheet internals and most Markdown syntax are opaque, and the fanout law
+  sees only scanned files.
+- `reach` does not read `vi.mock("…")` arguments or interpolated template
+  specifiers, and adapters do not perform symbol resolution.
+- Malformed TSX can sometimes distort a local parse before coverage refuses the
+  unread region. Valid TSX can too: element text that opens with `(` right
+  after a bare tag name (`<b>(it's)</b>`) lexes as type parameters, so quotes
+  in that text still open strings.
+- A labeled bare block (`name: { … }`) inside a TypeScript function body reads
+  as an object literal, so its own brace adds no block level.
+- `export default function () { … }` and a braceless module-level `if`
+  statement read as a call, so their bodies add no block level.
+- A function or arrow written as a typed parameter's default
+  (`a: F = (b, …) => { … }`) is not read; an untyped default is.
+- A braceless TypeScript branch whose statement holds `{` inside parentheses
+  (`return f({ … });`) is not a one-statement scope, so its ladder does not
+  reach `dispatch`.
+- A ladder links only through `else if`, `elif` or an adjacent `if`. A Rust or
+  TypeScript comment between a branch's `}` and `else if` breaks the link, and
+  adjacent Svelte blocks (`{/if}{#if …}`) never link, so neither reaches
+  `dispatch`. A parenthesized Rust head (`if (a == 1)`) emits no `probe`.
+- A quoted Svelte attribute value that mixes text with expressions stays one
+  string literal, so its expressions are not read.
+- Rust macro input in parentheses or brackets at module level reads as an
+  expression, so items inside it give no name or parameter evidence.
