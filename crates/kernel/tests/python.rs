@@ -174,3 +174,61 @@ fn parity() {
     );
     assert_eq!(blocks("vessel.rs", deep).len(), 1);
 }
+
+fn ladder(heads: &[&str]) -> String {
+    let mut text = "def pick(a, b, c):\n".to_string();
+    for (at, head) in heads.iter().enumerate() {
+        text.push_str(&format!("    {head}:\n        return {at}\n"));
+    }
+    text
+}
+
+#[test]
+fn dispatch() {
+    let chain = ["if a == 1", "elif a == 2", "elif a == 3", "else"];
+    assert_eq!(count(scan("vessel.py", &ladder(&chain)), "dispatch"), 2);
+    let rust = "fn pick(a: u8) -> u8 { if a == 1 { 1 } else if a == 2 { 2 } else if a == 3 { 3 } else { 0 } }";
+    assert_eq!(count(laws(rust), "dispatch"), 2);
+    for heads in [
+        ["if a == 1", "if a == 2"],
+        ["if (a == 1)", "elif (a == 2)"],
+        ["if a == 'x'", "elif a == \"y\""],
+        ["if a == f\"x\"", "elif a == \"\"\"y\"\"\""],
+        ["if a == True", "elif a == None"],
+    ] {
+        assert_eq!(count(scan("vessel.py", &ladder(&heads)), "dispatch"), 1);
+    }
+    let inline = "def pick(a):\n    if a == 1: return 1\n    elif a == 2: return 2\n";
+    assert_eq!(count(scan("vessel.py", inline), "dispatch"), 1);
+    let module = "if a == 1:\n    go()\nelif a == 2:\n    stop()\n";
+    let found = findings("vessel.py", module, &config(&[], 4));
+    let lines: Vec<usize> = found.iter().map(|finding| finding.line).collect();
+    assert_eq!(lines, [3]);
+    assert_eq!(found[0].note, "a");
+    let method = format!("class Vessel:\n{}", indent(&ladder(&chain)));
+    assert_eq!(count(scan("vessel.py", &method), "dispatch"), 2);
+}
+
+#[test]
+fn probes() {
+    for heads in [
+        ["if a == 1", "elif b == 2"],
+        ["if a == b", "elif a == c"],
+        ["if a == 1 and b", "elif a == 2 and b"],
+        ["if a.kind == 1", "elif a.kind == 2"],
+        ["if a != 1", "elif a != 2"],
+        ["if a is None", "elif a is True"],
+        ["if a == -1", "elif a == -2"],
+        ["if 1 == a", "elif 2 == a"],
+        ["while a == 1", "while a == 2"],
+    ] {
+        assert_eq!(count(scan("vessel.py", &ladder(&heads)), "dispatch"), 0);
+    }
+    let split =
+        "def pick(a):\n    if a == 1:\n        go()\n    probe()\n    if a == 2:\n        stop()\n";
+    assert_eq!(count(scan("vessel.py", split), "dispatch"), 0);
+    let nested = "def pick(a):\n    if a == 1:\n        go()\n    else:\n        if a == 2:\n            stop()\n";
+    assert_eq!(count(scan("vessel.py", nested), "dispatch"), 0);
+    let ternary = "def pick(a):\n    x = 1 if a == 1 else 2\n    y = 3 if a == 2 else 4\n";
+    assert_eq!(count(scan("vessel.py", ternary), "dispatch"), 0);
+}
