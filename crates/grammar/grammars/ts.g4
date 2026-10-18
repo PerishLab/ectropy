@@ -48,7 +48,7 @@ tscope : LBRACE tst* RBRACE -> scope ;
 tst : tscope / lead trec / ( !RBRACE . ) ;
 trec : LBRACE entry? ( ',' entry / tst )* RBRACE ;
 thead : ( tpg / tbg / ( !LBRACE !RBRACE !';' . ) )* ;
-note : ':' ( tpg / tbg / tgr / ( !'=' !';' !ARROW !LBRACE !RBRACE !LBRACK !RBRACK !LPAREN !RPAREN . ) )* ;
+note : ':' ( tbolt / tpg / tbg / tgr / ( !'=' !';' !LBRACE !RBRACE !LBRACK !RBRACK !LPAREN !RPAREN . ) )* ;
 cast : ( 'as' / 'satisfies' ) cunit ( ( '|' / '&' ) cunit )* ;
 cunit : ( 'keyof' / 'typeof' / 'readonly' / 'unique' )* ( 'new'? tpar? tpg !!ARROW ( ARROW !LBRACE cunit )? / tbg / tgr / targ / lit / IDENT ( '.' IDENT )* targ? ) tbg* ;
 vtarg : '<' ( targ / sgroup / !'>' !RPAREN !RBRACK !RBRACE !';' !'?' !'=' !'!' !( '&' '&' ) !( '|' '|' ) . )* '>' !!LPAREN ;
@@ -107,7 +107,7 @@ finallyTail : ( 'finally' scope )? ;
 
 scope : LBRACE stmt* RBRACE -> scope ;
 
-init : ( !ARROW !';' ( !dart loose / !!dart ( pgroup / . ) ) )* ( ARROW scope ';'? / ';'? ) ;
+init : ( !ARROW !';' loose )* ( ARROW scope ';'? / ';'? ) ;
 tail : ( !';' loose )* ';'? ;
 
 head : headAtom* ;
@@ -125,7 +125,6 @@ piece : tpar / tpg / tbg / tgr !!( LBRACE / LBRACK / '|' / '&' ) / ( !LBRACE !RB
 bolt : ARROW scope ;
 blade : scope ;
 arrow : !!( flags tpar? ( skim ret? / IDENT ) ARROW ) flags tpar? ( fpar ret? / ray ) ARROW blade? -> item ;
-dart : flags tpar? ( skim ret? / IDENT ) ARROW !blade ;
 ray : IDENT -> receiver ;
 ret : ':' ( targ / sgroup / !ARROW !',' !';' !'=' !LBRACE !RBRACE !RPAREN !RBRACK . )+ ;
 skim : LPAREN ( skim / !RPAREN . )* RPAREN ;
