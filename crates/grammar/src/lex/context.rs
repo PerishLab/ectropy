@@ -62,6 +62,24 @@ impl Context {
         }
     }
 
+    pub(super) fn hole() -> Self {
+        Context {
+            jsx: false,
+            stack: vec![Frame::Hole(0)],
+        }
+    }
+
+    pub(super) fn closed(&self) -> bool {
+        self.stack.is_empty()
+    }
+
+    pub(super) fn valued(&self) -> bool {
+        match self.stack.last() {
+            Some(Frame::Tree(tree)) => tree.root && matches!(tree.tag, Tag::Open(..)),
+            _ => false,
+        }
+    }
+
     pub(super) fn of(parsers: &[Rule]) -> Self {
         let mut context = Self::code();
         if parsers.iter().any(|rule| rule.name == "jsx") {

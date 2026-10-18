@@ -1,5 +1,6 @@
 mod rust;
 mod statement;
+mod svelte;
 mod ts;
 
 type Marks = Vec<(String, String)>;

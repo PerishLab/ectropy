@@ -30,6 +30,7 @@ struct Lexer<'a> {
     bytes: &'a [u8],
     tokens: Vec<Token>,
     context: Context,
+    shut: Option<usize>,
 }
 
 impl<'a> Lexer<'a> {
@@ -39,6 +40,7 @@ impl<'a> Lexer<'a> {
             bytes,
             tokens: Vec::new(),
             context,
+            shut: None,
         }
     }
 
@@ -51,6 +53,10 @@ impl<'a> Lexer<'a> {
     }
 
     fn once(&mut self, at: usize) -> usize {
+        if self.quoted(at) {
+            self.emit("QUOTE", Slot::Emit, at, at + 1);
+            return at + 1;
+        }
         if let Some((name, end)) = self.context.resume(self.bytes, at) {
             self.emit(name, Slot::Emit, at, end);
             return end;
@@ -64,6 +70,35 @@ impl<'a> Lexer<'a> {
             self.emit(&rule.name, rule.slot(), at, end);
         }
         end
+    }
+
+    fn quoted(&mut self, at: usize) -> bool {
+        if self.shut == Some(at) {
+            self.shut = None;
+            return true;
+        }
+        let quote = self.bytes[at];
+        if !matches!(quote, b'"' | b'\'') || !self.context.valued() {
+            return false;
+        }
+        if self.bytes.get(at + 1) != Some(&b'{') {
+            return false;
+        }
+        let close = self.hole(at + 1);
+        self.shut = close.filter(|&end| self.bytes.get(end) == Some(&quote));
+        self.shut.is_some()
+    }
+
+    fn hole(&self, from: usize) -> Option<usize> {
+        let mut sub = Lexer::new(self.rules, self.bytes, Context::hole());
+        let mut at = from;
+        while at < self.bytes.len() {
+            at = sub.once(at);
+            if sub.context.closed() {
+                return Some(at);
+            }
+        }
+        None
     }
 
     fn emit(&mut self, name: &str, kind: Slot, start: usize, end: usize) {

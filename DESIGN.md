@@ -134,9 +134,17 @@ components receive no compound-name exemption.
 Svelte extends the same TypeScript grammar without teaching kernel about
 Svelte. Script declarations, legacy reactive statements, runes, template
 expressions, control blocks, snippets, special tags, components, and HTML
-comments enter the shared tree through their structural roles. Control blocks
-become `scope`, elements become `markup`, and component filenames remain path
-atoms subject to the same single-word law as every other source file. An
+comments enter the shared tree through their structural roles. Template
+expressions and attribute values re-enter TypeScript expression reading the way
+TSX brace containers do, so arrows and function values there are read; a quoted
+single-expression attribute value (`on:click="{…}"`) is the same expression,
+while a quoted value that mixes text with expressions stays one string literal.
+A legacy reactive block `$: { … }` is a scope, and snippet parameters count as
+a function's do. Control blocks become `scope`; an `{#if}` block reads like a
+script `if`: each branch is its own `scope`, and an `{#if}` or `{:else if}`
+head of the form `name === literal` emits `probe`, so an equality ladder
+reaches `dispatch`. Elements become `markup`, and component filenames remain
+path atoms subject to the same single-word law as every other source file. An
 attribute name carries directive prefixes and custom property names alike, so a
 directive that binds a custom property is read rather than left unparsed.
 

@@ -5,7 +5,7 @@ unit : script / stuck / styleBlock / node ;
 script : '<' 'script' attr* '>' scriptItem* scriptClose -> item ;
 scriptClose : '<' '/' 'script' '>' ;
 scriptItem : !scriptClose ( item / reactive ) / scriptLoose ;
-reactive : '$' ':' tail -> item ;
+reactive : '$' ':' ( scope / tail ) -> item ;
 scriptLoose : !scriptClose . -> loose ;
 stuck : '<' 'script' attr* '>' unread scriptClose? -> item ;
 unread : ( !scriptClose . )+ -> loose ;
@@ -24,14 +24,14 @@ tag : IDENT ( ':' IDENT )? ;
 attr : named / expression ;
 named : aname ( '=' aval )? ;
 aname : IDENT ( ( ':' / '-' / '|' )+ IDENT )* ;
-aval : STRING / SINGLE / TEMPLATE / template / expression ;
+aval : QUOTE expression QUOTE / STRING / SINGLE / TEMPLATE / template / expression ;
 
-block : ifBlock / eachBlock / awaitBlock / keyBlock / snippetBlock -> scope ;
-ifBlock : openIf node* elseIf* elsePart? closeIf ;
-openIf : LBRACE '#' 'if' expr* RBRACE ;
-elseIf : LBRACE ':' 'else' 'if' expr* RBRACE node* ;
+block : ifBlock / scoped ;
+scoped : eachBlock / awaitBlock / keyBlock / snippetBlock -> scope ;
+ifBlock : LBRACE '#' 'if' cond branch ( 'else' 'if' cond branch )* ( 'else' branch )? 'if' RBRACE ;
+cond : probe !!RBRACE / expr* ;
+branch : RBRACE node* LBRACE ( ':' / '/' ) -> scope ;
 elsePart : LBRACE ':' 'else' RBRACE node* ;
-closeIf : LBRACE '/' 'if' RBRACE ;
 
 eachBlock : openEach node* elsePart? closeEach ;
 openEach : LBRACE '#' 'each' expr* RBRACE ;
@@ -48,7 +48,7 @@ openKey : LBRACE '#' 'key' expr* RBRACE ;
 closeKey : LBRACE '/' 'key' RBRACE ;
 
 snippetBlock : openSnippet node* closeSnippet ;
-openSnippet : LBRACE '#' 'snippet' name expr* RBRACE ;
+openSnippet : LBRACE '#' 'snippet' name fpar? expr* RBRACE ;
 closeSnippet : LBRACE '/' 'snippet' RBRACE ;
 
 special : constSpecial / ordinarySpecial ;
@@ -57,5 +57,5 @@ ordinarySpecial : LBRACE '@' expr* RBRACE -> item ;
 
 expression : !boundary LBRACE expr* RBRACE ;
 boundary : LBRACE ( '#' / ':' / '/' / '@' ) ;
-expr : template / pgroup / bgroup / group / ( !RBRACE . ) ;
+expr : template / arrow / cast / vtarg / bolt / lambda / pgroup / bgroup / group / ( !RBRACE . ) ;
 text : !'<' !LBRACE !RBRACE . ;
