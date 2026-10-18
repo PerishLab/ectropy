@@ -65,7 +65,7 @@ fields : LBRACE member* RBRACE ;
 member : outer* vis? name membertail ;
 membertail : ( !',' !RBRACE loose )* ','? ;
 
-stmt : guard / nested / control / letStmt / structLit / scope / stray / ( !RBRACE . ) ;
+stmt : guard / nested / control / letStmt / typed / structLit / scope / stray / ( !RBRACE . ) ;
 guard : '*' ( 'const' / 'mut' ) / '\'' IDENT ;
 nested : outer* vis inCore ;
 inCore : modItem / nestItem / fnItem / structItem / foreignItem / makeItem / declItem ;
@@ -84,14 +84,16 @@ loopExpr  : 'loop' scope ;
 matchExpr : 'match' head scope ;
 
 scope : LBRACE stmt* RBRACE -> scope ;
-structLit : path LBRACE loose* RBRACE -> literal ;
-path : IDENT ( ':' ':' IDENT )* ;
+structLit : path LBRACE stmt* RBRACE -> literal ;
+path : !reserved IDENT ( ':' ':' IDENT )* ;
+reserved : 'as' / 'async' / 'await' / 'break' / 'const' / 'continue' / 'dyn' / 'else' / 'enum' / 'extern' / 'fn' / 'for' / 'if' / 'impl' / 'in' / 'let' / 'loop' / 'match' / 'mod' / 'move' / 'mut' / 'pub' / 'ref' / 'return' / 'static' / 'struct' / 'trait' / 'type' / 'unsafe' / 'use' / 'where' / 'while' ;
+typed : '-' '>' ( sgroup / ( !LBRACE !RBRACE !';' !',' !'=' !RPAREN !RBRACK . ) )+ scope ;
 
 head : headAtom* ;
 headAtom : pgroup / bgroup / ( !LBRACE !RBRACE !';' . ) ;
 pgroup : LPAREN inner* RPAREN ;
 bgroup : LBRACK inner* RBRACK ;
-inner  : pgroup / bgroup / scope / structLit / ( !RPAREN !RBRACK . ) ;
+inner  : pgroup / bgroup / scope / typed / structLit / ( !RPAREN !RBRACK . ) ;
 
 loose : group / ( !LBRACE !RBRACE !LBRACK !RBRACK !LPAREN !RPAREN . ) ;
 group : LBRACE loose* RBRACE / LBRACK loose* RBRACK / LPAREN loose* RPAREN ;
