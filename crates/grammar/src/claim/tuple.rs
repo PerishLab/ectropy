@@ -69,18 +69,16 @@ impl<'a> Read<'a> {
                 "(" => stack.push((at, '(')),
                 "[" => stack.push((at, '[')),
                 "{" => stack.push((at, '{')),
-                ")" | "]" | "}" => {
-                    let Some((open, glyph)) = stack.pop() else {
-                        continue;
-                    };
-                    self.link(open, glyph, at);
-                }
+                ")" | "]" | "}" => self.link(stack.pop(), at),
                 _ => {}
             }
         }
     }
 
-    fn link(&mut self, open: usize, glyph: char, close: usize) {
+    fn link(&mut self, open: Option<(usize, char)>, close: usize) {
+        let Some((open, glyph)) = open else {
+            return;
+        };
         if !closes(glyph, self.glyph(close)) {
             return;
         }

@@ -208,3 +208,71 @@ fn linkage() {
     assert_eq!(kinds(&text, grammar::Kind::Item), 3);
     assert_eq!(kinds(&text, grammar::Kind::Loose), 0);
 }
+
+const BODY: &str = "let alpha_beta = 1;
+if flag == 1 { go(); } else if flag == 2 { go(); }
+if flag { if flag { if flag { if flag { go(alpha_beta); } } } }";
+
+#[test]
+fn keyed() {
+    let bare = marks(&host(&format!("{{ {BODY} }}")));
+    assert_eq!(bare.iter().filter(|mark| mark.0 != "block").count(), 2);
+    for form in [
+        "unsafe { B }",
+        "async { B };",
+        "let task = async move { B };",
+        "let seed = const { B };",
+        "spawn(async move { B });",
+        "let Some(pick) = choice else { B; return 0; };",
+        "let run = |flag: u8| -> u8 { B };",
+        "let run = move || -> Self { B };",
+        "map(|flag| -> Result<u8, Fault> { B });",
+        "Holder { run: |flag: u8| { B } }",
+        "Holder { run: { B }, ..base }",
+    ] {
+        let text = host(&form.replace('B', BODY));
+        assert_eq!(marks(&text), bare, "{text}");
+        let held = form.matches("Holder {").count();
+        assert_eq!(kinds(&text, grammar::Kind::Literal), held, "{text}");
+    }
+}
+
+#[test]
+fn fields() {
+    let chain = "if flag == 1 { 1 } else if flag == 2 { 2 } else { 0 }";
+    let found = marks(&host(&format!("Holder {{ pick: {chain} }}")));
+    assert_eq!(found, marks(&host(&format!("let pick = {chain};"))));
+    assert_eq!(found.len(), 1, "{found:?}");
+    let twin = "Outer { inner: Inner { alpha: from.alpha, beta: from.beta, gamma: from.gamma } }";
+    let found = marks(&host(twin));
+    assert_eq!(found.len(), 1, "{found:?}");
+    assert_eq!(found[0].0, "shadow");
+    assert_eq!(kinds(&host(twin), grammar::Kind::Literal), 2);
+}
+
+#[test]
+fn refusal() {
+    let refused = vec![("coverage".to_string(), "unparsed region".to_string())];
+    for form in [
+        "unsafe { impl Thing { 1 } }",
+        "let task = async move { struct Thing { 1 } };",
+        "let Some(pick) = choice else { trait Thing { 1 } };",
+        "let run = || -> u8 { impl Thing { 1 } };",
+        "Holder { run: { impl Thing { 1 } } }",
+    ] {
+        assert_eq!(marks(&host(form)), refused, "{form}");
+    }
+}
+
+#[test]
+fn heads() {
+    let text = "pub unsafe fn raw_probe() -> u8 { 1 }
+pub async fn wait_probe() -> u8 { 1 }
+pub const fn const_probe() -> u8 { 1 }
+const LIMIT_PROBE: u8 = 1;
+static SEED_PROBE: u8 = 2;";
+    let lifted = marks(&format!("{text}\n{}", host("")));
+    assert_eq!(lifted.len(), 5, "{lifted:?}");
+    assert_eq!(marks(&host(text)), lifted);
+    assert_eq!(kinds(&host(text), grammar::Kind::Literal), 0);
+}
