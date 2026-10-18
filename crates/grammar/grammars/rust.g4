@@ -48,9 +48,10 @@ declItem : declKw 'mut'? name ( !';' loose )* ';'? -> item ;
 plainItem : lineKw ( !';' loose )* ';'? -> item ;
 declKw : 'static' / 'type' / 'const' / 'mod' ;
 name       : IDENT -> word ;
-quals      : ( 'extern' STRING? / 'async' / 'unsafe' / 'const' / 'default' / 'move' )* ;
+quals      : ( 'extern' STRING? / 'async' / 'unsafe' / 'safe' / 'const' / 'default' / 'move' )* ;
 lineKw     : 'use' / 'extern' ;
 
+foreignItem : 'unsafe'? 'extern' STRING? LBRACE unit* RBRACE -> item ;
 makeItem : 'macro_rules' '!' name LBRACE arm* RBRACE -> item ;
 arm : match '=' '>' spell ';'? ;
 match : pgroup / bgroup / hold ;
@@ -63,7 +64,12 @@ fields : LBRACE member* RBRACE ;
 member : outer* vis? name membertail ;
 membertail : ( !',' !RBRACE loose )* ','? ;
 
-stmt : control / letStmt / structLit / scope / ( !RBRACE . ) ;
+stmt : guard / nested / control / letStmt / structLit / scope / stray / ( !RBRACE . ) ;
+guard : '*' ( 'const' / 'mut' ) / '\'' IDENT ;
+nested : outer* vis inCore ;
+inCore : modItem / nestItem / fnItem / structItem / foreignItem / makeItem / declItem ;
+stray : ( quals strayKw / 'unsafe'? 'extern' STRING? !!LBRACE ) -> loose ;
+strayKw : ( 'struct' / 'enum' / 'union' / 'trait' / 'mod' / 'fn' / 'type' / 'static' ) IDENT / 'impl' ( IDENT / '<' ) / 'macro_rules' '!' ;
 letStmt : 'let' 'mut'? name !!( '=' / ':' !':' / ';' ) ;
 control : ifExpr / whileExpr / forExpr / loopExpr / matchExpr ;
 ifExpr    : 'if' probe scope elseTail / 'if' head scope elseTail ;
