@@ -1,4 +1,5 @@
 mod rust;
+mod shift;
 mod statement;
 mod svelte;
 mod ts;

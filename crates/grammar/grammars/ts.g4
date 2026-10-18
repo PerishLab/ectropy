@@ -53,7 +53,7 @@ note : ':' ( tbolt / tpg / tbg / tgr / ( !'=' !';' !LBRACE !RBRACE !LBRACK !RBRA
 cast : ( 'as' / 'satisfies' ) cunit ( ( '|' / '&' ) cunit )* ;
 cunit : ( 'keyof' / 'typeof' / 'readonly' / 'unique' )* ( 'new'? tpar? tpg !!ARROW ( ARROW !LBRACE cunit )? / tbg / tgr / targ / lit / IDENT ( '.' IDENT )* targ? ) tbg* ;
 vtarg : '<' ( targ / sgroup / !'>' !RPAREN !RBRACK !RBRACE !';' !'?' !'=' !'!' !( '&' '&' ) !( '|' '|' ) . )* '>' !!LPAREN ;
-angle : '<' cunit '>' ;
+angle : '<' ( !'<' / !!( tpar tpg ) ) cunit '>' ;
 frest : inner* ;
 typeItem : 'type' name ( !';' tlo )* ';'? -> item ;
 interfaceItem : 'interface' name thead tgr -> item ;
