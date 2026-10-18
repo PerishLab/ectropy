@@ -250,8 +250,6 @@ authorization to claim more than the tree proves:
   as an object literal, so its own brace adds no block level.
 - `export default function () { … }` and a braceless module-level `if`
   statement read as a call, so their bodies add no block level.
-- A function or arrow written as a typed parameter's default
-  (`a: F = (b, …) => { … }`) is not read; an untyped default is.
 - A braceless TypeScript branch whose statement holds `{` inside parentheses
   (`return f({ … });`) is not a one-statement scope, so its ladder does not
   reach `dispatch`.
