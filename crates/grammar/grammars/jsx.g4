@@ -15,15 +15,17 @@ aval : STRING / SINGLE / brace ;
 kid : jsx / brace / text ;
 text : !'<' !LBRACE !RBRACE . ;
 brace : LBRACE jexpr* RBRACE ;
-jexpr : jsx / arrow / cast / vtarg / bolt / lambda / pgroup / bgroup / group / ( !RBRACE . ) ;
+jexpr : jsx / template / arrow / cast / vtarg / bolt / lambda / pgroup / bgroup / group / ( !RBRACE . ) ;
 bolt : ARROW ( scope / jsx ) ;
 blade : scope / jsx ;
 
-stmt : control / fnItem / lambda / typeItem / interfaceItem / classItem / declItem / jsx / arrow / cast / vtarg / scope / lead record / ( !RBRACE . ) ;
-inner : jsx / arrow / cast / vtarg / classExpr / bolt / lambda / pgroup / bgroup / group / ( !RPAREN !RBRACK . ) ;
-loose : jsx / arrow / cast / vtarg / bolt / lambda / group / pgroup / bgroup / ( !LBRACE !RBRACE !LBRACK !RBRACK !LPAREN !RPAREN . ) ;
+stmt : control / fnItem / lambda / typeItem / interfaceItem / classItem / declItem / jsx / arrow / cast / vtarg / scope / lead record / template / ( !RBRACE . ) ;
+inner : jsx / template / arrow / cast / vtarg / classExpr / bolt / lambda / pgroup / bgroup / group / ( !RPAREN !RBRACK . ) ;
+loose : jsx / template / arrow / cast / vtarg / bolt / lambda / group / pgroup / bgroup / ( !LBRACE !RBRACE !LBRACK !RBRACK !LPAREN !RPAREN . ) ;
 init : '=' classExpr / classExpr / '=' lambda / lambda / ( !ARROW !';' !halt !',' loose )* ( ARROW blade )? ;
 tin : jsx / tpg / tbg / tgr / tbolt / lambda / ( !RPAREN !RBRACK . ) ;
 tlo : jsx / tbolt / lambda / tgr / tpg / tbg / ( !LBRACE !RBRACE !LBRACK !RBRACK !LPAREN !RPAREN . ) ;
 tbolt : ARROW ( tscope / jsx ) ;
 tst : jsx / tscope / lead trec / ( !RBRACE . ) ;
+
+tint : jsx / template / arrow / cast / vtarg / bolt / lambda / pgroup / bgroup / group / ( !TMID !TTAIL . ) ;

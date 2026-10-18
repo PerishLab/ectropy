@@ -113,3 +113,90 @@ fn kept() {
         &read("host.ts", &format!("function host() {{\n{word}\n}}\n")),
     );
 }
+
+const BODY: &str = "(a: number) => { const alphaBeta = 1; if (a === 1) { return 1; } else if (a === 2) { return 2; } if (a) { if (a) { if (a) { if (a) { return alphaBeta; } } } } return 0; }";
+
+const FIVE: &str = "export function gammaDelta(a: number, b: number, c: number, d: number, e: number): number { return a; }\n";
+
+fn five() -> Marks {
+    vec![
+        ("param".to_string(), "5 parameters over limit 4".to_string()),
+        ("word".to_string(), "gammaDelta".to_string()),
+    ]
+}
+
+#[test]
+fn templates() {
+    let want = read(
+        "host.ts",
+        &format!("export const page = String([1].map({BODY}));\n"),
+    );
+    assert_eq!(want.len(), 3, "{want:?}");
+    agree(
+        &format!("export const page = `${{[1].map({BODY})}}`;\n"),
+        &want,
+    );
+    agree(
+        &format!("export const page = `a${{`b${{[1].map({BODY})}}c`}}d`;\n"),
+        &want,
+    );
+    agree(
+        &format!("export const page = `x ${{1}} y ${{[1].map({BODY})}} z`;\n"),
+        &want,
+    );
+    let tagged = read("host.ts", &format!("export const page = sql({BODY});\n"));
+    assert_eq!(tagged.len(), 3, "{tagged:?}");
+    agree(
+        &format!("export const page = sql`select ${{{BODY}}}`;\n"),
+        &tagged,
+    );
+    let deep = "export function host(a: number): number { if (a) { if (a) { if (a) { return HOLE.length; } } } return 0; }\n";
+    let want = read("host.ts", &deep.replace("HOLE", "String({ x: 1 }.x)"));
+    assert_eq!(want, Marks::new());
+    agree(&deep.replace("HOLE", "`${`${ { x: 1 }.x }`}`"), &want);
+    agree(
+        &format!("export const page = `\\${{a}} \\` ${{b}}`;\n{FIVE}"),
+        &five(),
+    );
+}
+
+#[test]
+fn apostrophe() {
+    let ctl = format!(
+        "export function View(): JSX.Element {{ return <p>It is here</p>; }}\n{FIVE}export function Other(): JSX.Element {{ return <p>Do not</p>; }}\n"
+    );
+    assert_eq!(read("host.tsx", &ctl), five());
+    for (one, two) in [
+        ("It's", "Don't"),
+        ("say \"hi", "it\" now"),
+        ("a `b", "c` d"),
+        ("see https://x.org", "or /* this"),
+    ] {
+        let body = ctl.replace("It is here", one).replace("Do not", two);
+        assert_eq!(read("host.tsx", &body), five(), "{body}");
+        let nested = format!(
+            "export function View(a: boolean): JSX.Element {{ return <div>{{a && <p>{one}</p>}}<p>{two}</p></div>; }}\n{FIVE}"
+        );
+        assert_eq!(read("host.tsx", &nested), five(), "{nested}");
+        let page = format!(
+            "<script lang=\"ts\">\n  let a = $state(0);\n</script>\n{one}\n<p>{one}</p>\n<button onclick={{a}}>go</button>\n<style>\n  p::before {{ content: \"'\"; }}\n</style>\n<script lang=\"ts\" context=\"module\">\n  {FIVE}</script>\n<p>{two}</p>\n"
+        );
+        assert_eq!(read("host.svelte", &page), five(), "{page}");
+    }
+}
+
+#[test]
+fn generics() {
+    for code in [
+        "const [s] = useState<string>('a//b');",
+        "const id = <T,>(x: T) => x;\nconst s = 'a//b';",
+        "const id = <T extends unknown>(x: T) => x;\nconst s = 'a//b';",
+        "type Fn = <T>(x: T) => T;\nconst s = 'a//b';",
+        "const n = (1 << 2) >> 1;\nconst s = 'a//b';",
+        "const b = a < c && d > e;\nconst s = 'a//b';",
+    ] {
+        let body = format!("{code}\n{FIVE}");
+        assert_eq!(read("host.ts", &body), five(), "{body}");
+        assert_eq!(read("host.tsx", &body), five(), "{body}");
+    }
+}

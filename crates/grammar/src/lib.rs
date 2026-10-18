@@ -173,9 +173,8 @@ fn styled(inner: &str) -> bool {
 
 pub(crate) fn braces(source: &Source, rules: &(Vec<format::Rule>, Vec<format::Rule>)) -> Cst {
     let bytes = source.text.as_bytes();
-    let (lexers, parsers) = rules;
-    let (sig, comments) = sift(lex::lex(lexers, bytes));
-    let mut root = parse::run(parsers, &sig, bytes, source.text.len());
+    let (sig, comments) = sift(lex::web(rules, bytes));
+    let mut root = parse::run(&rules.1, &sig, bytes, source.text.len());
     for span in comments {
         root.kids.push(note(span));
     }
