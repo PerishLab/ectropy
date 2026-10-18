@@ -1,3 +1,4 @@
+mod rust;
 mod statement;
 
 type Marks = Vec<(String, String)>;

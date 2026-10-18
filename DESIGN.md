@@ -113,7 +113,7 @@ reimplemented per language.
 Boolean conjunction and disjunction become connected `decision` trees;
 parentheses and negation are transparent while calls, assignments, branches,
 and statement boundaries start independent decisions. Rust closure spelling is
-rectified before it can look like disjunction. TypeScript regular expressions
+rectified before it can look like disjunction. Rust macro input is read by the statement reader at every level; tokens that form no Rust structure carry no evidence. TypeScript regular expressions
 are opaque only where lexical expression-start rules prove them to be literals.
 
 TSX extends the TypeScript grammar without teaching kernel about React. Paired
