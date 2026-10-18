@@ -9,7 +9,8 @@ impl Read<'_> {
     fn rust(&self) -> Vec<Cst> {
         let mut found = Vec::new();
         for start in 0..self.held.len() {
-            if self.glyph(start) != "struct" || !self.named(start + 1) {
+            let keyword = self.glyph(start);
+            if !matches!(keyword, "struct" | "enum") || !self.named(start + 1) {
                 continue;
             }
             let Some(open) = self.opening(start + 2) else {
@@ -18,9 +19,38 @@ impl Read<'_> {
             let Some(close) = self.mate(open) else {
                 continue;
             };
+            if keyword == "enum" {
+                found.extend(self.variants(open, close));
+                continue;
+            }
             found.push(self.record(start, start + 1, close, self.fields(open, close)));
         }
         found
+    }
+
+    fn variants(&self, open: usize, close: usize) -> Vec<Cst> {
+        let mut found = Vec::new();
+        let mut at = open + 1;
+        while at < close {
+            at = self.attributes(at);
+            if self.named(at)
+                && self.glyph(at + 1) == "{"
+                && let Some(end) = self.mate(at + 1)
+            {
+                found.push(self.record(at, at, end, self.fields(at + 1, end)));
+            }
+            at = self.comma(at, close);
+        }
+        found
+    }
+
+    fn attributes(&self, mut at: usize) -> usize {
+        while self.glyph(at) == "#"
+            && let Some(end) = self.mate(at + 1)
+        {
+            at = end + 1;
+        }
+        at
     }
 
     fn opening(&self, mut at: usize) -> Option<usize> {

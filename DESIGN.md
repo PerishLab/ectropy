@@ -142,9 +142,11 @@ and `position` evidence. TypeScript maps tuple types and destructuring, while
 ordinary arrays and function argument lists remain distinct syntax. The tuple
 law measures only visible arity and does not infer semantic exceptions.
 
-Rust named-field structs, Python classes with annotated fields, and TypeScript
-type literals and interfaces map into shared `record`, `label`, and `field`
-evidence.
+Rust named-field structs and enum struct variants, Python classes with
+annotated fields, and TypeScript type literals and interfaces map into shared
+`record`, `label`, and `field` evidence. A struct variant is read the way a
+named-field struct is: its field names are words, and its record is labeled by
+the variant.
 Tuple structs, literals, index signatures, mapped types, and unannotated Python
 assignments do not. The schema law groups exact unordered field-name sets across
 the admitted repository scan closure after path boundaries are applied. This is

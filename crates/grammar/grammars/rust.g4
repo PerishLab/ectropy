@@ -62,7 +62,7 @@ callItem : path '!' ( pgroup / bgroup / hold ) ';'? -> item ;
 
 structTail : fields / ';' ;
 fields : LBRACE member* RBRACE ;
-member : outer* vis? name membertail ;
+member : outer* vis? name ( fields / !LBRACE ) membertail ;
 membertail : ( !',' !RBRACE loose )* ','? ;
 
 stmt : guard / nested / control / letStmt / typed / structLit / scope / stray / ( !RBRACE . ) ;
