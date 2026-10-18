@@ -41,8 +41,12 @@ preset : '=' value ;
 value : valueAtom* ;
 valueAtom : pgroup / bgroup / dgroup / !',' !RPAREN scalar ;
 
-ifStmt : 'if' header ':' suite elifPart* elsePart? ;
-elifPart : 'elif' header ':' suite ;
+ifStmt : 'if' cond ':' suite elifPart* elsePart? ;
+elifPart : 'elif' cond ':' suite ;
+cond : ( probe / LPAREN probe RPAREN ) !!':' / header ;
+probe : subject '=' '=' lit ;
+subject : IDENT -> probe ;
+lit : NUMBER / TRIPLE2 / TRIPLE1 / STRING2 / STRING1 / 'True' / 'False' / 'None' ;
 elsePart : 'else' ':' suite ;
 whileStmt : 'while' header ':' suite elsePart? ;
 forStmt : 'async'? 'for' header ':' suite elsePart? ;

@@ -129,7 +129,7 @@ impl<'a> Scan<'a> {
             .chars()
             .filter(|glyph| !glyph.is_whitespace() && *glyph != '(')
             .collect();
-        gap == "if" || gap == "elseif"
+        gap == "if" || gap == "elseif" || gap == "elif"
     }
 
     fn grant(&mut self, node: &Node) {

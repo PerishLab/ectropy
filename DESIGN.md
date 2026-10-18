@@ -150,8 +150,11 @@ directive that binds a custom property is read rather than left unparsed.
 
 Python enters the same grammar substrate through virtual newline, indent, and
 dedent evidence carrying original byte spans. Its adapter maps suites,
-declarations, parameters, docstrings, dictionaries, Boolean words, and the
-explicit `os.environ` surface into shared kinds. It does not infer test identity
+declarations, parameters, docstrings, dictionaries, Boolean words, equality
+probes, and the explicit `os.environ` surface into shared kinds. An `if` or
+`elif` head of the form `name == literal`, bare or parenthesized, emits
+`probe`, and `elif` links a ladder as `else if` does, so an equality ladder
+reaches `dispatch` as in Rust and TypeScript. It does not infer test identity
 from frameworks or names, invoke a Python runtime, or treat `.pyi` as source.
 
 Rust and Python tuple expressions, patterns, and types map into shared `tuple`
