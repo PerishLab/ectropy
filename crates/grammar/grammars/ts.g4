@@ -18,13 +18,13 @@ OTHER     : . ;
 
 unit : item ;
 
-item : importItem / exportItem / fnItem / typeItem / interfaceItem / classItem / declItem / ambient / control / assignItem / callItem / lineItem ;
+item : importItem / exportItem / fnItem / typeItem / interfaceItem / classItem / declItem / ambient / control / assignItem / callItem / lineItem / scope / bare ;
 importItem : 'import' tail -> item ;
-exportItem : 'export' ( 'default' )? ( fnItem / typeItem / interfaceItem / classItem / declItem / shipItem / callItem / lineItem ) ;
+exportItem : 'export' ( 'default' )? ( fnItem / typeItem / interfaceItem / classItem / declItem / shipItem / callItem / lineItem ) / 'export' 'default' phrase ;
 shipItem : 'type'? LBRACE ( port ( ',' port )* ','? )? RBRACE ( 'from' lit )? ';'? -> item ;
 port : 'type'? ( IDENT 'as' name / name ) ;
 ambient : 'declare' 'module' lit tgr ';'? -> item ;
-fnItem : flags 'function' name tpar? fpar ( typed / simpleReturn / scope ) -> item ;
+fnItem : flags 'function' '*'? name tpar? fpar ( typed / simpleReturn / scope ) -> item ;
 tpar : '<' ( tpar / !'>' . )* '>' ;
 fpar : LPAREN prop seat mates RPAREN / pgroup ;
 mates : ( ',' prop more )* frest ;
@@ -72,9 +72,13 @@ sign : ( ':' ftype )? ';' ;
 ftype : ( sgroup / !'=' !';' !RBRACE . )* ;
 stray : !RBRACE ( group / pgroup / bgroup / . ) -> loose ;
 declItem : decl ( name / bgroup / group ) note? init -> item ;
-callItem : path tpar? pgroup tail -> item ;
+callItem : !arrow path tpar? pgroup tail -> item ;
 lineItem : line tail -> item ;
 assignItem : path bgroup* assign tail -> item ;
+bare : !stop phrase ;
+phrase : !!start ( !';' loose )+ ';'? -> item ;
+start : IDENT / lit / REGEX / LPAREN / LBRACK / LBRACE / '!' / '~' / '+' / '-' / '<' ;
+stop : LBRACE / 'function' / 'class' / 'async' 'function' / decl / 'import' / 'export' / 'declare' / 'abstract' / 'enum' / 'namespace' / 'module' / 'interface' / 'type' / 'if' / 'else' / 'while' / 'for' / 'do' / 'switch' / 'case' / 'default' / 'try' / 'catch' / 'finally' / 'with' / IDENT ':' ;
 assign : '=' !'=' / ( '*' '*' / '?' '?' / '&' '&' / '|' '|' / '<' '<' / '>' '>' '>' / '>' '>' / '+' / '-' / '*' / '%' / '&' / '|' / '^' ) '=' ;
 
 name : IDENT -> word ;
