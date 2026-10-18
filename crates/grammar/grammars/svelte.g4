@@ -4,7 +4,7 @@ unit : script / stuck / styleBlock / node ;
 
 script : '<' 'script' attr* '>' scriptItem* scriptClose -> item ;
 scriptClose : '<' '/' 'script' '>' ;
-scriptItem : item / reactive / scriptLoose ;
+scriptItem : !scriptClose ( item / reactive ) / scriptLoose ;
 reactive : '$' ':' tail -> item ;
 scriptLoose : !scriptClose . -> loose ;
 stuck : '<' 'script' attr* '>' unread scriptClose? -> item ;
