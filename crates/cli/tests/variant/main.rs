@@ -1,3 +1,4 @@
+mod member;
 mod rust;
 mod shift;
 mod statement;
