@@ -253,3 +253,47 @@ fn signatures() {
         assert_eq!(count(grammar::Kind::Item, text), 1, "{text}");
     }
 }
+
+const KINDS: &str = "number\nShape | null\ninput is number
+{ run: () => number }
+{ first: number } | null
+| { first: number } | null
+Base & { second: number }
+Map<string, { first: number }>
+Promise<{ first: number }>
+readonly string[]
+{ first: number }[]
+() => { first: number }";
+
+#[test]
+fn returns() {
+    for host in [
+        "export function walkTree(input: number): TYPE { BODY }\ninterface Shape { kind: string }\n",
+        "function walkTree(input: number): TYPE { BODY }\nclass Holder { run(): number { return 1; } }\n",
+        "export function outer(): { run: () => number } {\n  function walkTree(input: number): TYPE { BODY }\n  return { run: () => walkTree(1) };\n}\n",
+        "export class Holder {\n  walkTree(input: number): TYPE { BODY }\n  table = { one: 1 };\n}\n",
+        "export class Holder {\n  walkTree(input: number): TYPE { BODY }\n  static { setup(); }\n}\n",
+        "function walkTree(input: number): TYPE { BODY }\nmodule.exports = { walkTree };\n",
+        "register(function walkTree(input: number): TYPE { BODY }, { once: true });\n",
+        "export const walker = { walkTree(input: number): TYPE { BODY }, other: { one: 1 } };\n",
+    ] {
+        let bare = host.replace(": TYPE", "").replace("BODY", BODY);
+        let want = marks("walk.ts", &bare);
+        assert!(want.iter().any(|mark| mark.1 == "deepValue"), "{bare}");
+        for kind in KINDS.lines() {
+            agree(&host.replace("TYPE", kind).replace("BODY", BODY), &want);
+        }
+    }
+}
+
+#[test]
+fn stuck() {
+    let view = |text: &str| format!("{}<p>{{walkTree(1)}}</p>\n", script(text));
+    let typed = view(&format!("function walkTree(): number {{ {BODY} }}"));
+    assert_eq!(marks("view.svelte", &typed).len(), 4, "{typed}");
+    let broken = view("let count = 1\nlet other = 2");
+    let tree = kernel::structure(&source("view.svelte", &broken));
+    assert!(tree.kids[0].kind != grammar::Kind::Markup, "{broken}");
+    let found = marks("view.svelte", &broken);
+    assert!(found.iter().any(|mark| mark.0 == "coverage"), "{broken}");
+}
