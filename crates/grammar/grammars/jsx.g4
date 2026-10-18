@@ -20,9 +20,9 @@ bolt : ARROW ( scope / jsx ) ;
 blade : scope / jsx ;
 
 stmt : control / fnItem / lambda / typeItem / interfaceItem / classItem / declItem / jsx / arrow / cast / vtarg / scope / lead record / ( !RBRACE . ) ;
-inner : jsx / arrow / cast / vtarg / bolt / lambda / pgroup / bgroup / group / ( !RPAREN !RBRACK . ) ;
+inner : jsx / arrow / cast / vtarg / classExpr / bolt / lambda / pgroup / bgroup / group / ( !RPAREN !RBRACK . ) ;
 loose : jsx / arrow / cast / vtarg / bolt / lambda / group / pgroup / bgroup / ( !LBRACE !RBRACE !LBRACK !RBRACK !LPAREN !RPAREN . ) ;
-init : ( !ARROW !';' loose )* ( ARROW ( scope / jsx ) ';'? / ';'? ) ;
+init : '=' classExpr / classExpr / '=' lambda / lambda / ( !ARROW !';' !halt !',' loose )* ( ARROW blade )? ;
 tin : jsx / tpg / tbg / tgr / tbolt / lambda / ( !RPAREN !RBRACK . ) ;
 tlo : jsx / tbolt / lambda / tgr / tpg / tbg / ( !LBRACE !RBRACE !LBRACK !RBRACK !LPAREN !RPAREN . ) ;
 tbolt : ARROW ( tscope / jsx ) ;

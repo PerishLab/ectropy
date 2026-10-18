@@ -1,0 +1,115 @@
+use super::{Marks, agree, over, read};
+
+#[test]
+fn asi() {
+    let with = "import { x } from \"./x\";\nconst epsilonZeta = x;\nclass Holder { gammaDelta(a: number, b: number, c: number, d: number, e: number): number { const alphaBeta = 1; if (a === 1) { return 1; } else if (a === 2) { return 2; } if (a) { if (a) { if (a) { if (a) { return alphaBeta; } } } } return 0; } }\nconst thetaIota = (a: number): number => { return a; };\nexport { epsilonZeta, Holder, thetaIota };\n";
+    let without = "import { x } from \"./x\"\nconst epsilonZeta = x\nclass Holder { gammaDelta(a: number, b: number, c: number, d: number, e: number): number { const alphaBeta = 1; if (a === 1) { return 1; } else if (a === 2) { return 2; } if (a) { if (a) { if (a) { if (a) { return alphaBeta; } } } } return 0; } }\nconst thetaIota = (a: number): number => { return a }\nexport { epsilonZeta, Holder, thetaIota }\n";
+    let want = read("host.ts", with);
+    assert_eq!(want.len(), 9, "{want:?}");
+    assert_eq!(read("host.ts", without), want);
+    assert_eq!(read("host.tsx", without), want);
+}
+
+#[test]
+fn decls() {
+    let ctl = "export let first = 1;\nexport let alphaBeta = 2;\nexport function host(): number { let one = 1; let gammaDelta = 2; return one + gammaDelta; }\n";
+    let multi = "export let first = 1, alphaBeta = 2;\nexport function host(): number { let one = 1, gammaDelta = 2; return one + gammaDelta; }\n";
+    let want = read("host.ts", ctl);
+    assert_eq!(
+        want,
+        vec![
+            ("word".to_string(), "alphaBeta".to_string()),
+            ("word".to_string(), "gammaDelta".to_string()),
+        ]
+    );
+    agree(multi, &want);
+}
+
+#[test]
+fn classes() {
+    let decl = "export class Holder {\n  alphaBeta = 1;\n  run(a: number, b: number, c: number, d: number, e: number) { return a; }\n}\n";
+    let expr = "export const Holder = class {\n  alphaBeta = 1;\n  run(a: number, b: number, c: number, d: number, e: number) { return a; }\n};\n";
+    let named = "export const Holder = class Named {\n  alphaBeta = 1;\n  run(a: number, b: number, c: number, d: number, e: number) { return a; }\n};\n";
+    let want = read("host.ts", decl);
+    assert_eq!(want.len(), 2, "{want:?}");
+    agree(expr, &want);
+    agree(named, &want);
+}
+
+#[test]
+fn enums() {
+    for text in [
+        "export const enum AlphaBeta { One, Two }",
+        "const enum AlphaBeta { One, Two }",
+    ] {
+        let found = read("host.ts", text);
+        assert!(
+            found.iter().any(|hit| hit.0 == "coverage"),
+            "{text}: {found:?}"
+        );
+        assert_eq!(read("host.tsx", text), found, "{text}");
+    }
+    let plain = read("host.ts", "enum AlphaBeta { One, Two }");
+    assert!(plain.iter().any(|hit| hit.0 == "coverage"), "{plain:?}");
+}
+
+#[test]
+fn ambient() {
+    let body = "export function alphaBeta(a: number, b: number, c: number, d: number, e: number): void {}\nexport interface GammaDelta { kind: string }\n";
+    let module = "declare module \"probe\" {\n  export function alphaBeta(a: number, b: number, c: number, d: number, e: number): void;\n  export interface GammaDelta { kind: string }\n}\n";
+    let want = read("host.ts", body);
+    assert_eq!(want.len(), 3, "{want:?}");
+    let got = read("host.ts", module);
+    assert_eq!(got, want, "ambient body as top-level");
+    assert_eq!(read("host.tsx", module), want);
+}
+
+#[test]
+fn limbs() {
+    let braced = "export function host(a: number): number {\n  if (a === 1) { return 1; }\n  if (a === 2) { return 2; }\n  return 0;\n}\n";
+    let bare = "export function host(a: number): number {\n  if (a === 1) return 1;\n  if (a === 2) return 2;\n  return 0;\n}\n";
+    let want = read("host.ts", braced);
+    assert_eq!(want, vec![("dispatch".to_string(), "a".to_string())]);
+    agree(bare, &want);
+}
+
+#[test]
+fn markup() {
+    let deep = "export function host() { return <a><b><c><d><e><f><g><h><i><j>x</j></i></h></g></f></e></d></c></b></a>; }\n";
+    let ts = read("host.ts", deep);
+    assert!(
+        ts.iter().any(|hit| hit.0 == "coverage"),
+        "tsx-less dialect refuses markup: {ts:?}"
+    );
+    assert!(
+        ts.iter().all(|hit| hit.0 == "coverage"),
+        "no silent clean evidence: {ts:?}"
+    );
+    let tsx = read("host.tsx", deep);
+    assert!(
+        tsx.iter().any(|hit| hit.0 == "markup"),
+        "tsx still reports markup: {tsx:?}"
+    );
+    assert!(tsx.iter().all(|hit| hit.0 == "markup"), "{tsx:?}");
+    assert_eq!(
+        read(
+            "host.ts",
+            "export function host(a: number, b: number): boolean { return a < b; }\n"
+        ),
+        Marks::new()
+    );
+}
+
+#[test]
+fn kept() {
+    agree("export const run = (a, b, c, d, e) => a;", &over(1));
+    agree(
+        "export const run = (a, b, c, d, e) => { return a; };",
+        &over(1),
+    );
+    let word = "page => { const alphaBeta = 1; go(alphaBeta); };";
+    agree(
+        word,
+        &read("host.ts", &format!("function host() {{\n{word}\n}}\n")),
+    );
+}
