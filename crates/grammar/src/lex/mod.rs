@@ -1,6 +1,10 @@
 use crate::format::Rule;
 use crate::peg::matches;
 
+mod context;
+
+use context::Context;
+
 pub struct Token {
     pub name: String,
     pub kind: Slot,
@@ -14,33 +18,80 @@ pub enum Slot {
 }
 
 pub fn lex(rules: &[Rule], bytes: &[u8]) -> Vec<Token> {
-    let mut tokens = Vec::new();
-    let mut at = 0;
-    while at < bytes.len() {
-        at = once(rules, bytes, at, &mut tokens);
-    }
-    tokens
+    Lexer::new(rules, bytes, Context::code()).run()
 }
 
-fn once(rules: &[Rule], bytes: &[u8], at: usize, tokens: &mut Vec<Token>) -> usize {
-    let open = opens(tokens, bytes);
-    match longest(rules, bytes, at, open) {
-        Some((rule, end)) => rule.step(at, end, tokens),
-        None => at + 1,
-    }
+pub fn web(rules: &(Vec<Rule>, Vec<Rule>), bytes: &[u8]) -> Vec<Token> {
+    Lexer::new(&rules.0, bytes, Context::of(&rules.1)).run()
 }
 
-fn longest<'a>(
+struct Lexer<'a> {
     rules: &'a [Rule],
-    bytes: &[u8],
-    at: usize,
-    open: bool,
-) -> Option<(&'a Rule, usize)> {
-    let mut best: Option<(&Rule, usize)> = None;
-    for rule in rules.iter().filter(|rule| open || !rule.tagged("regex")) {
-        best = better(best, rule, matches(&rule.pat, bytes, at), at);
+    bytes: &'a [u8],
+    tokens: Vec<Token>,
+    context: Context,
+}
+
+impl<'a> Lexer<'a> {
+    fn new(rules: &'a [Rule], bytes: &'a [u8], context: Context) -> Self {
+        Lexer {
+            rules,
+            bytes,
+            tokens: Vec::new(),
+            context,
+        }
     }
-    best
+
+    fn run(mut self) -> Vec<Token> {
+        let mut at = 0;
+        while at < self.bytes.len() {
+            at = self.once(at);
+        }
+        self.tokens
+    }
+
+    fn once(&mut self, at: usize) -> usize {
+        if let Some((name, end)) = self.context.resume(self.bytes, at) {
+            self.emit(name, Slot::Emit, at, end);
+            return end;
+        }
+        let open = opens(&self.tokens, self.bytes);
+        let text = self.context.text();
+        let Some((rule, end)) = self.longest(at, open, text) else {
+            return at + 1;
+        };
+        if !rule.tagged("skip") {
+            self.emit(&rule.name, rule.slot(), at, end);
+        }
+        end
+    }
+
+    fn emit(&mut self, name: &str, kind: Slot, start: usize, end: usize) {
+        if matches!(kind, Slot::Emit) {
+            let open = opens(&self.tokens, self.bytes);
+            let glyph = std::str::from_utf8(&self.bytes[start..end]).unwrap_or("");
+            self.context.step(name, glyph, open);
+        }
+        self.tokens.push(Token {
+            name: name.to_string(),
+            kind,
+            start,
+            end,
+        });
+    }
+
+    fn longest(&self, at: usize, open: bool, text: bool) -> Option<(&'a Rule, usize)> {
+        let mut best: Option<(&Rule, usize)> = None;
+        for rule in self
+            .rules
+            .iter()
+            .filter(|rule| open || !rule.tagged("regex"))
+            .filter(|rule| !text || !context::literal(&rule.name))
+        {
+            best = better(best, rule, matches(&rule.pat, self.bytes, at), at);
+        }
+        best
+    }
 }
 
 fn better<'a>(
@@ -60,22 +111,6 @@ fn better<'a>(
 }
 
 impl Rule {
-    fn step(&self, at: usize, end: usize, tokens: &mut Vec<Token>) -> usize {
-        if !self.tagged("skip") {
-            tokens.push(self.make(at, end));
-        }
-        end
-    }
-
-    fn make(&self, at: usize, end: usize) -> Token {
-        Token {
-            name: self.name.clone(),
-            kind: self.slot(),
-            start: at,
-            end,
-        }
-    }
-
     fn slot(&self) -> Slot {
         if self.tagged("comment") {
             Slot::Comment
@@ -88,7 +123,6 @@ impl Rule {
         self.tag.as_deref() == Some(name)
     }
 }
-
 fn opens(tokens: &[Token], bytes: &[u8]) -> bool {
     let mut held = tokens
         .iter()

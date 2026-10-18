@@ -24,7 +24,7 @@ tag : IDENT ( ':' IDENT )? ;
 attr : named / expression ;
 named : aname ( '=' aval )? ;
 aname : IDENT ( ( ':' / '-' / '|' )+ IDENT )* ;
-aval : STRING / SINGLE / TEMPLATE / expression ;
+aval : STRING / SINGLE / TEMPLATE / template / expression ;
 
 block : ifBlock / eachBlock / awaitBlock / keyBlock / snippetBlock -> scope ;
 ifBlock : openIf node* elseIf* elsePart? closeIf ;
@@ -57,5 +57,5 @@ ordinarySpecial : LBRACE '@' expr* RBRACE -> item ;
 
 expression : !boundary LBRACE expr* RBRACE ;
 boundary : LBRACE ( '#' / ':' / '/' / '@' ) ;
-expr : pgroup / bgroup / group / ( !RBRACE . ) ;
+expr : template / pgroup / bgroup / group / ( !RBRACE . ) ;
 text : !'<' !LBRACE !RBRACE . ;

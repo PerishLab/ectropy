@@ -19,7 +19,7 @@ pub(crate) fn rust(root: &mut Cst, source: &Source) {
 }
 
 pub(crate) fn web(root: &mut Cst, source: &Source, rules: &(Vec<format::Rule>, Vec<format::Rule>)) {
-    let sweep = Sweep::load(source, &rules.0);
+    let sweep = Sweep::held(source, lex::web(rules, source.text.as_bytes()));
     sweep.decisions(root);
     sweep.records(root);
     sweep.tuples(root);
@@ -45,7 +45,11 @@ struct Sweep<'a> {
 
 impl<'a> Sweep<'a> {
     fn load(source: &'a Source, lexers: &[format::Rule]) -> Self {
-        let held = lex::lex(lexers, source.text.as_bytes())
+        Self::held(source, lex::lex(lexers, source.text.as_bytes()))
+    }
+
+    fn held(source: &'a Source, tokens: Vec<Token>) -> Self {
+        let held = tokens
             .into_iter()
             .filter(|token| matches!(token.kind, Slot::Emit))
             .collect();

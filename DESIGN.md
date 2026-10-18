@@ -118,7 +118,16 @@ are opaque only where lexical expression-start rules prove them to be literals.
 
 TSX extends the TypeScript grammar without teaching kernel about React. Paired
 elements, self-closing elements, and fragments become `markup`; brace
-containers re-enter normal parsing so code scope continues independently. The
+containers re-enter normal parsing so code scope continues independently.
+Element text is text: the lexer gives markup text its own context, so quotes,
+backticks, `//`, `/*` and slashes there are characters rather than string,
+comment or regular-expression openers. In TSX an element starts only where an
+expression can start, and a `<` that opens type parameters (`<T,>`,
+`<T extends …>`, `<T>(…)`) stays code; in Svelte everything outside script,
+style and `{ … }` is markup text. Template literal `${ … }` interpolations
+re-enter expression reading the same way brace containers do; template text
+stays literal, and an interpolated import specifier is still not `link`
+evidence. The
 ecosystem `use` prefix is treated as a namespace dialect, while PascalCase
 components receive no compound-name exemption.
 
