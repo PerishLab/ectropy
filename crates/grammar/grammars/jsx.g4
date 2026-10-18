@@ -15,10 +15,10 @@ aval : STRING / SINGLE / brace ;
 kid : jsx / brace / text ;
 text : !'<' !LBRACE !RBRACE . ;
 brace : LBRACE jexpr* RBRACE ;
-jexpr : jsx / bolt / pgroup / bgroup / group / ( !RBRACE . ) ;
+jexpr : jsx / bolt / lambda / pgroup / bgroup / group / ( !RBRACE . ) ;
 bolt : ARROW ( scope / jsx ) ;
 
-stmt : control / fnItem / typeItem / interfaceItem / classItem / declItem / jsx / scope / lead record / ( !RBRACE . ) ;
-inner : jsx / bolt / pgroup / bgroup / group / ( !RPAREN !RBRACK . ) ;
-loose : jsx / bolt / group / pgroup / bgroup / ( !LBRACE !RBRACE !LBRACK !RBRACK !LPAREN !RPAREN . ) ;
+stmt : control / fnItem / lambda / typeItem / interfaceItem / classItem / declItem / jsx / scope / lead record / ( !RBRACE . ) ;
+inner : jsx / bolt / lambda / pgroup / bgroup / group / ( !RPAREN !RBRACK . ) ;
+loose : jsx / bolt / lambda / group / pgroup / bgroup / ( !LBRACE !RBRACE !LBRACK !RBRACK !LPAREN !RPAREN . ) ;
 init : ( !ARROW !';' loose )* ( ARROW ( scope / jsx ) ';'? / ';'? ) ;
