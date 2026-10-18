@@ -140,3 +140,116 @@ fn real() {
         agree(&build(&line), &one);
     }
 }
+
+const BODY: &str = "const deepValue = input;
+  if (input > 0) { if (input > 1) { if (input > 2) { if (input > 3) { if (input > 4) { return deepValue; } } } } }
+  return 0;";
+const PARAMS: &str =
+    "(first: number, second: number, third: number, fourth: number, fifth: number): number";
+
+fn count(kind: grammar::Kind, text: &str) -> usize {
+    fn walk(node: &kernel::Node, kind: grammar::Kind) -> usize {
+        let own = usize::from(node.kind == kind);
+        own + node.kids.iter().map(|kid| walk(kid, kind)).sum::<usize>()
+    }
+    walk(&kernel::structure(&source("walk.ts", text)), kind)
+}
+
+#[test]
+fn forms() {
+    let top = marks(
+        "walk.ts",
+        &format!("export function walkTree(input: number): number {{ {BODY} }}"),
+    );
+    assert_eq!(top.len(), 4, "{top:?}");
+    let bare: Marks = top
+        .iter()
+        .filter(|mark| mark.1 != "walkTree")
+        .cloned()
+        .collect();
+    let arrows = [
+        "register(\"walk\", (input: number): number => { BODY });",
+        "app.on(\"walk\", async (input: number) => { BODY });",
+        "export const walkers = [(input: number) => { BODY }];",
+        "register(\"walk\", function (input: number): number { BODY });",
+    ];
+    for form in arrows {
+        agree(&form.replace("BODY", BODY), &bare);
+    }
+    let named = [
+        "export const walker = { walkTree(input: number): number { BODY }, };",
+        "export const walker = { size: 1, async walkTree(input: number): Promise<number> { BODY } };",
+        "register({ *walkTree(input: number): Iterable<number> { BODY } });",
+        "export const walkTree = function (input: number): number { BODY };",
+        "export const walkTree = async function (input: number): Promise<number> { BODY };",
+    ];
+    for form in named {
+        agree(&form.replace("BODY", BODY), &top);
+    }
+}
+
+#[test]
+fn methods() {
+    let top = format!("export function walkTree{PARAMS} {{ return first; }}\n");
+    let want = marks("walk.ts", &top);
+    assert_eq!(want.len(), 2, "{want:?}");
+    let method = format!("walkTree{PARAMS} {{ return first; }}");
+    let lambda = format!("function{PARAMS} {{ return first; }}");
+    let forms = [
+        format!("export const walker = {{ {method} }};"),
+        format!("export const walker = {{ size: 1, async {method}, other: 2 }};"),
+        format!("register({{ outer: {{ {method} }} }});"),
+        build(&format!("return {{ {method} }};")),
+        build(&format!("const walker = {{ {method} }};\n  emit(walker);")),
+        build(&format!("emit(a ? {{ {method} }} : {{}});")),
+        format!("export const walkTree = {lambda};"),
+        build(&format!("const walkTree = {lambda};\n  emit(walkTree);")),
+    ];
+    let host = build("go();");
+    for text in forms {
+        agree(&text, &want);
+        let base = if text.contains("build") {
+            host.as_str()
+        } else {
+            ""
+        };
+        for kind in [grammar::Kind::Receiver, grammar::Kind::Param] {
+            let added = count(kind, &text) - count(kind, base);
+            assert_eq!(added, count(kind, &top), "{kind} {text}");
+        }
+    }
+}
+
+#[test]
+fn coverage() {
+    let odd = "class Inner { ~ ~ }";
+    for form in [
+        format!("register(\"walk\", () => {{ {odd} }});"),
+        format!("export const walker = {{ walkTree() {{ {odd} }} }};"),
+        format!("export const walkTree = function () {{ {odd} }};"),
+        build(&format!("return {{ walkTree() {{ {odd} }} }};")),
+    ] {
+        for (path, text) in [
+            ("walk.ts", form.clone()),
+            ("walk.tsx", form.clone()),
+            ("walk.svelte", script(&form)),
+        ] {
+            assert!(
+                marks(path, &text).iter().any(|mark| mark.0 == "coverage"),
+                "{path} {text}"
+            );
+        }
+    }
+}
+
+#[test]
+fn signatures() {
+    for text in [
+        "export interface Api { walkTree(): Base | { extra: number } }\n",
+        "export type Api = { walkTree(): { first: number } & { second: number }, readTree(): void };\n",
+        "export function host(api: { walkTree(): Base | { extra: number } }): void {}\n",
+    ] {
+        agree(text, &Marks::new());
+        assert_eq!(count(grammar::Kind::Item, text), 1, "{text}");
+    }
+}

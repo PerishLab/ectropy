@@ -69,9 +69,9 @@ after : ( !LBRACE !RBRACE !';' !LPAREN !'function' !'export' !'const' !'let' !'v
 path : mark / IDENT ( '.' IDENT )* ;
 mark : 'Deno' '.' 'test' -> test ;
 
-stmt : control / fnItem / typeItem / interfaceItem / classItem / declItem / scope / lead record / ( !RBRACE . ) ;
+stmt : control / fnItem / lambda / typeItem / interfaceItem / classItem / declItem / scope / lead record / ( !RBRACE . ) ;
 lead : LPAREN / LBRACK / ',' / ':' / '=' / '?' / '&' / '|' / '.' / 'return' / 'throw' / 'yield' ;
-record : LBRACE stmt* RBRACE ;
+record : LBRACE entry? ( ',' entry / stmt )* RBRACE ;
 control : ifExpr / whileExpr / forExpr / switchExpr / tryExpr ;
 ifExpr : 'if' LPAREN probe RPAREN scope elseTail / 'if' head scope elseTail ;
 probe : subject '=' '=' '='? lit ;
@@ -96,7 +96,13 @@ head : headAtom* ;
 headAtom : pgroup / bgroup / ( !LBRACE !RBRACE !';' . ) ;
 pgroup : LPAREN inner* RPAREN ;
 bgroup : LBRACK inner* RBRACK ;
-inner : pgroup / bgroup / group / ( !RPAREN !RBRACK . ) ;
+inner : pgroup / bgroup / group / bolt / lambda / ( !RPAREN !RBRACK . ) ;
 
-loose : group / pgroup / bgroup / ( !LBRACE !RBRACE !LBRACK !RBRACK !LPAREN !RPAREN . ) ;
-group : LBRACE loose* RBRACE ;
+loose : group / pgroup / bgroup / bolt / lambda / ( !LBRACE !RBRACE !LBRACK !RBRACK !LPAREN !RPAREN . ) ;
+group : LBRACE entry? ( ',' entry / loose )* RBRACE ;
+entry : mods key '?'? tpar? fpar ( ':' yields )? scope !!( ',' / RBRACE ) -> item ;
+yields : link ( ( '|' / '&' ) link )* ;
+link : piece+ ;
+piece : tpar / pgroup / bgroup / group !( ',' / RBRACE ) / ( !LBRACE !RBRACE !';' !',' !'|' !'&' !'=' . ) ;
+bolt : ARROW scope ;
+lambda : flags 'function' '*'? name? tpar? fpar ( objectReturn / simpleReturn / scope ) -> item ;
