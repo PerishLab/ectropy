@@ -237,3 +237,56 @@ fn types() {
         }
     }
 }
+
+const BODIES: [&str; 9] = [
+    "() => sync()",
+    "value => value.x",
+    "(value: number): number => value + 1",
+    "async (value) => await sync(value)",
+    "<T,>(value: T) => value",
+    "(a) => (b) => a + b",
+    "(value) => ({ value })",
+    "(value) =>\n    sync(value)",
+    "(a, b) => [a, !b]",
+];
+
+const SEATS: [&str; 6] = [
+    "export const run = BODY;",
+    "let run = BODY;",
+    "const run: (a: A, b: B, c: C, d: D, e: E) => (f: F) => R = BODY, size = 1;",
+    "export const run = BODY\nexport const size = 1;",
+    "export class Host { run = BODY; }",
+    "export class Host {\n  static run = BODY\n}",
+];
+
+#[test]
+fn bodies() {
+    for seat in SEATS {
+        for body in BODIES {
+            agree(&seat.replace("BODY", body), &Marks::new());
+        }
+        for body in ["(p) => <a>x</a>", "(p) => (<a>x</a>)", "() =>\n  <b>y</b>"] {
+            let text = seat.replace("BODY", body);
+            assert_eq!(read("view.tsx", &text), Marks::new(), "{text}");
+        }
+    }
+}
+
+#[test]
+fn evidence() {
+    let deep = "go(function (a) { const alphaBeta = 1; if (a === 1) { go(); } else if (a === 2) { go(); } if (a) { if (a) { if (a) { if (a) { go(); } } } } })";
+    let tags = "(<a><b><c><d><e><f><g><h><i><j>x</j></i></h></g></f></e></d></c></b></a>)";
+    let want = read("view.tsx", &format!("function host() {{ go{tags}; }}"));
+    assert_eq!(want.len(), 2, "{want:?}");
+    for seat in SEATS {
+        let plain = read("host.ts", &seat.replace("BODY", deep));
+        assert_eq!(plain.len(), 3, "{plain:?}");
+        agree(&seat.replace("BODY", &format!("(v) => {deep}")), &plain);
+        let odd = seat.replace("BODY", "(v) => go(function () { class Inner { ~ } })");
+        let odd = read("host.ts", &odd);
+        assert!(odd.iter().any(|hit| hit.0 == "coverage"), "{odd:?}");
+        agree(&seat.replace("BODY", "(a, b, c, d, e) => a"), &over(1));
+        let text = seat.replace("BODY", &format!("(p) => {tags}"));
+        assert_eq!(read("view.tsx", &text), want, "{text}");
+    }
+}
