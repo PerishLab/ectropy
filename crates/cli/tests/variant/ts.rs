@@ -219,3 +219,72 @@ fn angles() {
         Marks::new()
     );
 }
+
+#[test]
+fn defaults() {
+    let five = "(b: number, c: number, d: number, e: number, f: number): number";
+    let deep = "() => { if (p) { if (p) { if (p) { if (p) { go(); } } } } }";
+    let block = vec![("block".to_string(), "depth over limit".to_string())];
+    let function = "export function host(LIST): void { go(a); }";
+    for (host, value, want) in [
+        (
+            function,
+            format!("function {five} {{ return b; }}"),
+            over(1),
+        ),
+        (
+            "export const host = (LIST): void => { go(a); };",
+            format!("{five} => {{ return b; }}"),
+            over(1),
+        ),
+        (
+            "export class Host { run(z: number, LIST): void { go(z, a); } }",
+            format!("{five} => b"),
+            over(1),
+        ),
+        (function, deep.to_string(), block),
+    ] {
+        let untyped = host.replace("LIST", &format!("a = {value}"));
+        assert_eq!(read("host.ts", &untyped), want, "{untyped}");
+        agree(
+            &host.replace("LIST", &format!("a: unknown = {value}")),
+            &want,
+        );
+    }
+    for (typed, untyped, want) in [
+        (
+            "a: (x: number) => void = (x) => go(x), b: (y: number) => number = (y: number): number => y",
+            "a = (x) => go(x), b = (y: number): number => y",
+            over(0),
+        ),
+        (
+            "a: Map<string, number> = new Map<string, number>(), b: number[] = useState<number[]>([1, 2]), c: number, d: number, e: number",
+            "a = new Map<string, number>(), b = useState<number[]>([1, 2]), c: number, d: number, e: number",
+            over(1),
+        ),
+        (
+            "a: boolean = x < y, b: boolean = z > w, c: number = 1 << 2, d: boolean = p < q && r > s, e: number",
+            "a = x < y, b = z > w, c = 1 << 2, d = p < q && r > s, e: number",
+            over(1),
+        ),
+        (
+            "a: { x: number } = { x: 1 }, b: number[] = [1, 2], c: [number, number] = [1, 2], d: string = `s${1}`, e: Opts = { run: 1 }",
+            "a = { x: 1 }, b = [1, 2], c = [1, 2], d = `s${1}`, e = { run: 1 }",
+            over(1),
+        ),
+        (
+            "a: Fn = y as (b: B, c: C, d: D, e: E, f: F) => void, g: Fn = y satisfies (b: B, c: C, d: D, e: E, f: F) => void",
+            "a = y as (b: B, c: C, d: D, e: E, f: F) => void, g = y satisfies (b: B, c: C, d: D, e: E, f: F) => void",
+            over(0),
+        ),
+        (
+            "a: (b: number, c: number, d: number, e: number, f: number) => void = noop",
+            "a = noop",
+            over(0),
+        ),
+    ] {
+        let body = |list: &str| format!("export function host({list}): void {{ go(); }}\n");
+        assert_eq!(read("host.ts", &body(untyped)), want, "{untyped}");
+        agree(&body(typed), &want);
+    }
+}

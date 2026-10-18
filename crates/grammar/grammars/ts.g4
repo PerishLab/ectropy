@@ -35,7 +35,7 @@ seat : spread? bind '?'? ( ':' stype dflt? / preset ) -> receiver ;
 spread : '.' '.' '.' ;
 bind : IDENT / group / bgroup ;
 preset : ( !',' !RPAREN inner )* ;
-dflt : '=' ( targ / template / pgroup / bgroup / group / ( !',' !RPAREN . ) )* ;
+dflt : '=' preset ;
 stype : ( sgroup / ( !',' !RPAREN !'=' . ) )* ;
 sgroup : targ / tpg / tbg / tgr ;
 targ : '<' ( targ / sgroup / !'>' !RPAREN !RBRACK !RBRACE !';' . )* '>' ;
