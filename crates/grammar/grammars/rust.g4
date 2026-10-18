@@ -26,7 +26,7 @@ gate : 'cfg' LPAREN 'test' RPAREN / 'test' ;
 ignore : '#' '!'? LBRACK 'ignore' ( '=' lit )? RBRACK -> test ;
 plain : '#' '!'? LBRACK loose* RBRACK ;
 vis : ( 'pub' pgroup? )? ;
-core : modItem / nestItem / fnItem / structItem / makeItem / callItem / lineItem ;
+core : modItem / nestItem / fnItem / structItem / foreignItem / makeItem / callItem / lineItem ;
 
 modItem    : quals 'impl' head LBRACE unit* RBRACE -> item ;
 nestItem   : quals ( 'trait' / 'mod' ) name head LBRACE unit* RBRACE -> item ;
@@ -51,7 +51,8 @@ name       : IDENT -> word ;
 quals      : ( 'extern' STRING? / 'async' / 'unsafe' / 'safe' / 'const' / 'default' / 'move' )* ;
 lineKw     : 'use' / 'extern' ;
 
-foreignItem : 'unsafe'? 'extern' STRING? LBRACE unit* RBRACE -> item ;
+foreignItem : 'unsafe'? 'extern' STRING? LBRACE ( unit / spill )* RBRACE -> item ;
+spill : ( !RBRACE !unit loose )+ -> loose ;
 makeItem : 'macro_rules' '!' name LBRACE arm* RBRACE -> item ;
 arm : match '=' '>' spell ';'? ;
 match : pgroup / bgroup / hold ;

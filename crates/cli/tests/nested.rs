@@ -140,3 +140,71 @@ unsafe { go() }";
     assert_eq!(kinds(&text, grammar::Kind::Loose), 0);
     assert_eq!(kinds(&text, grammar::Kind::Word), 9);
 }
+
+const HEADS: [&str; 5] = [
+    "extern \"C\"",
+    "extern",
+    "unsafe extern \"C\"",
+    "#[link(name = \"probe\")]\nextern \"C\"",
+    "pub unsafe extern \"C\"",
+];
+
+fn block(head: &str, body: &str) -> String {
+    format!("{head} {{\n    {body}\n}}")
+}
+
+#[test]
+fn module() {
+    let after = host(&wrap(4, "go();"));
+    for head in HEADS {
+        let text = format!("{}\n{after}", block(head, DECLS));
+        let lifted = marks(&format!("{DECLS}\n{after}"));
+        assert_eq!(lifted.len(), 4, "{lifted:?}");
+        assert_eq!(marks(&text), lifted, "{text}");
+        let inline = format!(
+            "pub mod ffi {{\n{}\n{after}\n}}\npub fn tail_name() {{}}",
+            block(head, DECLS)
+        );
+        let flat = format!("pub mod ffi {{\n{DECLS}\n{after}\n}}\npub fn tail_name() {{}}");
+        assert_eq!(marks(&inline), marks(&flat), "{inline}");
+        assert_eq!(kinds(&text, grammar::Kind::Scope), 5, "{text}");
+        assert_eq!(kinds(&text, grammar::Kind::Item), 4, "{text}");
+    }
+    let safe = format!(
+        "{}\n{after}",
+        block(
+            HEADS[4],
+            "pub safe fn foreign_probe(first: u8, second: u8, third: u8, fourth: u8, fifth: u8) -> i32;"
+        )
+    );
+    assert_eq!(
+        marks(&safe),
+        marks(&format!(
+            "pub fn foreign_probe(first: u8, second: u8, third: u8, fourth: u8, fifth: u8) -> i32;\n{after}"
+        ))
+    );
+}
+
+#[test]
+fn spill() {
+    let after = host(&wrap(4, "go();"));
+    for head in HEADS {
+        let text = format!("{}\n{after}", block(head, &format!("{DECLS}\n    1 + 1")));
+        let mut want = marks(&format!("{DECLS}\n{after}"));
+        want.push(("coverage".to_string(), "unparsed region".to_string()));
+        want.sort();
+        assert_eq!(marks(&text), want, "{text}");
+    }
+}
+
+#[test]
+fn linkage() {
+    let text = format!(
+        "extern crate alloc;\npub extern \"C\" fn exported_name() -> i32 {{ 1 }}\n{}",
+        host("")
+    );
+    let want = vec![("word".to_string(), "exported_name".to_string())];
+    assert_eq!(marks(&text), want);
+    assert_eq!(kinds(&text, grammar::Kind::Item), 3);
+    assert_eq!(kinds(&text, grammar::Kind::Loose), 0);
+}
