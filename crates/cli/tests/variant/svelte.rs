@@ -179,6 +179,37 @@ fn branches() {
         read("host.svelte", &text),
         "{head}"
     );
+    let deep = "if (v) { if (v) { if (v) { return v; } } } return 0;";
+    let headed = page(
+        "",
+        &format!("{{#each [1].map(function (v) {{ {deep} }}) as x}}<p>{{x}}</p>{{/each}}"),
+    );
+    let shown = page("", &format!("{{[1].map(function (v) {{ {deep} }})}}"));
+    assert_eq!(
+        read("host.svelte", &headed),
+        read("host.svelte", &shown),
+        "{headed}"
+    );
+    let awaited = page(
+        "",
+        &format!(
+            "{{#await Promise.resolve([1].map(function (v) {{ {deep} }})) then x}}<p>{{x}}</p>{{/await}}"
+        ),
+    );
+    assert_eq!(
+        read("host.svelte", &awaited),
+        read("host.svelte", &shown),
+        "{awaited}"
+    );
+    let keyed = page(
+        "",
+        &format!("{{#key [1].map(function (v) {{ {deep} }})}}<p>x</p>{{/key}}"),
+    );
+    assert_eq!(
+        read("host.svelte", &keyed),
+        read("host.svelte", &shown),
+        "{keyed}"
+    );
 }
 
 #[test]

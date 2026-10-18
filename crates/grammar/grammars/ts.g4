@@ -53,6 +53,7 @@ note : ':' ( tbolt / tpg / tbg / tgr / ( !'=' !';' !LBRACE !RBRACE !LBRACK !RBRA
 cast : ( 'as' / 'satisfies' ) cunit ( ( '|' / '&' ) cunit )* ;
 cunit : ( 'keyof' / 'typeof' / 'readonly' / 'unique' )* ( 'new'? tpar? tpg !!ARROW ( ARROW !LBRACE cunit )? / tbg / tgr / targ / lit / IDENT ( '.' IDENT )* targ? ) tbg* ;
 vtarg : '<' ( targ / sgroup / !'>' !RPAREN !RBRACK !RBRACE !';' !'?' !'=' !'!' !( '&' '&' ) !( '|' '|' ) . )* '>' !!LPAREN ;
+angle : '<' cunit '>' ;
 frest : inner* ;
 typeItem : 'type' name ( !';' tlo )* ';'? -> item ;
 interfaceItem : 'interface' name thead tgr -> item ;
@@ -93,7 +94,7 @@ plain : ( !LBRACE !RBRACE !';' . )* ;
 path : mark / IDENT ( '.' IDENT )* ;
 mark : 'Deno' '.' 'test' -> test ;
 
-stmt : control / fnItem / lambda / typeItem / interfaceItem / classItem / declItem / markupHole / arrow / cast / vtarg / scope / lead record / template / ( !RBRACE . ) ;
+stmt : control / fnItem / lambda / typeItem / interfaceItem / classItem / declItem / markupHole / arrow / cast / vtarg / angle / scope / lead record / template / ( !RBRACE . ) ;
 lead : LPAREN / LBRACK / ',' / ':' / '=' / '?' / '&' / '|' / '.' / 'return' / 'throw' / 'yield' ;
 record : LBRACE entry? ( ',' entry / stmt )* RBRACE ;
 control : ifExpr / whileExpr / forExpr / switchExpr / tryExpr ;
@@ -102,7 +103,7 @@ probe : subject '=' '=' '='? lit ;
 subject : IDENT -> probe ;
 lit : STRING / SINGLE / TEMPLATE / template / NUMBER / 'true' / 'false' / 'null' / 'undefined' ;
 template : THEAD tint* ( TMID tint* )* TTAIL ;
-tint : template / arrow / cast / vtarg / classExpr / markupHole / pgroup / bgroup / group / bolt / lambda / ( !TMID !TTAIL . ) ;
+tint : template / arrow / cast / vtarg / angle / classExpr / markupHole / pgroup / bgroup / group / bolt / lambda / ( !TMID !TTAIL . ) ;
 elseTail : ( 'else' ( ifExpr / scope / limb ) )? ;
 limb : ( template / !';' !RBRACE !LBRACE . )+ ';'? -> scope ;
 whileExpr : 'while' head scope ;
@@ -125,9 +126,9 @@ head : headAtom* ;
 headAtom : pgroup / bgroup / template / ( !LBRACE !RBRACE !';' . ) ;
 pgroup : LPAREN inner* RPAREN ;
 bgroup : LBRACK inner* RBRACK ;
-inner : arrow / cast / vtarg / classExpr / markupHole / template / pgroup / bgroup / group / bolt / lambda / ( !RPAREN !RBRACK . ) ;
+inner : arrow / cast / vtarg / angle / classExpr / markupHole / template / pgroup / bgroup / group / bolt / lambda / ( !RPAREN !RBRACK . ) ;
 
-loose : arrow / cast / vtarg / markupHole / template / group / pgroup / bgroup / bolt / lambda / ( !LBRACE !RBRACE !LBRACK !RBRACK !LPAREN !RPAREN . ) ;
+loose : arrow / cast / vtarg / angle / markupHole / template / group / pgroup / bgroup / bolt / lambda / ( !LBRACE !RBRACE !LBRACK !RBRACK !LPAREN !RPAREN . ) ;
 group : LBRACE entry? ( ',' entry / loose )* RBRACE ;
 entry : mods key '?'? tpar? fpar ( ':' yields )? scope !!( ',' / RBRACE ) -> item ;
 yields : ( '|' / '&' )? link ( ( '|' / '&' ) link )* ;
