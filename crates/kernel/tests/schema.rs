@@ -84,7 +84,7 @@ fn exclusions() {
     let sources = [
         (
             "a.rs",
-            "struct A(u8, u8, u8, u8); enum E { A { one: u8, two: u8, three: u8, four: u8 } }",
+            "struct A(u8, u8, u8, u8); enum E { A(u8, u8, u8, u8), B, C = 3 }",
         ),
         (
             "b.ts",
@@ -100,6 +100,28 @@ fn exclusions() {
         .map(|(path, text)| project(path, text).len())
         .sum();
     assert_eq!(count, 0);
+}
+
+#[test]
+fn variants() {
+    let sources = [
+        ("a.rs", "struct A { one: u8, two: u8, three: u8, four: u8 }"),
+        (
+            "b.rs",
+            "enum E { B { four: i8, three: i8, two: i8, one: i8 }, U, T(u8) }",
+        ),
+        (
+            "c.rs",
+            "enum F { #[arg] C { one: bool, two: bool, three: bool, four: bool } = 1 }",
+        ),
+    ];
+    let found = findings(&sources, &config());
+    assert_eq!(found.len(), 1);
+    assert!(
+        found[0]
+            .note
+            .contains("3 records repeat 4 fields over limit 2: A, B, C")
+    );
 }
 
 #[test]
