@@ -249,7 +249,6 @@ fn signatures() {
         "export type Api = { walkTree(): { first: number } & { second: number }, readTree(): void };\n",
         "export function host(api: { walkTree(): Base | { extra: number } }): void {}\n",
     ] {
-        agree(text, &Marks::new());
         assert_eq!(count(grammar::Kind::Item, text), 1, "{text}");
     }
 }

@@ -166,7 +166,13 @@ Rust named-field structs and enum struct variants, Python classes with
 annotated fields, and TypeScript type literals and interfaces map into shared
 `record`, `label`, and `field` evidence. A struct variant is read the way a
 named-field struct is: its field names are words, and its record is labeled by
-the variant.
+the variant. TypeScript interface and type-literal member names are words, as
+Rust field names are: a property, a method signature, an optional or `readonly`
+member, separated by `;`, `,` or a newline. Type-literal and interface
+signatures are not read as methods: a bodyless signature has no body scope, and
+its parameters do not reach `param`/`receiver` (#84, function types stay
+unread). Its name is `word` evidence, as a bodyless Rust trait fn's and a
+TypeScript `abstract` method's already are.
 Tuple structs, literals, index signatures, mapped types, and unannotated Python
 assignments do not. The schema law groups exact unordered field-name sets across
 the admitted repository scan closure after path boundaries are applied. This is
@@ -261,3 +267,10 @@ authorization to claim more than the tree proves:
   string literal, so its expressions are not read.
 - Rust macro input in parentheses or brackets at module level reads as an
   expression, so items inside it give no name or parameter evidence.
+- A TypeScript object-literal key whose value is not a function literal
+  (`k: 1`, `k: ref`) is not `word` evidence, so a reference-valued function key
+  (`followEnd: controller.followEnd`) escapes the reading a function literal
+  gets; whether such keys are declarations or uses needs calibration (#108).
+- A type literal written as a function type's return in a type alias, a type
+  member, a variable annotation or an `as` cast (`type T = () => { k: V }`)
+  reads as a scope, so its member names are not `word` evidence.
