@@ -1,4 +1,4 @@
-use super::{Marks, host, kinds, marks};
+use super::{Marks, host, kinds, marks, over};
 
 const BODY: &str = "let alpha_beta = 1;
 if a == 1 { 1 } else if a == 2 { 2 } else { if true { if true { if true { 0 } else { 0 } } else { 0 } } else { alpha_beta } }";
@@ -120,4 +120,111 @@ fn guards() {
     }
 }";
     assert_eq!(marks(guarded), marks(plain));
+}
+
+const FOUR: &str = "id: u8, op: u8, headers: u8, want: u8";
+
+const PATTERNS: [&str; 16] = [
+    "dock: u8",
+    "mut dock: u8",
+    "_: u8",
+    "State(dock): State<Dock<W>>",
+    "axum::extract::State(dock): State<u8>",
+    "Path((a, b)): Path<(u8, u8)>",
+    "Query(Form { k, .. }): Query<Form>",
+    "Pair { a, b }: Pair",
+    "(a, b): (u8, u8)",
+    "[a, b]: [u8; 2]",
+    "&dock: &u8",
+    "&mut dock: &mut u8",
+    "&mut (a, b): &mut (u8, u8)",
+    "ref mut dock: u8",
+    "whole @ (a, b): (u8, u8)",
+    "#[allow(unused)] dock: u8",
+];
+
+fn unread(text: &str) -> Marks {
+    let found = marks(text);
+    found.into_iter().filter(|m| m.0 == "coverage").collect()
+}
+
+#[test]
+fn patterns() {
+    for seat in PATTERNS {
+        let first = format!("pub fn upload<W: Wire>({seat}, {FOUR}) -> u8 {{ 0 }}");
+        assert_eq!(marks(&first), over(1), "{first}");
+        let later = format!("pub fn upload<W: Wire>(\n    {FOUR},\n    {seat},\n) -> u8 {{ 0 }}");
+        assert_eq!(marks(&later), over(1), "{later}");
+        let short = format!("pub fn upload<W: Wire>({seat}, id: u8) -> u8 {{ 0 }}");
+        assert_eq!(kinds(&short, grammar::Kind::Receiver), 1, "{short}");
+        assert_eq!(kinds(&short, grammar::Kind::Param), 1, "{short}");
+    }
+}
+
+#[test]
+fn selves() {
+    for seat in [
+        "self",
+        "&self",
+        "&mut self",
+        "mut self",
+        "&'a self",
+        "&'a mut self",
+        "&'_ self",
+    ] {
+        let text = format!(
+            "pub struct S;\nimpl S {{\n    pub fn f<'a>({seat}, dock: u8, {FOUR}) -> u8 {{ 0 }}\n}}"
+        );
+        assert_eq!(marks(&text), over(1), "{text}");
+    }
+}
+
+#[test]
+fn tails() {
+    let comma = format!("pub fn upload(dock: u8, {FOUR},) -> u8 {{ 0 }}");
+    assert_eq!(marks(&comma), over(1), "{comma}");
+    let dots = format!("extern \"C\" {{\n    pub fn printf(dock: u8, {FOUR}, ...) -> i32;\n}}");
+    assert_eq!(marks(&dots), over(1), "{dots}");
+    let arrow = format!("pub fn upload<F: Fn() -> u8>(dock: F, {FOUR}) -> u8 {{ 0 }}");
+    assert_eq!(marks(&arrow), over(1), "{arrow}");
+    for clean in [
+        "pub fn upload() -> u8 { 0 }",
+        "pub fn upload<F: Fn(u8) -> u8>() -> u8 { 0 }",
+        "pub struct S;\nimpl S {\n    pub fn f(&self) {}\n}",
+    ] {
+        assert_eq!(marks(clean), Vec::new(), "{clean}");
+    }
+}
+
+#[test]
+fn refusals() {
+    let hit = vec![("coverage".to_string(), "unparsed region".to_string())];
+    for text in [
+        "macro_rules! m {\n    ($t:ty) => {\n        fn f($b: $t) {}\n    };\n}",
+        "macro_rules! m {\n    ($t:ty) => {\n        fn f(a: u8, $b: $t, c: u8) {}\n    };\n}",
+        "macro_rules! m {\n    ($($p:tt)*) => {\n        fn f $($p)* {}\n    };\n}",
+    ] {
+        assert_eq!(unread(text), hit, "{text}");
+    }
+}
+
+#[test]
+fn extractors() {
+    let free = |seat: &str| {
+        ["a", "b", "c", "d"]
+            .map(|name| format!("pub async fn {name}({seat}: State<Dock>, id: u8) {{}}\n"))
+            .concat()
+    };
+    let pattern = marks(&free("State(dock)"));
+    let names = "a, b, c, d; see: ectropy cookbook structure.receiver";
+    let note = format!("4 functions share State(dock): {names}");
+    assert_eq!(pattern, vec![("receiver".to_string(), note)]);
+    let ident = marks(&free("dock"));
+    let note = format!("4 functions share dock: {names}");
+    assert_eq!(ident, vec![("receiver".to_string(), note)]);
+    let fold = format!(
+        "pub struct Routes;\nimpl Routes {{\n{}}}",
+        free("State(dock)")
+    );
+    assert_eq!(marks(&fold), Vec::new(), "{fold}");
 }
