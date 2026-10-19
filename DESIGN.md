@@ -116,6 +116,17 @@ and statement boundaries start independent decisions. Rust closure spelling is
 rectified before it can look like disjunction. Rust macro input inside a function, and braced macro input at module level, is read by the statement reader; tokens that form no Rust structure carry no evidence. TypeScript regular expressions
 are opaque only where lexical expression-start rules prove them to be literals.
 
+A braceless TypeScript body is a one-statement scope, read as the same
+statement inside braces is, when it belongs to an `if` whose head is
+`name === literal`, to the `else` of such an `if` or of a braced branch, or to
+a `for` or `while`. The statement extends through every brace-delimited form
+it holds (object literal, function or arrow body, class expression, binding
+pattern, type literal) to its `;`, or, where `;` is omitted, to the next `if`,
+`else`, loop, `do`, `switch`, `try` or declaration keyword. A loop head's
+binding is not a declaration, and an `if` that is a braceless loop body links
+no ladder outside that body. Such a body adds a block level as its braced
+spelling does.
+
 TSX extends the TypeScript grammar without teaching kernel about React. Paired
 elements, self-closing elements, and fragments become `markup`; brace
 containers re-enter normal parsing so code scope continues independently.
@@ -269,11 +280,10 @@ authorization to claim more than the tree proves:
   in that text still open strings.
 - A labeled bare block (`name: { … }`) inside a TypeScript function body reads
   as an object literal, so its own brace adds no block level.
-- `export default function () { … }` and a braceless module-level `if`
-  statement read as a call, so their bodies add no block level.
-- A braceless TypeScript branch whose statement holds `{` inside parentheses
-  (`return f({ … });`) is not a one-statement scope, so its ladder does not
-  reach `dispatch`.
+- `export default function () { … }` reads as a call, and a braceless `if`
+  branch whose head is not `name === literal` is not a one-statement scope (at
+  module level the statement reads as a call), so neither body adds a block
+  level.
 - A ladder links only through `else if`, `elif` or an adjacent `if`. A Rust or
   TypeScript comment between a branch's `}` and `else if` breaks the link, and
   adjacent Svelte blocks (`{/if}{#if …}`) never link, so neither reaches
