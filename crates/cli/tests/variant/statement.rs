@@ -1,5 +1,7 @@
 use super::{Marks, agree, over, read};
 
+mod bare;
+
 const ARROWS: [&str; 9] = [
     "async page => { go(page); }",
     "page => { go(page); }",
