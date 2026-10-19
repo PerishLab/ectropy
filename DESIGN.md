@@ -174,7 +174,14 @@ its parameters do not reach `param`/`receiver` (#84, function types stay
 unread). Its name is `word` evidence, as a bodyless Rust trait fn's and a
 TypeScript `abstract` method's already are.
 Tuple structs, literals, index signatures, mapped types, and unannotated Python
-assignments do not. The schema law groups exact unordered field-name sets across
+assignments do not. A TypeScript object-literal key is a word only when its
+value is a function literal (`k: () => …`, `k: function () { … }`), read as a
+method key `k() {}` is (#73, #107). Any other value (`k: 1`, `k: ref`) makes
+the key a use site, which stays unread as intended scope, the same as a Rust
+struct-literal field `S { k: 1 }`. A reference-valued function key
+(`followEnd: controller.followEnd`) is accepted as unread while its arrow
+spelling is a word: telling the two apart needs symbol resolution (#108).
+The schema law groups exact unordered field-name sets across
 the admitted repository scan closure after path boundaries are applied. This is
 the one repository-wide structural law; adapters still emit only per-file
 evidence and never inspect another source.
@@ -267,10 +274,6 @@ authorization to claim more than the tree proves:
   string literal, so its expressions are not read.
 - Rust macro input in parentheses or brackets at module level reads as an
   expression, so items inside it give no name or parameter evidence.
-- A TypeScript object-literal key whose value is not a function literal
-  (`k: 1`, `k: ref`) is not `word` evidence, so a reference-valued function key
-  (`followEnd: controller.followEnd`) escapes the reading a function literal
-  gets; whether such keys are declarations or uses needs calibration (#108).
 - A type literal written as a function type's return in a type alias, a type
   member, a variable annotation or an `as` cast (`type T = () => { k: V }`)
   reads as a scope, so its member names are not `word` evidence.
