@@ -86,7 +86,7 @@ impl<'a> Scan<'a> {
             return;
         }
         for at in 2..node.kids.len() {
-            if self.table(&node.kids[at - 2..=at]) {
+            if self.table(&node.kids[at - 2..=at], node.kids.get(at + 1)) {
                 let name = self.word(&node.kids[at]);
                 self.mark(node.kids[at].span.start, "dispatch", name);
             }
@@ -109,7 +109,7 @@ impl<'a> Scan<'a> {
         self.mark(node.span.start, "combination", &note);
     }
 
-    fn table(&self, run: &[Node]) -> bool {
+    fn table(&self, run: &[Node], after: Option<&Node>) -> bool {
         let [first, gap, next] = run else {
             return false;
         };
@@ -117,7 +117,16 @@ impl<'a> Scan<'a> {
         if !matches!(kinds, (Kind::Probe, Kind::Scope, Kind::Probe)) {
             return false;
         }
-        self.word(first) == self.word(next) && self.linked(gap.span.end, next.span.start)
+        let end = after.map_or(next.span.end, |node| node.span.start);
+        self.word(first) == self.word(next)
+            && self.key(first.span.end, gap.span.start) != self.key(next.span.end, end)
+            && self.linked(gap.span.end, next.span.start)
+    }
+
+    fn key(&self, from: usize, to: usize) -> &str {
+        let text = self.source.text.get(from..to).unwrap_or("");
+        text.trim_start_matches(|glyph: char| glyph.is_whitespace() || glyph == '=')
+            .trim_end_matches(|glyph: char| glyph.is_whitespace() || matches!(glyph, ')' | ':'))
     }
 
     fn linked(&self, from: usize, to: usize) -> bool {

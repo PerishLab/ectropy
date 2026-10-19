@@ -116,6 +116,17 @@ and statement boundaries start independent decisions. Rust closure spelling is
 rectified before it can look like disjunction. Rust macro input inside a function, and braced macro input at module level, is read by the statement reader; tokens that form no Rust structure carry no evidence. TypeScript regular expressions
 are opaque only where lexical expression-start rules prove them to be literals.
 
+An `if` head that compares a dotted name (`kind`, `event.type`, `self.typed`,
+`this.mode`) with `==` or `===` to a literal emits `probe`; a field read is
+taken as a plain read. A call, index, optional chain, non-null assertion,
+dereference, tuple field or parenthesized subject does not: a call may answer
+differently each time, and the others are not one dotted name. Neither does a
+right side that is not a literal, such as an enum path (`Op::Null`, `Kind.A`):
+telling a constant from a variable needs symbol resolution. Two linked probes
+dispatch only when they repeat one subject against different literal text; a
+repeated literal is a re-test after a change, not a table. The subject is
+compared as text, so a branch that steps it to another literal still links.
+
 A braceless TypeScript body is a one-statement scope, read as the same
 statement inside braces is, when it belongs to an `if`, an `else`, a `for` or
 a `while`, at module level or inside a function. The statement extends through
@@ -152,7 +163,7 @@ while a quoted value that mixes text with expressions stays one string literal.
 A legacy reactive block `$: { … }` is a scope, and snippet parameters count as
 a function's do. Control blocks become `scope`; an `{#if}` block reads like a
 script `if`: each branch is its own `scope`, and an `{#if}` or `{:else if}`
-head of the form `name === literal` emits `probe`, so an equality ladder
+head comparing a dotted name to a literal emits `probe`, so an equality ladder
 reaches `dispatch`. Elements become `markup`, and component filenames remain
 path atoms subject to the same single-word law as every other source file. An
 attribute name carries directive prefixes and custom property names alike, so a
@@ -169,7 +180,7 @@ Python enters the same grammar substrate through virtual newline, indent, and
 dedent evidence carrying original byte spans. Its adapter maps suites,
 declarations, parameters, docstrings, dictionaries, Boolean words, equality
 probes, and the explicit `os.environ` surface into shared kinds. An `if` or
-`elif` head of the form `name == literal`, bare or parenthesized, emits
+`elif` head comparing a dotted name to a literal, bare or parenthesized, emits
 `probe`, and `elif` links a ladder as `else if` does, so an equality ladder
 reaches `dispatch` as in Rust and TypeScript. It does not infer test identity
 from frameworks or names, invoke a Python runtime, or treat `.pyi` as source.

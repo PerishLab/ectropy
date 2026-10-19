@@ -195,6 +195,10 @@ fn dispatch() {
         ["if a == 'x'", "elif a == \"y\""],
         ["if a == f\"x\"", "elif a == \"\"\"y\"\"\""],
         ["if a == True", "elif a == None"],
+        ["if a.kind == 1", "elif a.kind == 2"],
+        ["if self.kind == 1", "elif self.kind == 2"],
+        ["if a.kind.tag == 1", "elif a.kind.tag == 2"],
+        ["if a == 'x y'", "elif a == 'xy'"],
     ] {
         assert_eq!(count(scan("vessel.py", &ladder(&heads)), "dispatch"), 1);
     }
@@ -215,7 +219,11 @@ fn probes() {
         ["if a == 1", "elif b == 2"],
         ["if a == b", "elif a == c"],
         ["if a == 1 and b", "elif a == 2 and b"],
-        ["if a.kind == 1", "elif a.kind == 2"],
+        ["if a.kind() == 1", "elif a.kind() == 2"],
+        ["if a[0] == 1", "elif a[0] == 2"],
+        ["if a == 1", "if a == 1"],
+        ["if (a == 1)", "elif a == 1"],
+        ["if a == 1 ", "elif a==1"],
         ["if a != 1", "elif a != 2"],
         ["if a is None", "elif a is True"],
         ["if a == -1", "elif a == -2"],

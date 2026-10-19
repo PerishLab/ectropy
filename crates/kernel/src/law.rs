@@ -37,7 +37,7 @@ pub const LAWS: &[Law] = &[
     },
     Law {
         name: "dispatch",
-        note: "adjacent equality branches repeating one subject",
+        note: "adjacent equality branches repeating one subject against distinct literals",
         exempt: true,
     },
     Law {
