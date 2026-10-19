@@ -117,15 +117,14 @@ rectified before it can look like disjunction. Rust macro input inside a functio
 are opaque only where lexical expression-start rules prove them to be literals.
 
 A braceless TypeScript body is a one-statement scope, read as the same
-statement inside braces is, when it belongs to an `if` whose head is
-`name === literal`, to the `else` of such an `if` or of a braced branch, or to
-a `for` or `while`. The statement extends through every brace-delimited form
-it holds (object literal, function or arrow body, class expression, binding
-pattern, type literal) to its `;`, or, where `;` is omitted, to the next `if`,
-`else`, loop, `do`, `switch`, `try` or declaration keyword. A loop head's
-binding is not a declaration, and an `if` that is a braceless loop body links
-no ladder outside that body. Such a body adds a block level as its braced
-spelling does.
+statement inside braces is, when it belongs to an `if`, an `else`, a `for` or
+a `while`, at module level or inside a function. The statement extends through
+every brace-delimited form it holds (object literal, function or arrow body,
+class expression, binding pattern, type literal) to its `;`, or, where `;` is
+omitted, to the next `if`, `else`, loop, `do`, `switch`, `try` or declaration
+keyword. A loop head's binding is not a declaration, and an `if` that is itself
+a braceless body links no ladder outside that body. Such a body adds a block
+level as its braced spelling does.
 
 TSX extends the TypeScript grammar without teaching kernel about React. Paired
 elements, self-closing elements, and fragments become `markup`; brace
@@ -280,10 +279,8 @@ authorization to claim more than the tree proves:
   in that text still open strings.
 - A labeled bare block (`name: { … }`) inside a TypeScript function body reads
   as an object literal, so its own brace adds no block level.
-- `export default function () { … }` reads as a call, and a braceless `if`
-  branch whose head is not `name === literal` is not a one-statement scope (at
-  module level the statement reads as a call), so neither body adds a block
-  level.
+- `export default function () { … }` reads as a call, so its body adds no
+  block level.
 - A ladder links only through `else if`, `elif` or an adjacent `if`. A Rust or
   TypeScript comment between a branch's `}` and `else if` breaks the link, and
   adjacent Svelte blocks (`{/if}{#if …}`) never link, so neither reaches
