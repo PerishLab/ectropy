@@ -20,7 +20,10 @@ OTHER     : . ;
 unit : item ;
 
 item : importItem / exportItem / fnItem / typeItem / interfaceItem / classItem / declItem / ambient / control / assignItem / callItem / lineItem / scope / bare ;
-importItem : 'import' 'type'? tail -> item ;
+importItem : 'import' 'type'? ( intake 'from' tail / tail ) -> item ;
+intake : name ',' ( '*' 'as' name / specs ) / '*' 'as' name / specs / name ;
+specs : LBRACE ( spec ( ',' spec )* ','? )? RBRACE ;
+spec : 'type'? ( ( IDENT / lit ) 'as' name / IDENT ) ;
 exportItem : 'export' ( 'default' )? ( fnItem / typeItem / interfaceItem / classItem / declItem / shipItem / callItem / lineItem ) / 'export' 'default' phrase ;
 shipItem : 'type'? LBRACE ( port ( ',' port )* ','? )? RBRACE ( 'from' lit )? ';'? -> item ;
 port : 'type'? ( IDENT 'as' name / name ) ;
