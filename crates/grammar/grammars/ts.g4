@@ -107,9 +107,10 @@ lit : STRING / SINGLE / TEMPLATE / template / NUMBER / 'true' / 'false' / 'null'
 template : THEAD tint* ( TMID tint* )* TTAIL ;
 tint : template / arrow / cast / vtarg / angle / classExpr / markupHole / pgroup / bgroup / group / bolt / lambda / ( !TMID !TTAIL . ) ;
 elseTail : ( 'else' ( ifExpr / scope / limb ) )? ;
-limb : ( template / !';' !RBRACE !LBRACE . )+ ';'? -> scope ;
-whileExpr : 'while' head scope ;
-forExpr : 'for' head scope ;
+limb : ( control / declItem / !';' stmt ( !';' !cut stmt )* ';'? ) -> scope ;
+cut : 'if' / 'else' / 'for' / 'while' / 'do' / 'switch' / 'try' / decl ;
+whileExpr : 'while' pgroup ( scope / limb ) / 'while' head scope ;
+forExpr : 'for' 'await'? pgroup ( scope / limb ) / 'for' head scope ;
 switchExpr : 'switch' head cases ;
 cases : LBRACE ( arm / stmt )* RBRACE -> scope ;
 arm : ( 'case' ( template / !':' !LBRACE !RBRACE . )+ / 'default' ) ':' scope ;
