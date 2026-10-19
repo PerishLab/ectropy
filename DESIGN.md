@@ -116,6 +116,14 @@ and statement boundaries start independent decisions. Rust closure spelling is
 rectified before it can look like disjunction. Rust macro input inside a function, and braced macro input at module level, is read by the statement reader; tokens that form no Rust structure carry no evidence. TypeScript regular expressions
 are opaque only where lexical expression-start rules prove them to be literals.
 
+A Rust parameter list is read whole or refused. Every seat's pattern is read
+(a name, `mut`, `ref`, `&`, `name @ …`, tuple, slice, struct and tuple-struct
+patterns such as an extractor `State(s): State<S>`), as are every `self` form,
+`&'a self` included, a trailing comma and a C variadic `...`. A list the reader
+cannot read, such as one spelled with macro metavariables, is an unparsed
+region, never an empty list, so a function that prints clean had every seat
+counted.
+
 An `if` head that compares a dotted name (`kind`, `event.type`, `self.typed`,
 `this.mode`) with `==` or `===` to a literal emits `probe`; a field read is
 taken as a plain read. A call, index, optional chain, non-null assertion,
