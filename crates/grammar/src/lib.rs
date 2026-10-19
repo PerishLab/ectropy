@@ -76,6 +76,48 @@ fn name(kind: Kind) -> &'static str {
     }
 }
 
+#[derive(Clone, Copy, PartialEq)]
+pub enum Reader {
+    Markdown,
+    Rust,
+    Python,
+    Ts,
+    Tsx,
+    Svelte,
+    Style,
+}
+
+pub const READERS: [(&str, Reader); 14] = [
+    ("md", Reader::Markdown),
+    ("rs", Reader::Rust),
+    ("py", Reader::Python),
+    ("ts", Reader::Ts),
+    ("mts", Reader::Ts),
+    ("cts", Reader::Ts),
+    ("tsx", Reader::Tsx),
+    ("js", Reader::Tsx),
+    ("mjs", Reader::Tsx),
+    ("cjs", Reader::Tsx),
+    ("jsx", Reader::Tsx),
+    ("svelte", Reader::Svelte),
+    ("css", Reader::Style),
+    ("scss", Reader::Style),
+];
+
+impl Reader {
+    pub fn named(extension: &str) -> Option<Self> {
+        READERS
+            .iter()
+            .find(|(name, _)| *name == extension)
+            .map(|(_, reader)| *reader)
+    }
+
+    pub fn of(path: &str) -> Option<Self> {
+        let (_, extension) = path.rsplit_once('.')?;
+        Self::named(extension)
+    }
+}
+
 pub struct Span {
     pub start: usize,
     pub end: usize,
@@ -88,38 +130,28 @@ pub struct Cst {
 }
 
 pub fn parse(source: &Source) -> Cst {
-    if source.path.ends_with(".md") {
-        return markdown::parse(source);
-    }
-    if source.path.ends_with(".rs") {
-        let mut root = braces(source, rules::rust());
-        claim::rust(&mut root, source);
-        return root;
-    }
-    if source.path.ends_with(".py") {
-        let mut root = indented(source, rules::python());
-        claim::python(&mut root, source);
-        return root;
-    }
-    if source.path.ends_with(".ts") {
-        return rules::web(rules::ts(), source);
-    }
-    if source.path.ends_with(".tsx") {
-        return rules::web(rules::tsx(), source);
-    }
-    if source.path.ends_with(".svelte") {
-        return rules::web(rules::svelte(), source);
-    }
-    if source.path.ends_with(".scss") || source.path.ends_with(".css") {
-        return rules::swatch(source.text.len());
-    }
-    Cst {
-        kind: Kind::Root,
-        span: Span {
-            start: 0,
-            end: source.text.len(),
+    let end = source.text.len();
+    match Reader::of(&source.path) {
+        Some(Reader::Markdown) => markdown::parse(source),
+        Some(Reader::Rust) => {
+            let mut root = braces(source, rules::rust());
+            claim::rust(&mut root, source);
+            root
+        }
+        Some(Reader::Python) => {
+            let mut root = indented(source, rules::python());
+            claim::python(&mut root, source);
+            root
+        }
+        Some(Reader::Ts) => rules::web(rules::ts(), source),
+        Some(Reader::Tsx) => rules::web(rules::tsx(), source),
+        Some(Reader::Svelte) => rules::web(rules::svelte(), source),
+        Some(Reader::Style) => rules::swatch(end),
+        None => Cst {
+            kind: Kind::Root,
+            span: Span { start: 0, end },
+            kids: Vec::new(),
         },
-        kids: Vec::new(),
     }
 }
 
@@ -168,7 +200,7 @@ fn woven(body: &str, base: usize) -> Option<Span> {
 }
 
 fn styled(inner: &str) -> bool {
-    inner.ends_with(".scss") || inner.ends_with(".css")
+    Reader::of(inner) == Some(Reader::Style)
 }
 
 pub(crate) fn braces(source: &Source, rules: &(Vec<format::Rule>, Vec<format::Rule>)) -> Cst {

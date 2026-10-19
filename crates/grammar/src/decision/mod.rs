@@ -1,7 +1,7 @@
 mod syntax;
 
 use crate::lex::Token;
-use crate::{Cst, Kind, Source, Span};
+use crate::{Cst, Kind, Reader, Source, Span};
 
 struct Model {
     span: Span,
@@ -221,7 +221,9 @@ impl<'a> Parse<'a> {
                 at += 2;
                 continue;
             }
-            if self.source.path.ends_with(".py") && matches!(self.glyph(at), "and" | "or") {
+            if Reader::of(&self.source.path) == Some(Reader::Python)
+                && matches!(self.glyph(at), "and" | "or")
+            {
                 found.push(Op { at, width: 1 });
             }
             at += 1;

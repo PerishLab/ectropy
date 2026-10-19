@@ -168,5 +168,7 @@ fn unknown() {
 #[test]
 fn extension() {
     assert!(kernel::path::source("css"));
-    assert!(!kernel::path::source("js"));
+    assert!(kernel::path::source("js"));
+    assert!(!kernel::path::source("pyi"));
+    assert!(!kernel::path::source("toml"));
 }

@@ -2,7 +2,7 @@
 
 ## Trigger
 
-The `reach` law reports a relative path whose `..` segment is followed by a `src` segment: a Rust `#[path = "…"]` value, or a TypeScript, TSX or Svelte specifier in `import … from`, `export … from`, a bare `import "…"` or a dynamic `import("…")`.
+The `reach` law reports a relative path whose `..` segment is followed by a `src` segment: a Rust `#[path = "…"]` value, or a TypeScript, TSX, JavaScript or Svelte specifier in `import … from`, `export … from`, a bare `import "…"` or a dynamic `import("…")`.
 
 ## Solution
 

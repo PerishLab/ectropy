@@ -1,5 +1,6 @@
 mod member;
 mod rust;
+mod script;
 mod shift;
 mod statement;
 mod svelte;

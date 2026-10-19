@@ -85,7 +85,7 @@ impl Repo {
         }
         if self.within(&rel) {
             terrain.files.push(path.to_path_buf());
-        } else if !rel.ends_with(".md") {
+        } else if grammar::Reader::of(&rel) != Some(grammar::Reader::Markdown) {
             terrain.gaps.push(rel);
         }
         Ok(())

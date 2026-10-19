@@ -148,6 +148,13 @@ path atoms subject to the same single-word law as every other source file. An
 attribute name carries directive prefixes and custom property names alike, so a
 directive that binds a custom property is read rather than left unparsed.
 
+JavaScript enters through the same grammars. `.mts` and `.cts` are TypeScript;
+`.js`, `.mjs`, `.cjs` and `.jsx` are read through the JSX grammar, as the
+TypeScript compiler reads every JavaScript file kind. CommonJS `require("…")`
+is a call, not `link` evidence. Recognized extensions and the grammar that
+reads each are one table, so a recognized file always has a reader, and one
+outside every scan include is a `coverage` finding.
+
 Python enters the same grammar substrate through virtual newline, indent, and
 dedent evidence carrying original byte spans. Its adapter maps suites,
 declarations, parameters, docstrings, dictionaries, Boolean words, equality
@@ -253,8 +260,9 @@ authorization to claim more than the tree proves:
 
 - Stylesheet internals and most Markdown syntax are opaque, and the fanout law
   sees only scanned files.
-- `reach` does not read `vi.mock("…")` arguments or interpolated template
-  specifiers, and adapters do not perform symbol resolution.
+- `reach` does not read `vi.mock("…")` or CommonJS `require("…")` arguments
+  or interpolated template specifiers, and adapters do not perform symbol
+  resolution.
 - Malformed TSX can sometimes distort a local parse before coverage refuses the
   unread region. Valid TSX can too: element text that opens with `(` right
   after a bare tag name (`<b>(it's)</b>`) lexes as type parameters, so quotes

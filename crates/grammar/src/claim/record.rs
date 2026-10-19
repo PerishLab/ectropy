@@ -1,5 +1,5 @@
 use crate::lex::Token;
-use crate::{Cst, Kind, Source, Span};
+use crate::{Cst, Kind, Reader, Source, Span};
 
 mod python;
 mod rust;
@@ -18,16 +18,12 @@ pub(crate) fn scan(source: &Source, held: &[Token]) -> Vec<Cst> {
         pairs: vec![None; held.len()],
     };
     read.pair();
-    if source.path.ends_with(".rs") {
-        return rust::scan(&read);
+    match Reader::of(&source.path) {
+        Some(Reader::Rust) => rust::scan(&read),
+        Some(Reader::Python) => python::scan(&read),
+        Some(Reader::Ts | Reader::Tsx) => web::scan(&read),
+        _ => Vec::new(),
     }
-    if source.path.ends_with(".py") {
-        return python::scan(&read);
-    }
-    if source.path.ends_with(".ts") || source.path.ends_with(".tsx") {
-        return web::scan(&read);
-    }
-    Vec::new()
 }
 
 impl Read<'_> {
