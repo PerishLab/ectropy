@@ -102,7 +102,7 @@ record : LBRACE ( entry / fkey )? ( ',' ( entry / fkey ) / stmt )* RBRACE ;
 control : ifExpr / whileExpr / forExpr / switchExpr / tryExpr ;
 ifExpr : 'if' LPAREN probe RPAREN ( scope / limb ) elseTail / 'if' pgroup ( scope / limb ) elseTail / 'if' head scope elseTail ;
 probe : subject '=' '=' '='? lit ;
-subject : IDENT -> probe ;
+subject : IDENT ( '.' IDENT )* -> probe ;
 lit : STRING / SINGLE / TEMPLATE / template / NUMBER / 'true' / 'false' / 'null' / 'undefined' ;
 template : THEAD tint* ( TMID tint* )* TTAIL ;
 tint : template / arrow / cast / vtarg / angle / classExpr / markupHole / pgroup / bgroup / group / bolt / lambda / ( !TMID !TTAIL . ) ;

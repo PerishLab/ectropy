@@ -90,7 +90,7 @@ letStmt : 'let' 'mut'? name !!( '=' / ':' !':' / ';' ) ;
 control : ifExpr / whileExpr / forExpr / loopExpr / matchExpr ;
 ifExpr    : 'if' probe scope elseTail / 'if' head scope elseTail ;
 probe : subject '=' '=' lit ;
-subject : IDENT -> probe ;
+subject : IDENT ( '.' IDENT )* -> probe ;
 lit : STRING / CHAR / RAW0 / BRAW0 / RAW1 / BRAW1 / RAW2 / BRAW2 / RAW3 / BRAW3 / RAW4 / BRAW4 / RAW5 / BRAW5 / RAW6 / BRAW6 / RAW7 / BRAW7 / RAW8 / BRAW8 / 'b' CHAR / 'b' STRING / NUMBER / 'true' / 'false' ;
 elseTail  : ( 'else' ( ifExpr / scope ) )? ;
 whileExpr : 'while' head scope ;
