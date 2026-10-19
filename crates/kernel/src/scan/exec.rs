@@ -3,7 +3,7 @@ use std::ops::Range;
 pub(super) const NOTE: &str = "executable written in-process and made executable in one test function; use plumb::testing::executable or plumb::testing::link";
 
 pub(super) fn find(path: &str, text: &str, marked: &[Range<usize>]) -> Vec<usize> {
-    if !path.ends_with(".rs") {
+    if grammar::Reader::of(path) != Some(grammar::Reader::Rust) {
         return Vec::new();
     }
     let code = mask(text);

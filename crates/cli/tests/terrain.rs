@@ -7,6 +7,8 @@ static NEXT: AtomicU64 = AtomicU64::new(0);
 
 const RUST: &str = "[scan]\ninclude = [\"crates/**/*.rs\"]\n";
 
+const SCRIPTS: [&str; 6] = ["js", "mjs", "cjs", "jsx", "mts", "cts"];
+
 struct Seat(PathBuf);
 
 impl Seat {
@@ -87,14 +89,53 @@ fn exclude() {
 #[test]
 fn silent() {
     let seat = Seat::new(RUST);
-    seat.put("crates/a/x.js", "let count = 0;\n");
     seat.put("crates/a/x.toml", "[a]\n");
     seat.put("crates/a/README.md", "# a\n");
     seat.put("AGENTS.md", "# agents\n");
     for dir in ["target", "node_modules", ".local", "dist"] {
-        seat.put(&format!("crates/a/{dir}/x.ts"), "let count = 0;\n");
+        for extension in SCRIPTS.iter().chain(&["ts"]) {
+            seat.put(&format!("crates/a/{dir}/x.{extension}"), "let count = 0;\n");
+        }
     }
     assert_eq!(text(&seat.run().stdout), "clean\n");
+}
+
+#[test]
+fn scripts() {
+    let seat = Seat::new(RUST);
+    for extension in SCRIPTS {
+        seat.put(&format!("tools/x.{extension}"), "let count = 0;\n");
+    }
+    let output = seat.run();
+    assert_eq!(output.status.code(), Some(1));
+    let stdout = text(&output.stdout);
+    for extension in SCRIPTS {
+        let gap =
+            format!("tools/x.{extension} coverage recognized source outside every scan include");
+        assert!(stdout.contains(&gap), "{stdout}");
+    }
+    assert!(stdout.contains("by law: coverage=6"), "{stdout}");
+}
+
+#[test]
+fn read() {
+    let seat = Seat::new("");
+    for extension in SCRIPTS {
+        seat.put(
+            &format!("tools/x.{extension}"),
+            "export const alphaBeta = 0;\n",
+        );
+    }
+    let output = seat.run();
+    assert_eq!(output.status.code(), Some(1));
+    let stdout = text(&output.stdout);
+    for extension in SCRIPTS {
+        assert!(
+            stdout.contains(&format!("tools/x.{extension}:1:14 word alphaBeta")),
+            "{stdout}"
+        );
+    }
+    assert!(stdout.contains("by law: word=6"), "{stdout}");
 }
 
 #[test]

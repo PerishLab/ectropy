@@ -44,10 +44,7 @@ fn atoms(part: &str, file: bool) -> Vec<&str> {
 }
 
 pub fn source(extension: &str) -> bool {
-    matches!(
-        extension,
-        "css" | "md" | "py" | "rs" | "scss" | "svelte" | "ts" | "tsx"
-    )
+    grammar::Reader::named(extension).is_some()
 }
 
 fn flat(name: &str) -> String {

@@ -1,5 +1,5 @@
 use crate::lex::Token;
-use crate::{Cst, Kind, Source, Span};
+use crate::{Cst, Kind, Reader, Source, Span};
 
 mod nest;
 mod python;
@@ -21,12 +21,10 @@ struct Read<'a> {
 }
 
 pub(crate) fn scan(source: &Source, held: &[Token]) -> Vec<Cst> {
-    let dialect = if source.path.ends_with(".py") {
-        Dialect::Python
-    } else if source.path.ends_with(".rs") {
-        Dialect::Rust
-    } else {
-        Dialect::Web
+    let dialect = match Reader::of(&source.path) {
+        Some(Reader::Python) => Dialect::Python,
+        Some(Reader::Rust) => Dialect::Rust,
+        _ => Dialect::Web,
     };
     Read::new(source, held, dialect).scan()
 }

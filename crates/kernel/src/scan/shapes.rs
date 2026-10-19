@@ -17,7 +17,7 @@ pub(super) fn ignore(node: &Node, word: &str, exempt: bool) -> Option<usize> {
 }
 
 pub(super) fn temps(path: &str, source: &str) -> Vec<usize> {
-    if !path.ends_with(".rs") {
+    if grammar::Reader::of(path) != Some(grammar::Reader::Rust) {
         return Vec::new();
     }
     let bytes = source.as_bytes();
