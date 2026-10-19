@@ -228,3 +228,39 @@ fn extractors() {
     );
     assert_eq!(marks(&fold), Vec::new(), "{fold}");
 }
+
+#[test]
+fn renames() {
+    let hit = |name: &str| vec![("word".to_string(), name.to_string())];
+    assert_eq!(
+        marks("pub use std::fmt::Display as alpha_beta;"),
+        hit("alpha_beta")
+    );
+    assert_eq!(
+        marks("pub use std::fmt::{Debug, Display as AlphaBeta};"),
+        hit("AlphaBeta")
+    );
+    assert_eq!(
+        marks("pub use crate::{a::{b as alpha_beta, c}, d::*};"),
+        hit("alpha_beta")
+    );
+    assert_eq!(
+        marks("pub(crate) use crate::x as gamma_delta;"),
+        hit("gamma_delta")
+    );
+    assert_eq!(
+        marks("pub fn host() { use std::fmt::Display as AlphaBeta; }"),
+        hit("AlphaBeta")
+    );
+    for clean in [
+        "pub use std::fmt::Display;",
+        "pub use std::fmt::{Debug, Display};",
+        "pub use std::fmt::*;",
+        "use std::fmt::Display as _;",
+        "extern crate core as alpha_beta;",
+        "pub fn f(alpha_beta: u8) -> u8 { alpha_beta }",
+        "pub fn f(v: (u8, u8)) -> u8 { let (alpha_beta, g) = v; alpha_beta + g }",
+    ] {
+        assert_eq!(marks(clean), Vec::new(), "{clean}");
+    }
+}

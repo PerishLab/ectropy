@@ -34,7 +34,7 @@ entry : more / marker ;
 marker : '/' / '*' ;
 seat : parameter -> receiver ;
 more : parameter -> param ;
-parameter : stars? name hint? preset? ;
+parameter : stars? IDENT hint? preset? ;
 stars : '*' '*'? ;
 hint : ':' value ;
 preset : '=' value ;
@@ -70,7 +70,7 @@ path : IDENT ( '.' IDENT )* ;
 assignItem : target assign rest NEWLINE -> item ;
 target : name / targetGroup ;
 targetGroup : LPAREN targets RPAREN / LBRACK targets RBRACK / targets ;
-targets : name ( ',' name )+ ','? ;
+targets : IDENT ( ',' IDENT )+ ','? ;
 assign : '=' / ':' / '+' '=' / '-' '=' / '*' '=' / '/' '=' / '|' '=' / '&' '=' / '^' '=' / '%' '=' ;
 
 flowItem : flow rest NEWLINE -> item ;

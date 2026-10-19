@@ -240,3 +240,37 @@ fn probes() {
     let ternary = "def pick(a):\n    x = 1 if a == 1 else 2\n    y = 3 if a == 2 else 4\n";
     assert_eq!(count(scan("vessel.py", ternary), "dispatch"), 0);
 }
+
+#[test]
+fn bindings() {
+    assert_eq!(
+        count(
+            scan(
+                "vessel.py",
+                "def read_alpha_beta(source_path):\n    return source_path\n"
+            ),
+            "word"
+        ),
+        1
+    );
+    assert_eq!(
+        count(
+            scan(
+                "vessel.py",
+                "def take(v):\n    (alpha_beta, gamma_delta) = v\n    return alpha_beta\n",
+            ),
+            "word"
+        ),
+        0
+    );
+    assert_eq!(
+        count(
+            scan(
+                "vessel.py",
+                "from os import path as alpha_beta\nimport os as gamma_delta\nalpha_beta = 1\n",
+            ),
+            "word"
+        ),
+        3
+    );
+}

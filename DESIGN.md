@@ -124,6 +124,12 @@ cannot read, such as one spelled with macro metavariables, is an unparsed
 region, never an empty list, so a function that prints clean had every seat
 counted.
 
+An import or `use` rename's local name (`use a as X`, `import { a as X }`,
+`import X from`, `import * as X`, and Python's `import a as X` /
+`from m import a as X`) is a declared name and is `word` evidence. An imported
+or re-exported path without a rename (`use a::x`, `import { x }`, plain
+`pub use a::x`) is a use site and stays unread (#108).
+
 An `if` head that compares a dotted name (`kind`, `event.type`, `self.typed`,
 `this.mode`) with `==` or `===` to a literal emits `probe`; a field read is
 taken as a plain read. A call, index, optional chain, non-null assertion,
@@ -141,7 +147,11 @@ a `while`, at module level or inside a function. The statement extends through
 every brace-delimited form it holds (object literal, function or arrow body,
 class expression, binding pattern, type literal) to its `;`, or, where `;` is
 omitted, to the next `if`, `else`, loop, `do`, `switch`, `try` or declaration
-keyword. A loop head's binding is not a declaration, and an `if` that is itself
+keyword. A loop head's binding is not a declaration, and neither is a
+parameter name, a match-arm or `if let` binding, a closure or lambda
+parameter, or a flat tuple / destructuring target in Rust or TypeScript
+(#84 R4; Python parameter names and flat tuple targets are aligned to the
+same unread calibration). An `if` that is itself
 a braceless body links no ladder outside that body. Such a body adds a block
 level as its braced spelling does.
 
@@ -187,7 +197,9 @@ outside every scan include is a `coverage` finding.
 Python enters the same grammar substrate through virtual newline, indent, and
 dedent evidence carrying original byte spans. Its adapter maps suites,
 declarations, parameters, docstrings, dictionaries, Boolean words, equality
-probes, and the explicit `os.environ` surface into shared kinds. An `if` or
+probes, and the explicit `os.environ` surface into shared kinds. Parameter
+names and flat tuple assignment targets are not `word` evidence, matching
+Rust and TypeScript; an import rename's local name still is. An `if` or
 `elif` head comparing a dotted name to a literal, bare or parenthesized, emits
 `probe`, and `elif` links a ladder as `else if` does, so an equality ladder
 reaches `dispatch` as in Rust and TypeScript. It does not infer test identity

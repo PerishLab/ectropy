@@ -121,3 +121,58 @@ fn readers() {
         assert!(grammar::parse(&source).kids.is_empty(), "{extension}");
     }
 }
+
+#[test]
+fn intakes() {
+    let hit = |name: &str| vec![("word".to_string(), name.to_string())];
+    let named = "import { a as alphaBeta } from \"./b\"; export const c = alphaBeta;\n";
+    assert_eq!(read("host.ts", named), hit("alphaBeta"));
+    assert_eq!(read("host.tsx", named), hit("alphaBeta"));
+    let default = "import alphaBeta from \"./b\"; export const c = alphaBeta;\n";
+    assert_eq!(read("host.ts", default), hit("alphaBeta"));
+    let star = "import * as alphaBeta from \"./b\"; export const c = alphaBeta;\n";
+    assert_eq!(read("host.ts", star), hit("alphaBeta"));
+    let both =
+        "import x, { a as alphaBeta, type b } from \"./b\"; export const c = alphaBeta + x;\n";
+    assert_eq!(read("host.ts", both), hit("alphaBeta"));
+    let typed = "import type { a as alphaBeta } from \"./b\"; export type T = typeof alphaBeta;\n";
+    assert_eq!(read("host.ts", typed), hit("alphaBeta"));
+    for clean in [
+        "import { alphaBeta } from \"./b\"; export const c = alphaBeta;\n",
+        "import { type alphaBeta } from \"./b\"; export type T = alphaBeta;\n",
+        "export function f(alphaBeta: number) { return alphaBeta; }\n",
+    ] {
+        assert_eq!(read("host.ts", clean), Vec::new(), "{clean}");
+    }
+    let svelte = "<script lang=\"ts\">\nimport ElementCard from \"./element.svelte\";\nexport let x = ElementCard;\n</script>\n<p>{x}</p>\n";
+    assert_eq!(read("host.svelte", svelte), hit("ElementCard"));
+}
+
+#[test]
+fn bares() {
+    for text in [
+        "import \"./Bay.scss\";\nexport const a = 1;\n",
+        "import \"./card.css\";\nexport const a = 1;\n",
+        "import { a } from \"./b\";\nimport \"./c\";\nexport const z = a;\n",
+        "import type { Snippet } from \"svelte\";\nimport \"./Bay.scss\";\nexport const a = 1;\n",
+    ] {
+        let found = read("host.ts", text);
+        assert!(
+            !found.iter().any(|hit| hit.0 == "coverage"),
+            "{text}: {found:?}"
+        );
+    }
+    let sheet =
+        "import \"./card.css\";\nexport function Card(): unknown { return <div>x</div>; }\n";
+    assert!(
+        !read("host.tsx", sheet)
+            .iter()
+            .any(|hit| hit.0 == "coverage")
+    );
+    let svelte = "<script lang=\"ts\">\n\timport type { Snippet } from \"svelte\";\n\timport \"./Bay.scss\";\n\tlet { part }: { part: Snippet } = $props();\n</script>\n<p>{part}</p>\n";
+    assert!(
+        !read("bay.svelte", svelte)
+            .iter()
+            .any(|hit| hit.0 == "coverage")
+    );
+}
