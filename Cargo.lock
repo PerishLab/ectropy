@@ -186,6 +186,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "dunce"
+version = "1.0.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "92773504d58c093f6de2459af4af33faa518c13451eb8f2b5698ed3d36e7c813"
+
+[[package]]
 name = "ectropy"
 version = "0.0.0"
 dependencies = [
@@ -436,12 +442,13 @@ checksum = "a89322df9ebe1c1578d689c92318e070967d1042b512afbe49518723f4e6d5cd"
 
 [[package]]
 name = "plumb"
-version = "0.104.0"
+version = "0.105.0"
 source = "sparse+https://cargo.perish.uk/"
-checksum = "254a30fd83ea657f672bea4f4ef9f52773e91e0a3c4aae96a36e390db4e8660f"
+checksum = "88c411574fec7e3d1801326c2ac9aa0daa1af02e4f4f1e1bbf367123b9cd50f2"
 dependencies = [
  "base64",
  "clap",
+ "dunce",
  "flate2",
  "locus",
  "object",
@@ -458,13 +465,14 @@ dependencies = [
  "toml_edit",
  "ureq",
  "which",
+ "winapi-util",
 ]
 
 [[package]]
 name = "plumb-macro"
-version = "0.104.0"
+version = "0.105.0"
 source = "sparse+https://cargo.perish.uk/"
-checksum = "0056d8f74b1e8833f925dce9dd2a517bc225fdf12891704c89e8c6052044cbb4"
+checksum = "5fdfbac3e733f88221615269e157f92bb03a0acad98016418d7474397be24610"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -859,6 +867,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bae2f2b2b816647a1cab1acc91f5bd20812d53cb344382635ec2181940c8034f"
 dependencies = [
  "libc",
+]
+
+[[package]]
+name = "winapi-util"
+version = "0.1.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
+dependencies = [
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
