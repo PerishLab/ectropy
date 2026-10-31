@@ -191,7 +191,7 @@ impl Config {
 }
 
 fn sealed(syntax: &str) -> bool {
-    matches!(syntax, "embed" | "environment")
+    matches!(syntax, "embed" | "environment" | "lock")
 }
 
 impl Module {

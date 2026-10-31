@@ -145,6 +145,7 @@ impl<'a> Scan<'a> {
         self.claim(node, Kind::Test, "test");
         self.claim(node, Kind::Style, "style");
         self.claim(node, Kind::Environment, "environment");
+        self.claim(node, Kind::Lock, "lock");
         self.claim(node, Kind::Embed, "embed");
     }
 

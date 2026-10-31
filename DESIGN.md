@@ -42,10 +42,10 @@ also admit no boundary: their own paths already define their territory. Grants
 reserve a syntax class to named terrain; bans deny a class within named terrain
 and win when both match.
 
-`environment` and `embed` are sealed: they refuse everywhere a grant does not
-name. Grants name production resources; tests never hold one, so the rule
-needs no test identity. A Rust test marker still outranks a grant: `embed`
-inside an item carrying `#[test]` or `#[cfg(test)]` refuses in a granted file.
+`environment`, `embed`, and `lock` are sealed: they refuse everywhere a grant does not
+name. For `embed`, grants name production resources. A Rust test marker still
+outranks a grant: `embed` inside an item carrying `#[test]` or `#[cfg(test)]`
+refuses in a granted file.
 
 ## Product shape
 
@@ -88,11 +88,29 @@ The core kinds express roles, not target syntax:
   and its named members. An exact field-name set is its schema; types and
   declaration names are not.
 - `markup` carries element depth independently of code scopes.
-- `style`, `environment`, and `embed` expose syntax whose lawful territory is
+- `style`, `environment`, `embed`, and `lock` expose syntax whose lawful territory is
   assigned by grants or bans. `embed` binds a repository file's content or
   location into code.
 - `link` exposes a path value that wires another source file in as code: a
   Rust `#[path]` value or a TypeScript import specifier.
+
+`lock` exposes explicitly spelled native file/process locking operations. Rust
+projects `std::fs::File` and `fs2::FileExt` locking operation paths and
+`libc::flock`; Python projects `fcntl.flock`, `fcntl.lockf`, and
+`msvcrt.locking`. The span includes the operation path, including a function
+value without an immediate call. Strings, comments, ordinary File IO, typed
+data Mutex/RwLock and standard IO synchronization do not acquire this role.
+A same-named method on an arbitrary receiver is not evidence of this syntax.
+
+This projection is a spelling contract, not resolved API identity or a
+lifetime judgment. It does not follow imports, aliases, grouped paths,
+absolute Rust paths, macro expansion, dynamic attributes, cfg or feature
+selection. An explicit path inside a macro body can be visible without
+proving where that macro executes. Acquiring and releasing in one scope does
+not prove cleanup on error or cancellation, and ownership cleanup need not
+spell an unlock. Those guarantees belong to the implementation; repository
+policy and compiler-derived call evidence belong to Plumb. A clean structural
+scan is never evidence that all native locking or release behavior was checked.
 
 Module roots provide the coordinate system for path depth. They neither select
 files nor change law. Each scanned file belongs to the most specific matching

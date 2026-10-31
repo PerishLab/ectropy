@@ -172,3 +172,16 @@ fn extension() {
     assert!(!kernel::path::source("pyi"));
     assert!(!kernel::path::source("toml"));
 }
+
+#[test]
+fn locking() {
+    for table in ["grant", "ban"] {
+        let text = format!("[[{table}]]\nsyntax = \"lock\"\npaths = [\"src/**\"]\n");
+        load(&text).unwrap_or_else(|error| panic!("{table}: {error}"));
+    }
+    let config = Config {
+        file: File::default(),
+    };
+    assert!(!config.granted("src/lib.rs", "lock"));
+    assert!(edge("lock").unwrap_err().contains("unknown boundary law"));
+}

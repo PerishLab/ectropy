@@ -72,7 +72,7 @@ pub(super) fn run(file: &File) -> Result<(), Error> {
 }
 
 fn syntax(name: &str) -> bool {
-    matches!(name, "embed" | "environment" | "style" | "test")
+    matches!(name, "embed" | "environment" | "lock" | "style" | "test")
 }
 
 fn allowed(name: &str) -> Result<(), Error> {
