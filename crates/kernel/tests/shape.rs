@@ -134,13 +134,14 @@ fn shadow() {
 #[test]
 fn environment() {
     let bare = config(&[], 4);
-    assert_eq!(
-        hits(
-            "src/lib.rs",
-            "fn f() { let port = std::env::var(\"PORT\"); }",
-            &bare
-        ),
-        1
+    let text = "fn f() { let port = std::env::var(\"PORT\"); }";
+    assert_eq!(hits("src/lib.rs", text, &bare), 1);
+    let found = findings("src/lib.rs", text, &bare);
+    let grant = found.iter().find(|hit| hit.law == "grant").unwrap();
+    assert!(
+        grant
+            .note
+            .contains("radicula-config with explicit prefix/get")
     );
     assert_eq!(hits("src/lib.rs", "use std::env;\nfn f() {}", &bare), 1);
     assert_eq!(

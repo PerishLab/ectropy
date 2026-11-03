@@ -1,8 +1,9 @@
-use plumb::config::Cascade;
+use radicula_config::Cascade;
 
 const RELEASES: &str = "https://releases.ectropy.perish.uk";
 
 #[derive(Debug, PartialEq, Cascade)]
+#[plumb::config::prefix]
 pub struct Rig {
     pub home: String,
     pub releases: String,

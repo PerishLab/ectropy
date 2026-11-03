@@ -200,6 +200,7 @@ dependencies = [
  "kernel",
  "locus",
  "plumb",
+ "radicula-config",
  "serde_json",
  "tempfile",
 ]
@@ -345,6 +346,7 @@ version = "0.0.0"
 dependencies = [
  "grammar",
  "plumb",
+ "radicula-config",
  "serde",
  "tempfile",
  "toml",
