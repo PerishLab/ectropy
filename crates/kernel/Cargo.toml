@@ -8,6 +8,7 @@ repository.workspace = true
 publish = false
 
 [dependencies]
+radicula-config = { version = "0", registry = "perish" }
 grammar = { path = "../grammar" }
 plumb = { version = "0", registry = "perish" }
 serde = { version = "1.0", features = ["derive"] }

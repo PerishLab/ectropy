@@ -160,7 +160,7 @@ impl<'a> Scan<'a> {
         }
         if !self.config.granted(&self.source.path, syntax) {
             let note = match syntax {
-                "environment" => "environment syntax outside granted paths, route through the config cascade (plumb docs/config.md)".to_string(),
+                "environment" => "environment syntax outside granted paths, route through declared application configuration inputs; Rust: radicula-config with explicit prefix/get".to_string(),
                 "embed" => format!("embed syntax outside granted paths, test code never embeds repository files; see: ectropy cookbook {}", code(EMBED)),
                 _ => format!("{syntax} syntax outside granted paths"),
             };

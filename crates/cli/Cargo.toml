@@ -12,6 +12,7 @@ name = "ectropy"
 path = "src/main.rs"
 
 [dependencies]
+radicula-config = { version = "0", registry = "perish" }
 plumb = { version = "0", registry = "perish", features = ["observation", "skill"] }
 kernel = { path = "../kernel" }
 grammar = { path = "../grammar" }

@@ -38,7 +38,7 @@ pub fn load(root: &Path) -> Result<Config, Error> {
             file: File::default(),
         });
     }
-    let file = plumb::config::load(&path).map_err(|source| Error::new(source.to_string()))?;
+    let file = radicula_config::load(&path).map_err(|source| Error::new(source.to_string()))?;
     validate::run(&file)?;
     Ok(Config { file })
 }

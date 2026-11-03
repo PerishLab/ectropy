@@ -108,7 +108,7 @@ fn main() {
 }
 
 fn observe(command: &Option<Command>) -> Option<Run> {
-    let rig = match rig::Rig::resolve(None) {
+    let rig = match rig::Rig::resolve(None, &rig::Rig::prefix(), &plumb::config::value) {
         Ok(rig) => rig,
         Err(error) => {
             eprintln!("ectropy locus: {error}");
