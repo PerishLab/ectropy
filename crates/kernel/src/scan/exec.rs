@@ -1,3 +1,4 @@
+use std::collections::BTreeSet;
 use std::ops::Range;
 
 pub(super) const NOTE: &str = "executable written in-process and made executable in one test function; use plumb::testing::executable or plumb::testing::link";
@@ -33,14 +34,36 @@ pub(super) fn tested(path: &str, marked: &[Range<usize>], at: usize) -> bool {
 }
 
 fn writes(body: &str) -> bool {
-    let write = body.contains("fs::write(") || body.contains("File::create(");
-    write && (moded(body) || copied(body))
+    let mut names = BTreeSet::new();
+    for needle in ["fs::write(", "File::create("] {
+        for (at, _) in body.match_indices(needle) {
+            if let Some(name) = arg(&body[at + needle.len()..]) {
+                names.insert(name);
+            }
+        }
+    }
+    !names.is_empty()
+        && body.match_indices("set_permissions(").any(|(at, _)| {
+            let Some(name) = arg(&body[at + "set_permissions(".len()..]) else {
+                return false;
+            };
+            if !names.contains(&name) {
+                return false;
+            }
+            let Some(open) = body[at..].find('(') else {
+                return false;
+            };
+            let Some(span) = span(&body[at + open..]) else {
+                return false;
+            };
+            bits(span) || (span.contains("metadata(") && span.contains(".permissions()"))
+        })
 }
 
-fn moded(body: &str) -> bool {
-    ["from_mode(", "set_mode("].iter().any(|call| {
-        body.match_indices(call).any(|(at, _)| {
-            let digits: Vec<u32> = body[at + call.len()..]
+fn bits(span: &str) -> bool {
+    ["from_mode(", "set_mode("].iter().any(|mode| {
+        span.match_indices(mode).any(|(at, _)| {
+            let digits: Vec<u32> = span[at + mode.len()..]
                 .trim_start()
                 .trim_start_matches("0o")
                 .chars()
@@ -51,11 +74,46 @@ fn moded(body: &str) -> bool {
     })
 }
 
-fn copied(body: &str) -> bool {
-    body.match_indices("set_permissions(").any(|(at, _)| {
-        let call = body[at..].split(';').next().unwrap_or("");
-        call.contains("metadata(") && call.contains(".permissions()")
-    })
+fn arg(after: &str) -> Option<String> {
+    let after = after.trim_start();
+    let mut depth = 0usize;
+    let mut end = after.len();
+    for (rel, glyph) in after.char_indices() {
+        depth = match glyph {
+            '(' | '[' | '{' => depth + 1,
+            ')' | ']' | '}' if depth == 0 => {
+                end = rel;
+                break;
+            }
+            ')' | ']' | '}' => depth - 1,
+            ',' if depth == 0 => {
+                end = rel;
+                break;
+            }
+            _ => depth,
+        };
+    }
+    let raw = after[..end].trim();
+    let raw = raw.strip_prefix('&').map(str::trim).unwrap_or(raw);
+    if raw.is_empty() {
+        return None;
+    }
+    Some(raw.to_string())
+}
+
+fn span(open: &str) -> Option<&str> {
+    let mut depth = 0usize;
+    for (rel, glyph) in open.char_indices() {
+        depth = match glyph {
+            '(' => depth + 1,
+            ')' => depth - 1,
+            _ => continue,
+        };
+        if depth == 0 {
+            return Some(&open[..=rel]);
+        }
+    }
+    None
 }
 
 fn body(code: &str, at: usize) -> Option<&str> {

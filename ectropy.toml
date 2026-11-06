@@ -75,5 +75,9 @@ name = "schema"
 description = "an anonymous positional product"
 name = "tuple"
 
+[[vocabulary.term]]
+description = "seat: write a data file then chmod a distinct directory"
+name = "write_file_chmod_dir"
+
 [word]
 single = true
