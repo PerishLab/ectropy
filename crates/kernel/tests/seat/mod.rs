@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 mod lock;
+mod process;
 mod shapes;
 
 use grammar::Source;

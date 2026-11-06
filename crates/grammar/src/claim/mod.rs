@@ -6,6 +6,7 @@ use crate::{Cst, Kind, Source, Span};
 mod embed;
 mod link;
 mod lock;
+mod process;
 mod record;
 mod tuple;
 
@@ -16,6 +17,7 @@ pub(crate) fn rust(root: &mut Cst, source: &Source) {
     sweep.tuples(root);
     sweep.stds(root);
     sweep.rust(root);
+    sweep.process(root);
     sweep.anchors(root);
     sweep.wires(root);
 }

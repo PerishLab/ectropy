@@ -88,7 +88,7 @@ The core kinds express roles, not target syntax:
   and its named members. An exact field-name set is its schema; types and
   declaration names are not.
 - `markup` carries element depth independently of code scopes.
-- `style`, `environment`, `embed`, and `lock` expose syntax whose lawful territory is
+- `style`, `environment`, `embed`, `lock`, and `process` expose syntax whose lawful territory is
   assigned by grants or bans. `embed` binds a repository file's content or
   location into code.
 - `link` exposes a path value that wires another source file in as code: a
@@ -111,6 +111,18 @@ not prove cleanup on error or cancellation, and ownership cleanup need not
 spell an unlock. Those guarantees belong to the implementation; repository
 policy and compiler-derived call evidence belong to Plumb. A clean structural
 scan is never evidence that all native locking or release behavior was checked.
+
+`process` exposes explicitly spelled Rust process-command construction and wait/spawn
+entry points. Rust projects `std::process::Command` and `tokio::process::Command`
+paths ending in `new`, `spawn`, `output`, or `status`, and the same methods on a
+local name introduced by `use` from those modules (including `as` aliases and
+simple brace imports). The span covers the operation path. Strings, comments,
+same-named local types, absolute `::std` paths, re-exports under another module,
+type aliases, wrapper functions, and methods on an arbitrary receiver are not
+evidence of this syntax. Ban and grant path filters stay with the consumer
+(Plumb); `process` is not sealed, so it stays silent until a ban or grant names
+it. A clean structural scan is never evidence that all process launches were
+checked.
 
 Module roots provide the coordinate system for path depth. They neither select
 files nor change law. Each scanned file belongs to the most specific matching
