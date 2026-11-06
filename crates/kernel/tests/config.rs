@@ -185,3 +185,20 @@ fn locking() {
     assert!(!config.granted("src/lib.rs", "lock"));
     assert!(edge("lock").unwrap_err().contains("unknown boundary law"));
 }
+
+#[test]
+fn process() {
+    for table in ["grant", "ban"] {
+        let text = format!("[[{table}]]\nsyntax = \"process\"\npaths = [\"tests/**\"]\n");
+        load(&text).unwrap_or_else(|error| panic!("{table}: {error}"));
+    }
+    let config = Config {
+        file: File::default(),
+    };
+    assert!(config.granted("src/lib.rs", "process"));
+    assert!(
+        edge("process")
+            .unwrap_err()
+            .contains("unknown boundary law")
+    );
+}
