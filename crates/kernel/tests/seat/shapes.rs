@@ -183,3 +183,13 @@ fn copy() {
     let text = "#[test]\nfn probe() {\n    fs::write(&path, bytes).unwrap();\n    fs::set_permissions(&path, fs::metadata(source).unwrap().permissions()).unwrap();\n}\n";
     assert!(laws(text).contains(&"exec".to_string()), "{:?}", laws(text));
 }
+
+#[test]
+fn write_file_chmod_dir() {
+    let text = "#[test]\nfn probe() {\n    let directory = tempfile::tempdir().unwrap();\n    let path = directory.path().join(\"occupied\");\n    fs::write(&path, b\"peer data\").unwrap();\n    fs::set_permissions(directory.path(), Permissions::from_mode(0o755)).unwrap();\n}\n";
+    assert!(
+        !laws(text).contains(&"exec".to_string()),
+        "{:?}",
+        laws(text)
+    );
+}
