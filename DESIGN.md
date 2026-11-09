@@ -286,7 +286,15 @@ visible.
 
 Style attributes, style elements, Svelte style blocks, stylesheet imports, and
 whole CSS or SCSS files become `style` evidence. CSS and SCSS internals are
-intentionally not parsed today. Markdown currently exposes heading scopes
+intentionally not parsed today. Svelte inline style attributes and `style:`
+directives, including custom properties and important modifiers, carry the
+same evidence as a style block. Attribute values, comments, ordinary script
+identifiers and unrelated attribute names do not become style syntax merely
+because their text mentions style. A Svelte style block defaults to CSS;
+static CSS, SCSS and Less language names are admitted as opaque style regions.
+Unknown or dynamic language selections become loose evidence and coverage
+refuses them even where style syntax is granted. This is language admission,
+not validation of CSS, SCSS or Less declarations. Markdown currently exposes heading scopes
 only. These are honest coverage limits, not promises that malformed syntax is
 acceptable.
 

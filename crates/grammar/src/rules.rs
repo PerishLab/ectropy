@@ -79,7 +79,41 @@ pub(crate) fn swatch(end: usize) -> Cst {
 fn dialect(node: &mut Cst, text: &str) {
     hook(node, text);
     sheet(node, text);
+    language(node, text);
     for kid in &mut node.kids {
         dialect(kid, text);
     }
+}
+
+fn language(node: &mut Cst, text: &str) {
+    if node.kind != Kind::Style {
+        return;
+    }
+    for kid in &mut node.kids {
+        if kid.kind == Kind::Literal && !supported(kid, text) {
+            kid.kind = Kind::Loose;
+        }
+    }
+}
+
+fn supported(node: &Cst, text: &str) -> bool {
+    let body = text.get(node.span.start..node.span.end).unwrap_or("");
+    let Some(value) = body
+        .strip_prefix("lang")
+        .and_then(|rest| rest.trim_start().strip_prefix('='))
+    else {
+        return true;
+    };
+    matches!(
+        value.trim(),
+        "css"
+            | "scss"
+            | "less"
+            | "\"css\""
+            | "'css'"
+            | "\"scss\""
+            | "'scss'"
+            | "\"less\""
+            | "'less'"
+    )
 }
