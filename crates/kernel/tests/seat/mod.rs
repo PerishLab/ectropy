@@ -3,6 +3,7 @@
 mod lock;
 mod process;
 mod shapes;
+mod style;
 
 use grammar::Source;
 

@@ -10,7 +10,9 @@ scriptLoose : !scriptClose . -> loose ;
 stuck : '<' 'script' attr* '>' unread scriptClose? -> item ;
 unread : ( !scriptClose . )+ -> loose ;
 
-styleBlock : '<' 'style' attr* '>' styleToken* styleClose -> style ;
+styleBlock : '<' 'style' dress* '>' styleToken* styleClose -> style ;
+dress : language / attr ;
+language : 'lang' '=' ( aval / IDENT ) -> literal ;
 styleClose : '<' '/' 'style' '>' ;
 styleToken : !styleClose . ;
 
@@ -21,7 +23,8 @@ pair : '<' tag attr* '>' node* closer -> markup ;
 closer : '<' '/' tag? '>' ;
 tag : IDENT ( ':' IDENT )? ;
 
-attr : named / expression ;
+attr : paint / named / expression ;
+paint : 'style' !'-' ( ':' '-'* IDENT ( ( '-' / '|' )+ IDENT )* )? ( '=' aval )? -> style ;
 named : aname ( '=' aval )? ;
 aname : IDENT ( ( ':' / '-' / '|' )+ IDENT )* ;
 aval : QUOTE expression QUOTE / STRING / SINGLE / TEMPLATE / template / expression ;
