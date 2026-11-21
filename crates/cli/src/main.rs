@@ -8,7 +8,7 @@ use std::path::PathBuf;
 #[command(
     name = "ectropy",
     version = version(),
-    after_help = "Optional Locus observation: set [locus] enabled = true in config.toml below the existing Ectropy data home. endpoint defaults to LOCUS_API or http://127.0.0.1:43308; buffer uses state/locus below that home. Missing configuration disables observation. Repository ectropy.toml remains scan policy."
+    after_help = "Optional Locus observation: set [locus] enabled = true in config.toml below the existing Ectropy data home. For HTTPS, set endpoint and an absolute writer key_file together in [locus]. The durable queue is state/locus.https/ectropy under that home. On Unix, sender may name the trusted absolute locus executable. HTTP uses state/locus and defaults to http://127.0.0.1:43308. With no local transport fields, LOCUS_API and LOCUS_API_KEY_FILE can supply the endpoint and writer key path. Missing configuration disables observation. Repository ectropy.toml remains scan policy."
 )]
 struct Cli {
     #[command(subcommand)]
