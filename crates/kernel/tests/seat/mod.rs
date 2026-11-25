@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 mod lock;
+mod ownership;
 mod process;
 mod shapes;
 mod style;

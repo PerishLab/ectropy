@@ -41,43 +41,5 @@ include = [
     "crates/**/*.rs",
 ]
 
-[vocabulary]
-
-[[vocabulary.term]]
-description = "the indentation projection consumed by grammar rules"
-name = "layout"
-
-[[vocabulary.term]]
-description = "the Python source language adapter"
-name = "python"
-
-[[vocabulary.term]]
-description = "one ordered field in a positional product"
-name = "position"
-
-[[vocabulary.term]]
-description = "one named member of a record schema"
-name = "field"
-
-[[vocabulary.term]]
-description = "a named product declaration"
-name = "record"
-
-[[vocabulary.term]]
-description = "the identity carried by named structural evidence"
-name = "label"
-
-[[vocabulary.term]]
-description = "an exact set of record field names"
-name = "schema"
-
-[[vocabulary.term]]
-description = "an anonymous positional product"
-name = "tuple"
-
-[[vocabulary.term]]
-description = "seat: write a data file then chmod a distinct directory"
-name = "write_file_chmod_dir"
-
 [word]
 single = true
