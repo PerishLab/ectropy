@@ -24,6 +24,18 @@ same terms, so fusing a compound directory into a compound file cannot evade
 the law. The vocabulary stays live: configuration records selected product
 terms but is not an exhaustive dictionary.
 
+Single-word follows name ownership rather than spelling alone. Identifiers
+declared by the repository — its own declarations and explicit local aliases
+(such as `use a::b as foo_bar`) — are subject to `word`. Import-like
+bindings that adopt or fulfill names owned outside that binding site (an
+external namespace or a declared trait contract: `use`/`import` paths without a
+rename, Rust trait `impl ... for ...` direct member signatures, Rust `extern`
+FFI foreign declarations, and analogous external contract surfaces) lie
+naturally outside `word` evidence rather than receiving ad-hoc exemptions. Code
+inside those surfaces that declares new repository-owned names — such as local
+`let` bindings and nested declarations inside a trait `impl` method body —
+remains repository-owned and stays checked by `word`.
+
 Deep blocks and deep paths are the same signal at different scales: one unit is
 carrying more than one idea. Markup has its own depth axis because wrapper
 composition is independent of code scope. Excessive directory width signals an
@@ -158,7 +170,14 @@ An import or `use` rename's local name (`use a as X`, `import { a as X }`,
 `import X from`, `import * as X`, and Python's `import a as X` /
 `from m import a as X`) is a declared name and is `word` evidence. An imported
 or re-exported path without a rename (`use a::x`, `import { x }`, plain
-`pub use a::x`) is a use site and stays unread (#108).
+`pub use a::x`) is an import-like binding to an external name and stays unread
+(#108). By the same name-ownership contract, direct member signatures (`fn`,
+`type`, `const`) inside a Rust trait implementation (`impl ... for ...`) and
+foreign declarations (`fn`, `static`, `type`) inside a Rust `extern` block
+adopt externally owned names and emit no `word` evidence, while inherent `impl`
+members, exported `extern` function definitions, and local `let` bindings or
+nested declarations inside a trait `impl` method body remain repository-owned
+declarations and still emit `word` evidence (#265).
 
 An `if` head that compares a dotted name (`kind`, `event.type`, `self.typed`,
 `this.mode`) with `==` or `===` to a literal emits `probe`; a field read is

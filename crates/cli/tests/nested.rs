@@ -67,13 +67,14 @@ fn kinds(text: &str, kind: grammar::Kind) -> usize {
 
 #[test]
 fn parity() {
-    for (text, flat) in [(ITEMS.to_string(), ITEMS), (foreign(), DECLS)] {
-        let lifted = marks(&format!("{}\n{}", flat, host("")));
+    for text in [ITEMS.to_string(), foreign()] {
+        let lifted = marks(&format!("{text}\n{}", host("")));
         assert!(lifted.iter().any(|mark| mark.0 == "param"), "{text}");
         assert_eq!(marks(&host(&text)), lifted, "{text}");
         assert_eq!(marks(&host(&wrap(1, &text))), lifted, "{text}");
         assert_eq!(marks(&host(&format!("let run = || {{ {text} }};"))), lifted);
     }
+    assert!(!marks(&foreign()).iter().any(|mark| mark.0 == "word"));
 }
 
 #[test]
@@ -156,17 +157,20 @@ fn block(head: &str, body: &str) -> String {
 #[test]
 fn module() {
     let after = host(&wrap(4, "go();"));
+    let want = vec![
+        ("block".to_string(), "depth over limit".to_string()),
+        ("param".to_string(), "5 parameters over limit 4".to_string()),
+    ];
+    let mut tail = want.clone();
+    tail.push(("word".to_string(), "tail_name".to_string()));
     for head in HEADS {
         let text = format!("{}\n{after}", block(head, DECLS));
-        let lifted = marks(&format!("{DECLS}\n{after}"));
-        assert_eq!(lifted.len(), 4, "{lifted:?}");
-        assert_eq!(marks(&text), lifted, "{text}");
+        assert_eq!(marks(&text), want, "{text}");
         let inline = format!(
             "pub mod ffi {{\n{}\n{after}\n}}\npub fn tail_name() {{}}",
             block(head, DECLS)
         );
-        let flat = format!("pub mod ffi {{\n{DECLS}\n{after}\n}}\npub fn tail_name() {{}}");
-        assert_eq!(marks(&inline), marks(&flat), "{inline}");
+        assert_eq!(marks(&inline), tail, "{inline}");
         assert_eq!(kinds(&text, grammar::Kind::Scope), 5, "{text}");
         assert_eq!(kinds(&text, grammar::Kind::Item), 4, "{text}");
     }
@@ -177,22 +181,19 @@ fn module() {
             "pub safe fn foreign_probe(first: u8, second: u8, third: u8, fourth: u8, fifth: u8) -> i32;"
         )
     );
-    assert_eq!(
-        marks(&safe),
-        marks(&format!(
-            "pub fn foreign_probe(first: u8, second: u8, third: u8, fourth: u8, fifth: u8) -> i32;\n{after}"
-        ))
-    );
+    assert_eq!(marks(&safe), want);
 }
 
 #[test]
 fn spill() {
     let after = host(&wrap(4, "go();"));
+    let want = vec![
+        ("block".to_string(), "depth over limit".to_string()),
+        ("coverage".to_string(), "unparsed region".to_string()),
+        ("param".to_string(), "5 parameters over limit 4".to_string()),
+    ];
     for head in HEADS {
         let text = format!("{}\n{after}", block(head, &format!("{DECLS}\n    1 + 1")));
-        let mut want = marks(&format!("{DECLS}\n{after}"));
-        want.push(("coverage".to_string(), "unparsed region".to_string()));
-        want.sort();
         assert_eq!(marks(&text), want, "{text}");
     }
 }

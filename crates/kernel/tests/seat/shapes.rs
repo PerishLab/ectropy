@@ -185,7 +185,7 @@ fn copy() {
 }
 
 #[test]
-fn write_file_chmod_dir() {
+fn directory() {
     let text = "#[test]\nfn probe() {\n    let directory = tempfile::tempdir().unwrap();\n    let path = directory.path().join(\"occupied\");\n    fs::write(&path, b\"peer data\").unwrap();\n    fs::set_permissions(directory.path(), Permissions::from_mode(0o755)).unwrap();\n}\n";
     assert!(
         !laws(text).contains(&"exec".to_string()),
