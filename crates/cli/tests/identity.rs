@@ -1,5 +1,6 @@
 use std::fs;
 use std::path::{Path, PathBuf};
+#[cfg(unix)]
 use std::process::Command;
 
 struct Seat(PathBuf);
