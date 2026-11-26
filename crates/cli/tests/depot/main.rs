@@ -1,4 +1,5 @@
 mod fixture;
+mod retired;
 
 use fixture::{Env, LIMITS, Mock, bundle, channel, dead, invoke, publish, put};
 use plumb::depot::v3;

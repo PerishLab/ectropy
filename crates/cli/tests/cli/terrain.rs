@@ -157,3 +157,45 @@ fn boundary() {
     assert_eq!(output.status.code(), Some(2));
     assert!(text(&output.stderr).contains("admits no exemption"));
 }
+
+#[test]
+fn retired() {
+    for (config, expected) in [
+        ("[vocabulary]\n", "unknown field"),
+        (
+            "[[vocabulary.term]]\nname = \"two_words\"\ndescription = \"valid\"\n",
+            "unknown field",
+        ),
+        ("[word]\n", "unknown field"),
+        ("[word]\nsingle = false\n", "unknown field"),
+        ("[word]\nsingle = true\n", "unknown field"),
+        (
+            "[[boundary]]\npaths = [\"crates/**\"]\nallow = [\"word\"]\nnote = \"probe\"\n",
+            "admits no exemption",
+        ),
+    ] {
+        let seat = Seat::new(config);
+        let output = seat.run();
+        assert_eq!(output.status.code(), Some(2), "{config}");
+        assert!(!text(&output.stdout).contains("clean"), "{config}");
+        let stderr = text(&output.stderr);
+        assert!(stderr.contains(expected), "{config}: {stderr}");
+    }
+}
+
+#[test]
+fn vocabulary() {
+    let seat = Seat::new(RUST);
+    seat.put("crates/a/src/lib.rs", "fn alpha() { let beta = 1; }\n");
+    let output = Command::new(env!("CARGO_BIN_EXE_ectropy"))
+        .args(["vocabulary", seat.path().to_str().expect("path")])
+        .env_remove("PLUMB_CONFIGURATION")
+        .env_remove("PLUMB_DEPOT_MARK")
+        .env_remove("PLUMB_RULES_SOURCE")
+        .output()
+        .expect("run ectropy vocabulary");
+    assert!(output.status.success(), "{}", text(&output.stderr));
+    let stdout = text(&output.stdout);
+    assert!(stdout.contains("alpha 1"), "{stdout}");
+    assert!(stdout.contains("beta 1"), "{stdout}");
+}

@@ -13,6 +13,12 @@ pub enum Source {
     Depot(Option<Overlay>),
 }
 
+#[derive(Deserialize, Default)]
+#[serde(default, deny_unknown_fields)]
+struct Word {
+    single: Option<bool>,
+}
+
 #[derive(Deserialize)]
 struct Atom {
     #[serde(default)]
@@ -20,7 +26,7 @@ struct Atom {
     #[serde(default)]
     comment: overlay::Comment,
     #[serde(default)]
-    word: overlay::Word,
+    word: Word,
 }
 
 pub fn inspect(root: &Path) -> Result<Source, Error> {
@@ -45,7 +51,7 @@ pub(super) fn load(root: &Path) -> Result<Config, Error> {
         }),
         Source::Depot(Some(overlay)) => {
             let mut file = File::default();
-            overlay.apply(&mut file)?;
+            overlay.apply(&mut file);
             validate::run(&file)?;
             Ok(Config { file })
         }
@@ -59,7 +65,7 @@ pub fn resolve(root: &Path, rules: &Rules, overlay: Option<Overlay>) -> Result<C
         shape::apply(root, rules, &mut file)?;
     }
     if let Some(overlay) = overlay {
-        overlay.apply(&mut file)?;
+        overlay.apply(&mut file);
     }
     validate::run(&file)?;
     Ok(Config { file })
@@ -75,12 +81,12 @@ fn limits(rules: &Rules, file: &mut File) -> Result<(), Error> {
     let text = rules.read(LIMITS).map_err(Error::new)?;
     let atom: Atom = toml::from_str(&text)
         .map_err(|source| Error::new(format!("cannot parse {LIMITS}: {source}")))?;
+    if atom.word.single == Some(false) {
+        return Err(Error::new(format!("{LIMITS} cannot disable word.single")));
+    }
     atom.limit.apply(&mut file.limit);
     if let Some(allow) = atom.comment.allow {
         file.comment.allow = allow;
-    }
-    if let Some(single) = atom.word.single {
-        file.word.single = single;
     }
     Ok(())
 }

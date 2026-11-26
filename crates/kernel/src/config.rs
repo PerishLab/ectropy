@@ -46,11 +46,9 @@ pub struct File {
     pub module: Module,
     pub limit: Limit,
     pub comment: Comment,
-    pub word: Word,
     pub boundary: Vec<Boundary>,
     pub grant: Vec<Grant>,
     pub ban: Vec<Ban>,
-    pub vocabulary: Vocabulary,
 }
 
 pub struct Scan {
@@ -101,18 +99,6 @@ pub struct Comment {
     pub allow: bool,
 }
 
-#[derive(Deserialize)]
-#[serde(default, deny_unknown_fields)]
-pub struct Word {
-    pub single: bool,
-}
-
-impl Default for Word {
-    fn default() -> Self {
-        Self { single: true }
-    }
-}
-
 #[derive(Deserialize, Default)]
 #[serde(default, deny_unknown_fields)]
 pub struct Boundary {
@@ -135,33 +121,12 @@ pub struct Ban {
     pub paths: Vec<String>,
 }
 
-#[derive(Deserialize, Default)]
-#[serde(default, deny_unknown_fields)]
-pub struct Vocabulary {
-    pub term: Vec<Term>,
-}
-
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct Term {
-    pub name: String,
-    pub description: String,
-}
-
 impl Config {
     pub fn exempt(&self, path: &str, law: &str) -> bool {
         self.file
             .boundary
             .iter()
             .any(|edge| covers(edge, path, law))
-    }
-
-    pub fn registered(&self, name: &str) -> bool {
-        self.file
-            .vocabulary
-            .term
-            .iter()
-            .any(|entry| entry.name == name)
     }
 
     pub fn granted(&self, path: &str, syntax: &str) -> bool {

@@ -1,4 +1,4 @@
-use super::{Ban, Boundary, Error, File, Grant, Vocabulary};
+use super::{Ban, Boundary, File, Grant};
 use serde::Deserialize;
 
 #[derive(Deserialize, Default)]
@@ -8,11 +8,9 @@ pub struct Overlay {
     pub module: Module,
     pub limit: Limit,
     pub comment: Comment,
-    pub word: Word,
     pub boundary: Vec<Boundary>,
     pub grant: Vec<Grant>,
     pub ban: Vec<Ban>,
-    pub vocabulary: Vocabulary,
 }
 
 #[derive(Deserialize, Default)]
@@ -48,12 +46,6 @@ pub struct Comment {
     pub allow: Option<bool>,
 }
 
-#[derive(Deserialize, Default)]
-#[serde(default, deny_unknown_fields)]
-pub struct Word {
-    pub single: Option<bool>,
-}
-
 impl Limit {
     pub(super) fn apply(&self, target: &mut super::Limit) {
         if let Some(value) = self.block {
@@ -87,10 +79,7 @@ impl Limit {
 }
 
 impl Overlay {
-    pub(super) fn apply(self, file: &mut File) -> Result<(), Error> {
-        if self.word.single == Some(false) {
-            return Err(Error::new("word.single cannot be disabled in [ectropy]"));
-        }
+    pub(super) fn apply(self, file: &mut File) {
         if let Some(include) = self.scan.include {
             union(&mut file.scan.include, include);
             file.scan.all = false;
@@ -101,14 +90,9 @@ impl Overlay {
         if let Some(allow) = self.comment.allow {
             file.comment.allow = allow;
         }
-        if let Some(single) = self.word.single {
-            file.word.single = single;
-        }
         file.boundary.extend(self.boundary);
         file.grant.extend(self.grant);
         file.ban.extend(self.ban);
-        file.vocabulary.term.extend(self.vocabulary.term);
-        Ok(())
     }
 }
 

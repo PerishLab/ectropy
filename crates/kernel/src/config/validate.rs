@@ -1,5 +1,4 @@
 use super::{Error, File};
-use std::collections::HashSet;
 
 pub(super) fn run(file: &File) -> Result<(), Error> {
     for pattern in file
@@ -51,21 +50,6 @@ pub(super) fn run(file: &File) -> Result<(), Error> {
                 "ban `{}` paths must not be empty",
                 ban.syntax
             )));
-        }
-    }
-    let mut names = HashSet::new();
-    for term in &file.vocabulary.term {
-        let name = term.name.trim();
-        if name.is_empty() {
-            return Err(Error::new("vocabulary term name must not be empty"));
-        }
-        if term.description.trim().is_empty() {
-            return Err(Error::new(format!(
-                "vocabulary term `{name}` description must not be empty"
-            )));
-        }
-        if !names.insert(name) {
-            return Err(Error::new(format!("duplicate vocabulary term `{name}`")));
         }
     }
     Ok(())
