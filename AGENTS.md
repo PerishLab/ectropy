@@ -12,8 +12,8 @@ same constitution ectropy enforces on others.
 
 - KISS: refuse anonymous models. Each concrete law names one mechanically
   visible projection; `kiss` is never a finding or suppression label.
-- Single word: each name is one vocabulary atom. Maintain vocabulary deltas
-  alongside code diffs (`plumb.toml [ectropy]` or legacy `ectropy.toml`).
+- Single word: each name is one vocabulary atom. `word` admits no boundary
+  exemption, toggle, or configured term registry.
 - Block depth <= 4. Path depth <= 3 from a declared module root. Flatten before
   nesting deeper.
 - No comments by default. Move explanation into a name, a test, the vocabulary,

@@ -196,17 +196,13 @@ impl<'a> Scan<'a> {
     }
 
     fn single(&mut self, node: &Node) {
+        if node.kind != Kind::Word {
+            return;
+        }
         let name = self.word(node);
-        if node.kind != Kind::Word || !self.config.file.word.single {
-            return;
+        if compound(name) {
+            self.mark(node.span.start, "word", name);
         }
-        if !compound(name) || self.config.registered(name) {
-            return;
-        }
-        if self.config.exempt(&self.source.path, "word") {
-            return;
-        }
-        self.mark(node.span.start, "word", name);
     }
 
     fn block(&mut self, node: &Node) {

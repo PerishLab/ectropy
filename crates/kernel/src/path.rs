@@ -20,9 +20,6 @@ pub fn depth(path: &str, config: &Config) -> Option<Finding> {
 }
 
 pub fn word(path: &str, config: &Config) -> Vec<Finding> {
-    if !config.file.word.single || config.exempt(path, "word") {
-        return Vec::new();
-    }
     let Some(parts) = config.file.module.tail(path) else {
         return Vec::new();
     };
@@ -30,7 +27,7 @@ pub fn word(path: &str, config: &Config) -> Vec<Finding> {
         .iter()
         .enumerate()
         .flat_map(|(index, part)| atoms(part, index + 1 == parts.len()))
-        .filter(|name| compound(&flat(name)) && !config.registered(name))
+        .filter(|name| compound(&flat(name)))
         .map(|name| Finding::word(path, name))
         .collect()
 }

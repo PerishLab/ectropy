@@ -112,8 +112,8 @@ pub const LAWS: &[Law] = &[
     },
     Law {
         name: "word",
-        note: "an unregistered compound declared name",
-        exempt: true,
+        note: "a compound declared name; every declared name must be a single word",
+        exempt: false,
     },
 ];
 

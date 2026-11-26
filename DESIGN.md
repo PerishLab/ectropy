@@ -21,8 +21,8 @@ A word is one vocabulary atom in its language namespace, not necessarily one
 English word. Single-word pressure points downward to namespace rules and
 upward to the product vocabulary. Paths below a module root are names on the
 same terms, so fusing a compound directory into a compound file cannot evade
-the law. The vocabulary stays live: configuration records selected product
-terms but is not an exhaustive dictionary.
+the law. `word` admits no boundary exemption, toggle, or term registry; the
+vocabulary stays live through the CLI projection.
 
 Single-word follows name ownership rather than spelling alone. Identifiers
 declared by the repository — its own declarations and explicit local aliases
@@ -335,9 +335,9 @@ ecosystem dependency rules, and repository shape remain outside adapters.
 The law catalog is the source of truth for the current named refusals and their
 boundary eligibility. `ectropy law` exposes it directly; documents do not copy
 an inventory that can drift. Configuration selects scan globs, module roots,
-limits, comment and word policy, syntax grants and bans, justified boundaries,
-and vocabulary terms. Unknown fields, unknown laws, malformed globs, and empty
-reasons are operational errors.
+limits, comment policy, syntax grants and bans, and justified boundaries.
+Unknown fields, unknown laws, malformed globs, and empty reasons are
+operational errors.
 
 All path lists use one dialect: `*` stays within a segment, `**` crosses
 segments, and a bare directory names only that directory. Scan, boundary,

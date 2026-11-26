@@ -110,9 +110,6 @@ exclude = ["extra/gen/**"]
 [ectropy.module]
 roots = ["extra"]
 
-[ectropy.word]
-single = true
-
 [[ectropy.grant]]
 syntax = "embed"
 paths = ["crates/cli/src/rules.rs"]
@@ -148,16 +145,8 @@ fn refusal() {
     put(
         root.path(),
         "plumb.toml",
-        "[ectropy.word]\nsingle = false\n",
+        "[ectropy]\nlimit = { block = 4 }\n",
     );
-    let Source::Depot(overlay) = inspect(root.path()).expect("inspect") else {
-        panic!("expected depot");
-    };
-    let error = resolve(root.path(), &rules(LIMITS), overlay)
-        .err()
-        .expect("word.single = false");
-    assert!(error.to_string().contains("word.single"), "{error}");
-
     put(root.path(), "ectropy.toml", "[limit]\nblock = 4\n");
     let error = inspect(root.path()).err().expect("conflict");
     assert!(
@@ -178,6 +167,65 @@ fn refusal() {
 
     put(root.path(), "plumb.toml", "[ectropy]\nunknown = true\n");
     assert!(inspect(root.path()).is_err());
+}
+
+#[test]
+fn retired() {
+    let root = tempfile::tempdir().expect("root");
+    put(root.path(), "plumb.toml", "[identity]\nns = 'probe'\n");
+    resolve(root.path(), &rules(LIMITS), None).expect("limit with word.single = true");
+
+    let omitted = LIMITS.replace("[word]\nsingle = true\n", "");
+    assert!(!omitted.contains("[word]"));
+    resolve(root.path(), &rules(&omitted), None).expect("limit without [word]");
+
+    let disabled = LIMITS.replace("single = true", "single = false");
+    let error = resolve(root.path(), &rules(&disabled), None)
+        .err()
+        .expect("limit with word.single = false");
+    assert!(
+        error.to_string().contains("cannot disable word.single"),
+        "{error}"
+    );
+
+    for malformed in [
+        LIMITS.replace("single = true", "extra = true"),
+        LIMITS.replace("single = true", "single = \"false\""),
+    ] {
+        assert!(resolve(root.path(), &rules(&malformed), None).is_err());
+    }
+
+    for text in [
+        "[ectropy.word]\n",
+        "[ectropy.word]\nsingle = false\n",
+        "[ectropy.word]\nsingle = true\n",
+        "[ectropy.vocabulary]\n",
+        "[[ectropy.vocabulary.term]]\nname = \"two_words\"\ndescription = \"valid\"\n",
+    ] {
+        put(root.path(), "plumb.toml", text);
+        let error = inspect(root.path()).err().expect(text);
+        assert!(
+            error.to_string().contains("unknown field"),
+            "{text}: {error}"
+        );
+    }
+
+    put(
+        root.path(),
+        "plumb.toml",
+        "[[ectropy.boundary]]\npaths = [\"src/**\"]\nallow = [\"word\"]\nnote = \"probe\"\n",
+    );
+    let error = kernel::config::load(root.path())
+        .err()
+        .expect("load word boundary");
+    assert!(error.to_string().contains("admits no exemption"), "{error}");
+    let Source::Depot(overlay) = inspect(root.path()).expect("inspect") else {
+        panic!("expected depot");
+    };
+    let error = resolve(root.path(), &rules(LIMITS), overlay)
+        .err()
+        .expect("resolve word boundary");
+    assert!(error.to_string().contains("admits no exemption"), "{error}");
 }
 
 #[test]

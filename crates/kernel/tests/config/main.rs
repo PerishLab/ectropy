@@ -95,8 +95,6 @@ fn validation() {
         "[[ban]]\nsyntax = \"missing\"\npaths = [\"src/**\"]\n",
         "[[ban]]\nsyntax = \"style\"\npaths = []\n",
         "[[ban]]\nsyntax = \"style\"\npaths = [\"src/**x/*.tsx\"]\n",
-        "[[vocabulary.term]]\nname = \"two_words\"\ndescription = \"\"\n",
-        "[[vocabulary.term]]\nname = \"two_words\"\ndescription = \"one\"\n[[vocabulary.term]]\nname = \"two_words\"\ndescription = \"two\"\n",
     ];
     for (at, text) in cases.iter().enumerate() {
         let root = tempfile::tempdir().expect("create config root");
@@ -148,11 +146,27 @@ fn catalog() {
 
 #[test]
 fn sealed() {
-    for name in ["ban", "coverage", "grant", "reach"] {
+    for name in ["ban", "coverage", "grant", "reach", "word"] {
         assert!(!kernel::law::find(name).expect(name).exempt);
         let error = edge(name).expect_err(name);
         assert!(error.contains("admits no exemption"), "{error}");
     }
+}
+
+#[test]
+fn retired() {
+    for text in [
+        "[vocabulary]\n",
+        "[[vocabulary.term]]\nname = \"two_words\"\ndescription = \"valid\"\n",
+        "[word]\n",
+        "[word]\nsingle = false\n",
+        "[word]\nsingle = true\n",
+    ] {
+        let error = load(text).expect_err(text);
+        assert!(error.contains("unknown field"), "{text}: {error}");
+    }
+    let error = edge("word").expect_err("word boundary");
+    assert!(error.contains("admits no exemption"), "{error}");
 }
 
 #[test]

@@ -72,13 +72,19 @@ fn kebab() {
 }
 
 #[test]
-fn registered() {
+fn unconditional() {
     let mut config = config(&["app/src"], 4);
-    config.file.vocabulary.term.push(kernel::config::Term {
-        name: "internal_help".to_string(),
-        description: "Established local compound.".to_string(),
+    config.file.boundary.push(kernel::config::Boundary {
+        paths: vec!["app/src/**".to_string()],
+        allow: vec!["word".to_string()],
+        note: "probe".to_string(),
     });
-    assert!(kernel::path::word("app/src/core/internal_help.rs", &config).is_empty());
+    assert_eq!(
+        kernel::path::word("app/src/core/internal_help.rs", &config).len(),
+        1
+    );
+    let found = findings("app/src/core/mod.rs", "fn bad_name() {}", &config);
+    assert!(found.iter().any(|hit| hit.law == "word"));
 }
 
 #[test]
