@@ -11,6 +11,7 @@ const SOURCES: &[&str] = &[
     include_str!("../cookbook/schema.txt"),
     include_str!("../cookbook/shadow.txt"),
     include_str!("../cookbook/tuple.txt"),
+    include_str!("../cookbook/word.txt"),
 ];
 
 pub(crate) fn render(code: Option<&str>, json: bool) -> Result<String, String> {

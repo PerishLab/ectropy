@@ -2,15 +2,15 @@
 
 ## Trigger
 
-The `fanout` law fires on a Rust integration-test directory.
+The `fanout` law fires on a Rust integration-test directory or an application root.
 
 ## Solution
 
-Group related cases behind explicit `[[test]]` entries whose drivers are per-group `main.rs` files. Put shared fixtures in a `world.rs` each group imports; do not trade directory width for hidden module depth.
+For Rust integration tests, group related cases behind Cargo-native `tests/<group>/main.rs` directories (no `[[test]]` stanzas in `Cargo.toml` unless customizing the harness) and keep shared helpers in `tests/support/mod.rs`. Avoid pairing `tests/<name>.rs` with `tests/<name>/` because each pair consumes two fanout slots for one suite. On web application roots such as `apps/web`, move feature modules under `apps/web/src/` so the root holds only entry configuration, `src/`, and `tests/`. Do not trade directory width for hidden module depth.
 
 ## Evidence
 
-The keel v0.5.0 test regroup reduced discovery width while keeping shared fixtures visible to every explicit test target.
+Regrouping `tests/` into `tests/<group>/main.rs` across `plumb`, `locus`, and `folio` stayed within `fanout = 10` while reducing compiled test binaries; `ensign/crates/api/tests` hit 10/10 from `foo.rs`+`foo/` double-slot pairs, and `folio/apps/web` hit 10/10 from feature modules placed outside `src/`.
 
 ## EXIT
 

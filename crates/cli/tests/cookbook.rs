@@ -89,3 +89,18 @@ fn simple() {
     assert!(stderr.contains("cannot open missing-root"));
     assert!(!stderr.contains("cookbook"));
 }
+
+#[test]
+fn guidance() {
+    let word = json(&["cookbook", "structure.word", "--json"]);
+    assert_eq!(word["code"], "structure.word");
+    let solution = word["solution"].as_str().expect("word solution");
+    assert!(solution.contains("serde(rename"), "{solution}");
+    assert!(solution.contains("hascode"), "{solution}");
+    let fanout = json(&["cookbook", "structure.fanout", "--json"]);
+    assert_eq!(fanout["code"], "structure.fanout");
+    let solution = fanout["solution"].as_str().expect("fanout solution");
+    assert!(solution.contains("tests/<group>/main.rs"), "{solution}");
+    assert!(solution.contains("tests/support/mod.rs"), "{solution}");
+    assert!(solution.contains("apps/web/src/"), "{solution}");
+}
