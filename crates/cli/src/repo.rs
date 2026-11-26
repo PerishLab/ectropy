@@ -30,8 +30,16 @@ impl Repo {
                 root.display()
             )));
         }
-        let config =
-            kernel::config::load(&base).map_err(|source| Error::note(source.to_string()))?;
+        let config = match kernel::config::inspect(&base)
+            .map_err(|source| Error::note(source.to_string()))?
+        {
+            kernel::config::Source::Legacy(config) => config,
+            kernel::config::Source::Depot(overlay) => {
+                let rules = crate::depot::resolve()?;
+                kernel::config::resolve(&base, &rules, overlay)
+                    .map_err(|source| Error::note(source.to_string()))?
+            }
+        };
         Ok(Self { base, config })
     }
 

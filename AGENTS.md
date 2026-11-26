@@ -13,11 +13,12 @@ same constitution ectropy enforces on others.
 - KISS: refuse anonymous models. Each concrete law names one mechanically
   visible projection; `kiss` is never a finding or suppression label.
 - Single word: each name is one vocabulary atom. Maintain vocabulary deltas
-  alongside code diffs (`ectropy.toml`).
-- Block depth <= 4. Path depth <= 4 from a declared module root. Flatten before
+  alongside code diffs (`plumb.toml [ectropy]` or legacy `ectropy.toml`).
+- Block depth <= 4. Path depth <= 3 from a declared module root. Flatten before
   nesting deeper.
 - No comments by default. Move explanation into a name, a test, the vocabulary,
-  or an admitted document. Boundary exemptions live in `ectropy.toml`.
+  or an admitted document. Boundary exemptions live in `plumb.toml [ectropy]`
+  (or legacy `ectropy.toml`).
 
 ## Architecture
 
@@ -38,9 +39,10 @@ namespace data inside the existing crates, never as a plugin crate.
 - Plumb owns repository governance, release markers, and landing; wharf
   builds, binds, and distributes each release. Read their current help and
   rules; do not restate a release workflow or changelog shape here.
-- `plumb.toml` and `ectropy.toml` are this repository's own declarations,
-  layered over the base Plumb carries in its binary. Where they depart from
-  that base, `plumb doctor` says so as a noted finding.
+- `plumb.toml` (including `[ectropy]` overlays, or transitional legacy
+  `ectropy.toml`) holds this repository's own declarations, layered over Plumb
+  Depot configuration. Where they depart from that base, `plumb doctor` says so
+  as a noted finding.
 - The repository carries no workflow, no release notes and no skill. Each
   stable's release notes and skill are written for it and consigned to Depot
   with `--dir`; the standing generations there are the only source.

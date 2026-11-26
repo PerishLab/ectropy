@@ -2,8 +2,15 @@ use serde::Deserialize;
 use std::fmt;
 use std::path::Path;
 
+mod overlay;
+mod policy;
 mod scan;
+mod shape;
 mod validate;
+mod walk;
+
+pub use overlay::Overlay;
+pub use policy::{Source, inspect, resolve};
 
 pub struct Config {
     pub file: File,
@@ -29,18 +36,7 @@ impl fmt::Display for Error {
 impl std::error::Error for Error {}
 
 pub fn load(root: &Path) -> Result<Config, Error> {
-    let path = root.join("ectropy.toml");
-    let exists = path
-        .try_exists()
-        .map_err(|source| Error::new(format!("cannot inspect {}: {source}", path.display())))?;
-    if !exists {
-        return Ok(Config {
-            file: File::default(),
-        });
-    }
-    let file = radicula_config::load(&path).map_err(|source| Error::new(source.to_string()))?;
-    validate::run(&file)?;
-    Ok(Config { file })
+    policy::load(root)
 }
 
 #[derive(Deserialize, Default)]
@@ -87,7 +83,7 @@ impl Default for Limit {
     fn default() -> Self {
         Self {
             block: 4,
-            path: 4,
+            path: 3,
             param: 4,
             combination: 3,
             markup: 8,

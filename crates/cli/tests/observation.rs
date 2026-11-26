@@ -9,9 +9,18 @@ fn run(home: &Path, root: &Path, args: &[&str]) -> Output {
     Command::new(env!("CARGO_BIN_EXE_ectropy"))
         .current_dir(root)
         .env("ECTROPY_HOME", home)
+        .env_remove("PLUMB_CONFIGURATION")
+        .env_remove("PLUMB_DEPOT_MARK")
+        .env_remove("PLUMB_RULES_SOURCE")
         .args(args)
         .output()
         .unwrap()
+}
+
+fn root() -> tempfile::TempDir {
+    let dir = tempfile::tempdir().unwrap();
+    std::fs::write(dir.path().join("ectropy.toml"), "").unwrap();
+    dir
 }
 
 fn configure(home: &Path, text: &str) {
@@ -38,7 +47,7 @@ fn records(home: &Path) -> Vec<Value> {
 #[test]
 fn disabled() {
     let home = tempfile::tempdir().unwrap();
-    let root = tempfile::tempdir().unwrap();
+    let root = root();
     let absent = run(home.path(), root.path(), &[]);
     configure(home.path(), "[locus]\nenabled = false\n");
     let disabled = run(home.path(), root.path(), &[]);
@@ -52,7 +61,7 @@ fn disabled() {
 #[test]
 fn buffered() {
     let home = tempfile::tempdir().unwrap();
-    let root = tempfile::tempdir().unwrap();
+    let root = root();
     configure(home.path(), ENABLED);
     let clean = run(home.path(), root.path(), &[]);
     assert_eq!(clean.status.code(), Some(0));
@@ -99,7 +108,7 @@ fn buffered() {
 #[test]
 fn isolated() {
     let home = tempfile::tempdir().unwrap();
-    let root = tempfile::tempdir().unwrap();
+    let root = root();
     let baseline = run(home.path(), root.path(), &[]);
     for config in [
         ENABLED,
@@ -125,7 +134,7 @@ fn isolated() {
 #[test]
 fn pipe() {
     let home = tempfile::tempdir().unwrap();
-    let root = tempfile::tempdir().unwrap();
+    let root = root();
     configure(home.path(), ENABLED);
     for at in 0..1000 {
         std::fs::write(
@@ -137,6 +146,9 @@ fn pipe() {
     let mut child = Command::new(env!("CARGO_BIN_EXE_ectropy"))
         .current_dir(root.path())
         .env("ECTROPY_HOME", home.path())
+        .env_remove("PLUMB_CONFIGURATION")
+        .env_remove("PLUMB_DEPOT_MARK")
+        .env_remove("PLUMB_RULES_SOURCE")
         .arg("shape")
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -177,7 +189,7 @@ fn pipe() {
 #[test]
 fn fault() {
     let home = tempfile::tempdir().unwrap();
-    let root = tempfile::tempdir().unwrap();
+    let root = root();
     configure(home.path(), ENABLED);
     assert_eq!(run(home.path(), root.path(), &[]).status.code(), Some(0));
     std::fs::write(root.path().join("bad.rs"), "fn read_file() {}\n").unwrap();
@@ -200,7 +212,7 @@ fn fault() {
 
 #[test]
 fn parity() {
-    let root = tempfile::tempdir().unwrap();
+    let root = root();
     let commands: [&[&str]; 5] = [
         &[],
         &["shape"],
@@ -241,7 +253,7 @@ fn lines(stderr: &[u8]) -> Vec<String> {
 #[test]
 fn https() {
     let home = tempfile::tempdir().unwrap();
-    let root = tempfile::tempdir().unwrap();
+    let root = root();
     let seat = home.path();
     let key = seat.join("writer");
     std::fs::write(&key, "fixture").unwrap();

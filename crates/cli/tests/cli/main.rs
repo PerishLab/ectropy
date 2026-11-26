@@ -1,3 +1,5 @@
+mod terrain;
+
 use std::fs;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
@@ -17,6 +19,7 @@ impl Seat {
         );
         let path = std::env::temp_dir().join(name);
         fs::create_dir(&path).expect("create temp root");
+        fs::write(path.join("ectropy.toml"), "").expect("write empty config");
         Self(path)
     }
 
@@ -31,11 +34,16 @@ impl Drop for Seat {
     }
 }
 
+fn command() -> Command {
+    let mut cmd = Command::new(env!("CARGO_BIN_EXE_ectropy"));
+    cmd.env_remove("PLUMB_CONFIGURATION")
+        .env_remove("PLUMB_DEPOT_MARK")
+        .env_remove("PLUMB_RULES_SOURCE");
+    cmd
+}
+
 fn run(args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_ectropy"))
-        .args(args)
-        .output()
-        .expect("run ectropy")
+    command().args(args).output().expect("run ectropy")
 }
 
 fn text(bytes: &[u8]) -> &str {
@@ -264,7 +272,7 @@ fn pipe() {
         )
         .expect("write source");
     }
-    let mut child = Command::new(env!("CARGO_BIN_EXE_ectropy"))
+    let mut child = command()
         .args(["shape", seat.path().to_str().expect("path")])
         .stdout(Stdio::piped())
         .spawn()
