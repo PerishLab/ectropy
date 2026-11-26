@@ -37,3 +37,10 @@ targets = [
   "x86_64-pc-windows-msvc",
 ]
 skill = true
+
+[[ectropy.grant]]
+paths = [
+    "crates/cli/src/cookbook.rs",
+    "crates/grammar/src/rules.rs",
+]
+syntax = "embed"
