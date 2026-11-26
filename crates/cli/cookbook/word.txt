@@ -1,0 +1,17 @@
+# structure.word
+
+## Trigger
+
+The `word` law fires on a compound declared name or path atom.
+
+## Solution
+
+Factor meaning into modules, namespaces, or nested records (`key.file`, `codec::Encoding`) instead of smashing words together (`hascode`, `keyfile`) or overloading opaque nouns (`hold`). For external wire or config keys in Rust, decouple internal field names with `#[serde(rename = "...")]` or nested config tables. Respect name ownership: imports without renames, Rust trait `impl ... for ...` member signatures, `extern` FFI symbols, and TypeScript non-function object-literal data keys (`{ has_code: ... }`) already lie outside `word`.
+
+## Evidence
+
+Across `locus`, `folio`, and `ensign`, factoring `content_encoding` into `codec::Encoding` kept code clear without comments, whereas smashing `hascode` in TypeScript object literals and `keyfile` in config structs evaded the check without improving structure.
+
+## EXIT
+
+Remove this entry when single-word refactoring moves become mechanical or the word law retires.

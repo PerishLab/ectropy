@@ -9,6 +9,7 @@ pub const RECEIVER: &str = "structure.receiver";
 pub const SCHEMA: &str = "structure.schema";
 pub const SHADOW: &str = "structure.shadow";
 pub const TUPLE: &str = "structure.tuple";
+pub const WORD: &str = "structure.word";
 
 pub const CODES: &[&str] = &[
     BURR,
@@ -20,6 +21,7 @@ pub const CODES: &[&str] = &[
     SCHEMA,
     SHADOW,
     TUPLE,
+    WORD,
 ];
 
 pub(crate) fn code(raw: &'static str) -> Code {
