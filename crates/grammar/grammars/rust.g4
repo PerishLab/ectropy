@@ -54,7 +54,7 @@ nestItem   : quals ( 'trait' / 'mod' ) name head LBRACE unit* RBRACE -> item ;
 fnItem     : quals 'fn' name fnTail -> item ;
 fnTail : gen? fparams head ( scope / ';' ) / skew ( scope / ';' ) ;
 gen : '<' genAtom* '>' ;
-genAtom : gen / pgroup / bgroup / '-' '>' / ( !'>' !LPAREN . ) ;
+genAtom : gen / pgroup / bgroup / hold / '-' '>' / ( !'>' !LPAREN !LBRACE !RBRACE !';' . ) ;
 fparams : LPAREN seat mates RPAREN / LPAREN sits mates RPAREN / LPAREN RPAREN ;
 sits : '&'? ( '\'' IDENT )? 'mut'? 'self' ;
 mates : ( ',' more )* ( ',' '.' '.' '.' )? ','? ;
@@ -92,8 +92,9 @@ callItem : path '!' ( pgroup / bgroup / mbrace ) ';'? -> item ;
 
 structTail : fields / ';' ;
 fields : LBRACE member* RBRACE ;
-member : outer* vis? name ( fields / !LBRACE ) membertail ;
-membertail : ( !',' !RBRACE loose )* ','? ;
+member : outer* vis? name ( ':' typeTail / ( fields / !LBRACE ) exprTail ) ;
+typeTail : ( !',' !RBRACE ( gen / loose ) )* ','? ;
+exprTail : ( !',' !RBRACE ( ':' ':' gen / loose ) )* ','? ;
 
 stmt : guard / nested / control / letStmt / typed / structLit / scope / stray / ( !RBRACE . ) ;
 guard : '*' ( 'const' / 'mut' ) / '\'' IDENT ;

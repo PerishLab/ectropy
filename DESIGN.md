@@ -177,7 +177,16 @@ foreign declarations (`fn`, `static`, `type`) inside a Rust `extern` block
 adopt externally owned names and emit no `word` evidence, while inherent `impl`
 members, exported `extern` function definitions, and local `let` bindings or
 nested declarations inside a trait `impl` method body remain repository-owned
-declarations and still emit `word` evidence (#265).
+declarations and still emit `word` evidence (#265). The same ownership boundary
+applies to TypeScript `declare global { … }` and `declare module "…" { … }`
+reopened external `interface` headers, TypeScript class methods carrying the
+explicit `override` modifier, and Python class methods carrying an explicit
+`@override` or `@typing.override` decorator (PEP 698): the adopted header or
+overridden method name emits no `word` evidence, while newly declared interface
+members, top-level `.d.ts` declarations, method parameters and bodies,
+unannotated methods, TypeScript `override` fields and arrow properties,
+object-literal methods, and Python `@override`-decorated non-method functions
+remain repository-owned and stay checked by `word` (#271).
 
 An `if` head that compares a dotted name (`kind`, `event.type`, `self.typed`,
 `this.mode`) with `==` or `===` to a literal emits `probe`; a field read is

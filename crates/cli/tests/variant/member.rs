@@ -1,4 +1,4 @@
-use super::{Marks, agree};
+use super::{Marks, agree, over, read};
 
 fn words(names: &[&str]) -> Marks {
     let word = |name: &&str| ("word".to_string(), name.to_string());
@@ -130,4 +130,54 @@ fn signatures() {
     let both = words(&["readTree", "walkTree"]);
     let text = "export type Api = { walkTree(): { first: number } & { second: number }, readTree(): void };\n";
     agree(text, &both);
+}
+
+#[test]
+fn ambient() {
+    let global = "export {};\ndeclare global {\n  interface SymbolConstructor {\n    readonly plectron: symbol;\n  }\n}\n";
+    agree(global, &Marks::new());
+    assert_eq!(read("global.d.ts", global), Marks::new());
+    let member = "declare global {\n  interface SymbolConstructor {\n    readonly plectron: symbol;\n    readonly fooBar: string;\n  }\n}\n";
+    agree(member, &words(&["fooBar"]));
+    assert_eq!(read("global.d.ts", member), words(&["fooBar"]));
+    let module = "declare module \"ext\" {\n  interface ExternalApi<T> extends BaseApi {\n    readonly ok: T;\n    readonly fooBar: string;\n    getValue(): void;\n  }\n}\n";
+    agree(module, &words(&["fooBar", "getValue"]));
+    let exported = "declare module \"ext\" {\n  export interface ExternalApi {\n    readonly ok: number;\n    readonly fooBar: string;\n  }\n}\n";
+    agree(exported, &words(&["fooBar"]));
+    let top = "export interface TopLevel {\n  readonly ok: number;\n}\n";
+    assert_eq!(read("types.d.ts", top), words(&["TopLevel"]));
+    assert_eq!(
+        read("types.d.ts", "interface TopLevel { ok: number }\n"),
+        words(&["TopLevel"])
+    );
+}
+
+#[test]
+fn overrides() {
+    for clean in [
+        "export class Sub extends Base {\n  override doSomething(x: number): void { go(x); }\n}\n",
+        "export class Sub extends Base {\n  public override async fetchItem<T>(x: T): Promise<T> { return x; }\n}\n",
+        "export class Sub extends Base {\n  override get fullName(): string { return \"\"; }\n  override set fullName(v: string) { go(v); }\n  override *genItems() { yield 1; }\n}\n",
+        "export abstract class Sub extends Base {\n  abstract override doSomething(): void;\n}\n",
+        "export class Sub {\n  override(x: number): void { go(x); }\n}\n",
+    ] {
+        agree(clean, &Marks::new());
+    }
+    let body = "export class Sub extends Base {\n  protected override doSomething(a: number, b: number, c: number, d: number, e: number): void {\n    const badLocal = a;\n    go(badLocal);\n  }\n}\n";
+    let mut want = over(1);
+    want.extend(words(&["badLocal"]));
+    want.sort();
+    agree(body, &want);
+    agree(
+        "export class Sub extends Base {\n  doSomething(): void {}\n}\n",
+        &words(&["doSomething"]),
+    );
+    agree(
+        "export class Sub extends Base {\n  override doSomething = (): void => {};\n}\n",
+        &words(&["doSomething"]),
+    );
+    agree(
+        "export const obj = { setDepth() {}, getWidth: () => 1 };\n",
+        &words(&["getWidth", "setDepth"]),
+    );
 }

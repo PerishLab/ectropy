@@ -264,3 +264,27 @@ fn renames() {
         assert_eq!(marks(clean), Vec::new(), "{clean}");
     }
 }
+
+#[test]
+fn generics() {
+    let clean = "pub struct Store {\n    pub keys: BTreeMap<String, DecodingKey>,\n    pub members: BTreeMap<(SetId, u64), BTreeSet<ElementId>>,\n    pub nested: BTreeMap<(SetId, [u8; 4]), Box<dyn Fn(u8, u8) -> Result<Alpha, Beta>>>,\n    pub sized: Array<u8, { 1 + 2 }>,\n}\n";
+    assert_eq!(marks(clean), Marks::new(), "{clean}");
+    assert_eq!(kinds(clean, grammar::Kind::Word), 5);
+    let variant = "pub enum Packet {\n    Data {\n        keys: BTreeMap<String, DecodingKey>,\n        members: BTreeMap<(SetId, u64), BTreeSet<ElementId>>,\n    },\n}\n";
+    assert_eq!(marks(variant), Marks::new(), "{variant}");
+    let bad = "pub struct Store {\n    pub keys: BTreeMap<String, DecodingKey>,\n    pub bad_key: BTreeMap<(SetId, u64), BTreeSet<ElementId>>,\n    pub other_field: u8,\n}\n";
+    assert_eq!(
+        marks(bad),
+        vec![
+            ("word".to_string(), "bad_key".to_string()),
+            ("word".to_string(), "other_field".to_string()),
+        ]
+    );
+    let hit = vec![("word".to_string(), "bad_flag".to_string())];
+    let shift = "pub enum Flags {\n    First = 1 << 0,\n    bad_flag = 8 >> 1,\n}\n";
+    assert_eq!(marks(shift), hit, "{shift}");
+    let compare = "pub enum Choice {\n    First = if A < B { 1 } else { 2 },\n    bad_flag = if C > D { 1 } else { 2 },\n}\n";
+    assert_eq!(marks(compare), hit, "{compare}");
+    let turbo = "pub enum Turbo {\n    First = make::<Alpha, Beta>(),\n    bad_flag = 2,\n}\n";
+    assert_eq!(marks(turbo), hit, "{turbo}");
+}
