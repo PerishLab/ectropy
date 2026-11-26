@@ -212,7 +212,7 @@ fn modifiers() {
         "static async walkTree",
         "public walkTree",
         "private static walkTree",
-        "protected override walkTree",
+        "protected walkTree",
         "async *walkTree",
         "get walkTree",
         "walkTree?",

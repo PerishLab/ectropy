@@ -55,12 +55,12 @@ fn enums() {
 
 #[test]
 fn ambient() {
-    let body = "export function alphaBeta(a: number, b: number, c: number, d: number, e: number): void {}\nexport interface GammaDelta { kind: string }\n";
-    let module = "declare module \"probe\" {\n  export function alphaBeta(a: number, b: number, c: number, d: number, e: number): void;\n  export interface GammaDelta { kind: string }\n}\n";
+    let body = "export function alphaBeta(a: number, b: number, c: number, d: number, e: number): void {}\nexport interface Kind { fooBar: string }\n";
+    let module = "declare module \"probe\" {\n  export function alphaBeta(a: number, b: number, c: number, d: number, e: number): void;\n  export interface GammaDelta { fooBar: string }\n}\n";
     let want = read("host.ts", body);
     assert_eq!(want.len(), 3, "{want:?}");
     let got = read("host.ts", module);
-    assert_eq!(got, want, "ambient body as top-level");
+    assert_eq!(got, want, "ambient body keeps members and functions");
     assert_eq!(read("host.tsx", module), want);
 }
 

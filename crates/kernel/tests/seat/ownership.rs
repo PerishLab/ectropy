@@ -1,12 +1,16 @@
 use super::*;
 
-fn words(text: &str) -> Vec<String> {
+fn notes(path: &str, text: &str) -> Vec<String> {
     let config = config(&[], 4);
-    findings("t.rs", text, &config)
+    findings(path, text, &config)
         .into_iter()
         .filter(|finding| finding.law == "word")
         .map(|finding| finding.note)
         .collect()
+}
+
+fn words(text: &str) -> Vec<String> {
+    notes("t.rs", text)
 }
 
 #[test]
@@ -70,4 +74,38 @@ fn foreign() {
     assert_eq!(words(exported), ["exported_symbol"]);
     let defined = "trait Local {\n    fn bad_method(&self);\n}\n";
     assert_eq!(words(defined), ["bad_method"]);
+}
+
+#[test]
+fn overrides() {
+    let cases = [
+        "class Sub(Base):\n    @override\n    def do_something(self, value):\n        return value\n",
+        "class Sub(Base):\n    @typing.override\n    async def fetch_item(self, value):\n        return value\n",
+        "class Sub(Base):\n    @classmethod\n    @override\n    def from_raw(cls, data):\n        return data\n",
+        "class Sub(Base):\n    @typing.override\n    @property\n    def full_name(self):\n        return self.name\n",
+    ];
+    for source in cases {
+        let found = scan("t.py", source);
+        assert!(found.is_empty(), "{source}: {found:?}");
+    }
+    let body = "class Sub(Base):\n    @override\n    def do_something(self, a, b, c, d, e):\n        bad_local = a\n        return bad_local\n";
+    let found = scan("t.py", body);
+    assert!(found.contains(&"param".to_string()), "{found:?}");
+    assert_eq!(notes("t.py", body), ["bad_local"]);
+    let plain = "class Sub(Base):\n    def bad_method(self):\n        pass\n";
+    assert_eq!(notes("t.py", plain), ["bad_method"]);
+    let other = "class Sub(Base):\n    @other\n    def bad_method(self):\n        pass\n";
+    assert_eq!(notes("t.py", other), ["bad_method"]);
+    let call = "class Sub(Base):\n    @override()\n    def bad_method(self):\n        pass\n";
+    assert_eq!(notes("t.py", call), ["bad_method"]);
+    let top = "@override\ndef top_bad():\n    pass\n";
+    assert_eq!(notes("t.py", top), ["top_bad"]);
+    let nested = "def host():\n    @override\n    def inner_bad():\n        pass\n";
+    assert_eq!(notes("t.py", nested), ["inner_bad"]);
+    let method = "class Sub(Base):\n    @override\n    def do_something(self):\n        @override\n        def inner_bad():\n            pass\n";
+    assert_eq!(notes("t.py", method), ["inner_bad"]);
+    let class = "@override\nclass BadClass:\n    pass\n";
+    assert_eq!(notes("t.py", class), ["BadClass"]);
+    let member = "class Outer:\n    @override\n    class BadClass:\n        pass\n";
+    assert_eq!(notes("t.py", member), ["BadClass"]);
 }

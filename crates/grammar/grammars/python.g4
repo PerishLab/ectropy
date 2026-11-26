@@ -21,11 +21,15 @@ unit : stmt ;
 stmt : decorated / fnItem / classItem / ifStmt / whileStmt / forStmt / withStmt / tryStmt / matchStmt / caseStmt / simple ;
 
 decorated : decorator+ ( fnItem / classItem ) ;
+overrode : ( !overMark decorator )* overMark decorator* bareFn ;
+overMark : '@' ( 'typing' '.' )? 'override' NEWLINE ;
 decorator : '@' rest NEWLINE ;
 
 fnItem : 'async'? 'def' name fparams returns? ':' suite -> item ;
+bareFn : 'async'? 'def' IDENT fparams returns? ':' suite -> item ;
 classItem : 'class' name pgroup? ':' body -> item ;
-body : NEWLINE INDENT stmt+ DEDENT / rest NEWLINE ;
+body : NEWLINE INDENT classStmt+ DEDENT / rest NEWLINE ;
+classStmt : overrode / stmt ;
 returns : '-' '>' header ;
 
 fparams : LPAREN RPAREN / LPAREN seat tails RPAREN / LPAREN marker ( ',' entry )* ','? RPAREN ;
