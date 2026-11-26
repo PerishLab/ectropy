@@ -21,9 +21,7 @@ impl Seat {
         let path = std::env::temp_dir().join(name);
         fs::create_dir(&path).expect("create temp root");
         let seat = Self(path);
-        if !config.is_empty() {
-            seat.put("ectropy.toml", config);
-        }
+        seat.put("ectropy.toml", config);
         seat.put("crates/a/src/lib.rs", "fn main() {}\n");
         seat
     }
@@ -37,6 +35,9 @@ impl Seat {
     fn run(&self) -> Output {
         Command::new(env!("CARGO_BIN_EXE_ectropy"))
             .arg(self.path())
+            .env_remove("PLUMB_CONFIGURATION")
+            .env_remove("PLUMB_DEPOT_MARK")
+            .env_remove("PLUMB_RULES_SOURCE")
             .output()
             .expect("run ectropy")
     }

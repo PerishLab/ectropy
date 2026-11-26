@@ -1,3 +1,6 @@
+mod depot;
+mod fixture;
+
 use kernel::config::{Config, File, Glob};
 use kernel::law::LAWS;
 use std::fs;
@@ -6,7 +9,7 @@ use std::fs;
 fn defaults() {
     let file: File = toml::from_str("").expect("empty config should parse");
     assert_eq!(file.limit.block, 4);
-    assert_eq!(file.limit.path, 4);
+    assert_eq!(file.limit.path, 3);
     assert_eq!(file.limit.combination, 3);
     assert_eq!(file.limit.tuple, 3);
     assert_eq!(file.limit.schema, 2);
