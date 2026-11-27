@@ -150,6 +150,53 @@ fn ambient() {
         read("types.d.ts", "interface TopLevel { ok: number }\n"),
         words(&["TopLevel"])
     );
+    let direct = "declare interface ExternalHost<T> extends BaseApi {\n  readonly ok: T;\n  \"appendChild\"(node: Node): Node;\n  readonly \"healthUrl\": string | null;\n}\n";
+    agree(direct, &Marks::new());
+    assert_eq!(read("types.d.ts", direct), Marks::new());
+    let exported = "export declare interface ExternalHost {\n  readonly ok: number;\n  \"removeChild\"(node: Node): Node;\n};\n";
+    agree(exported, &Marks::new());
+    assert_eq!(read("types.d.ts", exported), Marks::new());
+    let unquoted = "declare interface ExternalHost {\n  readonly ok: number;\n  fooBar: string;\n  appendChild(node: Node): Node;\n}\n";
+    agree(unquoted, &words(&["appendChild", "fooBar"]));
+    agree(
+        "export declare interface ExternalHost { appendChild(node: Node): Node }\n",
+        &words(&["appendChild"]),
+    );
+    for broken in [
+        "declare interface { ok: number }\n",
+        "declare interface ExternalHost\n",
+        "export declare interface { ok: number }\n",
+    ] {
+        let found = read("host.ts", broken);
+        assert!(
+            found.iter().any(|hit| hit.0 == "coverage"),
+            "{broken}: {found:?}"
+        );
+    }
+}
+
+#[test]
+fn callbacks() {
+    for clean in [
+        "export const plugin = { name: \"stamp\", \"resolveId\"(id: string) { return id; }, \"handleHotUpdate\": ({ server, modules }: Ctx) => modules };\n",
+        "export function wrap<T extends object>(value: T): T { return new Proxy(value, { get(t, k) { return Reflect.get(t, k); }, \"ownKeys\"(t) { return Reflect.ownKeys(t); }, \"defineProperty\": (t, k, d) => Reflect.defineProperty(t, k, d), \"deleteProperty\": function (t, k) { return Reflect.deleteProperty(t, k); } }); }\n",
+        "export const dom = { 'appendChild'(node: Node) { return node; }, async \"removeChild\"(node: Node) { return node; } };\n",
+    ] {
+        agree(clean, &Marks::new());
+    }
+    agree(
+        "export const plugin = { resolveId(id: string) { return id; }, ownKeys: (t: object) => Reflect.ownKeys(t) };\n",
+        &words(&["ownKeys", "resolveId"]),
+    );
+    let mut strict = over(1);
+    strict.extend(words(&["badLocal"]));
+    strict.sort();
+    for checked in [
+        "export const plugin = { \"resolveId\"(a: number, b: number, c: number, d: number, e: number) { const badLocal = a; return badLocal; } };\n",
+        "export const proxy = { \"ownKeys\": (a: number, b: number, c: number, d: number, e: number) => { const badLocal = a; return badLocal; } };\n",
+    ] {
+        agree(checked, &strict);
+    }
 }
 
 #[test]

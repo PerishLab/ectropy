@@ -62,6 +62,16 @@ fn ambient() {
     let got = read("host.ts", module);
     assert_eq!(got, want, "ambient body keeps members and functions");
     assert_eq!(read("host.tsx", module), want);
+    for clean in [
+        "declare interface ExternalHost { readonly ok: number; \"appendChild\"(node: Node): Node; \"healthUrl\": string | null }\n",
+        "export declare interface ExternalHost<T> extends BaseApi { readonly ok: T; \"removeChild\"(node: Node): Node };\n",
+        "export const hooks = { \"resolveId\"(id: string) { return id; }, \"ownKeys\": (t: object) => Reflect.ownKeys(t), 'appendChild'(n: Node) { return n; } };\n",
+    ] {
+        agree(clean, &Marks::new());
+    }
+    let bad = vec![("word".to_string(), "fooBar".to_string())];
+    agree("declare interface ExternalHost { fooBar: string }\n", &bad);
+    agree("export declare interface Host { fooBar: string }\n", &bad);
 }
 
 #[test]

@@ -6,11 +6,11 @@ The `word` law fires on a compound declared name or path atom.
 
 ## Solution
 
-Factor meaning into modules, namespaces, or nested records (`key.file`, `codec::Encoding`) instead of smashing words together (`hascode`, `keyfile`) or overloading opaque nouns (`hold`). For external wire or config keys in Rust, decouple internal field names with `#[serde(rename = "...")]` or nested config tables. Respect name ownership: imports without renames, Rust trait `impl ... for ...` member signatures, `extern` FFI symbols, and TypeScript non-function object-literal data keys (`{ has_code: ... }`) already lie outside `word`.
+Factor meaning into modules, namespaces, or nested records (`key.file`, `codec::Encoding`) instead of smashing words together (`hascode`, `keyfile`) or overloading opaque nouns (`hold`). For external wire or config keys in Rust, decouple internal field names with `#[serde(rename = "...")]` or nested config tables. Respect name ownership: imports without renames, Rust trait `impl ... for ...` member signatures, `extern` FFI symbols, and TypeScript non-function object-literal data keys (`{ has_code: ... }`) already lie outside `word`. For TypeScript external object-literal callback bindings (such as DOM, Vite, or `ProxyHandler` hooks like `appendChild`, `resolveId`, and `ownKeys`), quote the external property or method key (`"resolveId"(id) {}`, `"ownKeys": (target) => ...`) instead of weakening `word` or mechanically lifting wrapper functions; quoted keys stay outside `word` while parameters and bodies remain checked. For ambient external TypeScript interfaces, use `declare interface` (or `export declare interface`) with quoted external member keys (`"appendChild"(node: Node): Node`, `"healthUrl": string | null`) instead of `Record<"...">` intersections.
 
 ## Evidence
 
-Across `locus`, `folio`, and `ensign`, factoring `content_encoding` into `codec::Encoding` kept code clear without comments, whereas smashing `hascode` in TypeScript object literals and `keyfile` in config structs evaded the check without improving structure.
+Across `locus`, `folio`, `ensign`, `plectron`, and `design`, factoring `content_encoding` into `codec::Encoding` kept code clear without comments, whereas smashing `hascode` in TypeScript object literals and `keyfile` in config structs evaded the check without improving structure. Quoting external protocol keys (`"appendChild"`, `"resolveId"`, `"ownKeys"`) in object literals and `declare interface` contracts removes `Record<"...">` intersections and mechanical callback lifting while keeping repository-owned names strictly single-word.
 
 ## EXIT
 
