@@ -97,6 +97,10 @@ fn guidance() {
     let solution = word["solution"].as_str().expect("word solution");
     assert!(solution.contains("serde(rename"), "{solution}");
     assert!(solution.contains("hascode"), "{solution}");
+    assert!(solution.contains("\"resolveId\""), "{solution}");
+    assert!(solution.contains("\"ownKeys\""), "{solution}");
+    assert!(solution.contains("appendChild"), "{solution}");
+    assert!(solution.contains("declare interface"), "{solution}");
     let fanout = json(&["cookbook", "structure.fanout", "--json"]);
     assert_eq!(fanout["code"], "structure.fanout");
     let solution = fanout["solution"].as_str().expect("fanout solution");

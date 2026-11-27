@@ -178,15 +178,18 @@ adopt externally owned names and emit no `word` evidence, while inherent `impl`
 members, exported `extern` function definitions, and local `let` bindings or
 nested declarations inside a trait `impl` method body remain repository-owned
 declarations and still emit `word` evidence (#265). The same ownership boundary
-applies to TypeScript `declare global { … }` and `declare module "…" { … }`
-reopened external `interface` headers, TypeScript class methods carrying the
+applies to TypeScript `declare global { … }`, `declare module "…" { … }`,
+and top-level `declare interface` / `export declare interface` external
+`interface` headers, TypeScript class methods carrying the
 explicit `override` modifier, and Python class methods carrying an explicit
 `@override` or `@typing.override` decorator (PEP 698): the adopted header or
-overridden method name emits no `word` evidence, while newly declared interface
-members, top-level `.d.ts` declarations, method parameters and bodies,
-unannotated methods, TypeScript `override` fields and arrow properties,
-object-literal methods, and Python `@override`-decorated non-method functions
-remain repository-owned and stay checked by `word` (#271).
+overridden method name emits no `word` evidence, while newly declared unquoted
+interface members, top-level `.d.ts` non-ambient declarations, method parameters
+and bodies, unannotated methods, TypeScript `override` fields and arrow
+properties, unquoted object-literal methods, and Python `@override`-decorated
+non-method functions remain repository-owned and stay checked by `word`
+(#271, #286). Quoted external member keys inside interfaces and object literals
+lie outside `word` while parameters and bodies remain checked (#286).
 
 An `if` head that compares a dotted name (`kind`, `event.type`, `self.typed`,
 `this.mode`) with `==` or `===` to a literal emits `probe`; a field read is
@@ -281,8 +284,11 @@ unread). Its name is `word` evidence, as a bodyless Rust trait fn's and a
 TypeScript `abstract` method's already are.
 Tuple structs, literals, index signatures, mapped types, and unannotated Python
 assignments do not. A TypeScript object-literal key is a word only when its
-value is a function literal (`k: () => …`, `k: function () { … }`), read as a
-method key `k() {}` is (#73, #107). Any other value (`k: 1`, `k: ref`) makes
+unquoted name is bound to a function literal (`k: () => …`,
+`k: function () { … }`), read as an unquoted method key `k() {}` is (#73, #107).
+Quoted property and method keys (`"resolveId"() {}`, `"ownKeys": () => …`) name
+external protocol bindings and emit no `word` evidence while their parameters
+and bodies stay checked (#286). Any other value (`k: 1`, `k: ref`) makes
 the key a use site, which stays unread as intended scope, the same as a Rust
 struct-literal field `S { k: 1 }`. A reference-valued function key
 (`followEnd: controller.followEnd`) is accepted as unread while its arrow
